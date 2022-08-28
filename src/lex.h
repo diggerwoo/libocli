@@ -157,13 +157,7 @@ extern int is_clear_passwd(char *str);
 extern int is_md5_cipher(char *str);
 
 extern int is_date_time(char *str);
-
-extern int is_fw_oper(char *str);
-extern int is_pkt_dir(char *str);
-extern int is_nat_oper(char *str);
-extern int is_proto(char *str);
-extern int is_str_filter(char *str);
-extern int is_empty_line(char *str);
+extern int is_date(char *str);
 
 extern int is_eth_ifname(char *str);
 extern int is_xctl_ifname(char *str);
