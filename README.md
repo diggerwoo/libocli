@@ -1,5 +1,12 @@
 # libocli
-libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs.
+libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs. This  library has been used for years in LinkBroad (https://www.linkbroad.com) gateway product.
+
+How to build and install:
+```
+make
+make install
+```
+The libocli.so will be installed into /usr/local/lib, and library header files will be installed into /usr/local/include/ocli .
 
 Main features of libocli includes:
 - Line editing keys, TAB for auto keyword completion, and '?’ for next help.
@@ -8,7 +15,7 @@ Main features of libocli includes:
 - Support multi-view, and builtin "no" command.
 - Builtin "man" command to show all syntaxes of a command. Cisco IOS lacks this while we need it.
 
-Below shows a example to briefly describe how to build a ping command with libocli.
+Below shows a example to briefly describe how to build a ping command with libocli. For details please refer to example/netutils.c .
 The ping command syntax is designed as:
 > ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]
 
@@ -41,16 +48,16 @@ cmd_ping_init()
 {
 	struct cmd_tree *cmd_tree;
         
-        /* initilize the symbol table */
+        /* Initilize the symbol table */
 	if (prepare_symbols(&symbols[0]) < 0) {
 		cleanup_symbols(&symbols[0]);
 		return -1;
 	}
         
-	/* create a syntax tree for "ping", callback to cmd_ping() */
+	/* Create a syntax tree for "ping", callback to cmd_ping() */
 	cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
 
-	/* add a syntax, also create the manual which can be displayed by "man ping" */
+	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       ALL_VIEW_MASK, DO_FLAG);
 	retuturn 0;
@@ -71,7 +78,7 @@ cmd_ping(cmd_arg_t *cmd_arg, int do_flag);
 	bzero(dst_host, sizeof(dst_host));
 	bzero(local_addr, sizeof(local_addr));
 
-	/* arg parsing */
+	/* Arg parsing */
 	for_each_cmd_arg(cmd_arg, i, name, value) {
 		if (IS_ARG(name, REQ_COUNT))
 			req_count = atoi(value);
@@ -83,7 +90,7 @@ cmd_ping(cmd_arg_t *cmd_arg, int do_flag);
 			strncpy(local_addr, value, sizeof(local_addr)-1);
 	}
 
-	/* compose the actual ping command and exec it */
+	/* Compose the actual ping command and exec it */
 	snprintf(cmd_str, sizeof(cmd_str), "/bin/ping -c %d -s %d %s %s %s",
 		req_count, pkt_size,
 		local_addr[0] ? "-I":"",
