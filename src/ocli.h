@@ -22,6 +22,9 @@
 #define	_OCLI_H
 
 #include <sys/types.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "list.h"
 #include "ocli_defs.h"
 
@@ -282,8 +285,9 @@ extern void cleanup_cmd_stat(struct cmd_stat *cmd_stat);
 
 extern char *ocli_strerror(int err_code);
 extern void ocli_set_debug(int flag);
-extern int ocli_init(void);
-extern void ocli_exit(void);
+
+extern int ocli_core_init(void);
+extern void ocli_core_exit(void);
 
 /*
  * readline interface vars and functions
