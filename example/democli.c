@@ -18,11 +18,7 @@
  */
 
 #include <stdio.h>
-
-#include "lex.h"
 #include "ocli.h"
-
-char	cur_prompt[64] = "democli> ";
 
 int cmd_sys_init();
 int cmd_enable(cmd_arg_t *cmd_arg, int do_flag);
@@ -30,31 +26,18 @@ int cmd_exit(cmd_arg_t *cmd_arg, int do_flag);
 
 int cmd_net_utils_init();
 
-void
-set_current_prompt(int view)
-{
-	if (view == BASIC_VIEW)
-		snprintf(cur_prompt, sizeof(cur_prompt), "democli> ");
-	else if (view == ENABLE_VIEW)
-		snprintf(cur_prompt, sizeof(cur_prompt), "democli# ");
-}
-
 int
 main(int argc, char **argv)
 {
-	char	*cmd = NULL;
-
 	/* Always init ocli_rl_init first */
 	ocli_rl_init();
-
-	/* Init ocli readline environment */
-	ocli_rl_set_auto_completion(1);
 
 	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
 
 	/* Start with BASIC_VIEW */
 	ocli_rl_set_view(BASIC_VIEW);
+	ocli_rl_set_prompt("democli> ");
 
 	/* Create libocli builtin command "man" */
 	cmd_manual_init();
@@ -65,20 +48,11 @@ main(int argc, char **argv)
 	/* Create customized command "ping" and "trace-route" */
 	cmd_net_utils_init();
 
-	while (!ocli_rl_finished) {
-		if ((cmd = readline(cur_prompt))) {
-			if (!is_empty_line(cmd)) {
-				ocli_rl_submit(cmd, ocli_rl_get_view());
-				add_history(cmd);
-			}
-		} else {
-			/* CTRL-D or idled EOF invoke "exit" command */
-			rl_insert_text("exit");
-			rl_redisplay();
-			rl_crlf();
-			ocli_rl_submit("exit", ocli_rl_get_view());
-		}
-	}
+	/* Auto exec "exit" if EOF encountered */
+	ocli_rl_set_eof_cmd("exit");
+
+	/* Main loop to parsing and exec commands */
+	ocli_rl_loop();
 
 	/* Call ocli_rl_exit before exit */
 	ocli_rl_exit();
@@ -142,14 +116,14 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 		passwd = read_password("Password: ");
 		if (strcmp(passwd, "ocli") == 0) {
 			ocli_rl_set_view(ENABLE_VIEW);
-			set_current_prompt(ENABLE_VIEW);
+			ocli_rl_set_prompt("democli# ");
 		} else {
 			printf("For demo purpose, please input \"ocli\" as the enabled password\n");
 		}
 	} else if (view == ENABLE_VIEW && set_passwd) {
 		printf("This is to demo the multi-view capability of libocli.\n");
 		printf("One command can have different syntaxes for different views.\n");
-		printf("The password change operation should only be access in enabled view.\n");
+		printf("The password changing should only be accessed in enabled view.\n");
 	}
 
 	return 0;
@@ -169,7 +143,7 @@ cmd_exit(cmd_arg_t *cmd_arg, int do_flag)
 		break;
 	case ENABLE_VIEW:
 		ocli_rl_set_view(BASIC_VIEW);
-		set_current_prompt(BASIC_VIEW);
+		ocli_rl_set_prompt("democli> ");
 		break;
 	default:
 		break;
