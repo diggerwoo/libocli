@@ -25,6 +25,12 @@ libocli.a: $(OBJS)
 lexdebug: $(SRC)/lex.c $(SRC)/lex.h
 	$(CC) $(CFLAGS) -DDEBUG_LEX_MAIN -o lexdebug $(SRC)/lex.c -lpcre
 	
+DEMODIR = ./example
+DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/netutils.c
+
+demo: $(DEMOSRC) libocli.a
+	$(CC) $(CFLAGS) -o democli $(DEMOSRC) libocli.a -lpcre -lreadline
+
 libocli.so: $(OBJS)
 	rm -rf $(OBJS)
 	$(CC) $(CFLAGS) -fpic -o $(SRC)/lex.o -c $(SRC)/lex.c
@@ -39,4 +45,4 @@ libocli.so: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	-$(RM) libocli.a libocli.so lexdebug $(SRC)/*.o
+	-$(RM) libocli.a libocli.so lexdebug democli $(SRC)/*.o
