@@ -1,10 +1,10 @@
 # libocli
 libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs. This  library has been used for years in [LinkBroad](https://www.linkbroad.com) gateway product. Th main features of libocli includes:
-- Line editing keys, TAB for auto keyword completion, and '?’ for next help.
+- Line editing keys support, TAB for auto keyword completion, and '?’ for next help.
 - Commonly used lexical types including: IP, IPv6, MAC address, Domain Name, URLs, etc.
-- Easy-to-use command syntax building APIs.
+- Easy-to-use APIs for command syntax building.
 - Support multi-view, and builtin "no" command.
-- Builtin "man" command to show all syntaxes of a command. Cisco IOS lacks this while we need it.
+- Builtin "man" command to show all syntaxes of command. Cisco IOS lacks this while we need it.
 
 How to build and install:
 ```
@@ -59,7 +59,7 @@ cmd_ping_init()
 	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       ALL_VIEW_MASK, DO_FLAG);
-	retuturn 0;
+	return 0;
 }
 
 /* callback function of ping */
