@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include "ocli.h"
-#include "lex.h"
 
 static symbol_t symbols[] = {
 	DEF_KEY		(UNDO_CMD,	"Undo configuration"),
