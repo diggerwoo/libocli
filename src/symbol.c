@@ -31,7 +31,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "lex.h"
 #include "ocli.h"
 
 #define	dprintf(x, ...) \
