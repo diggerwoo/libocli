@@ -1,19 +1,17 @@
 # libocli
-libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs. This  library has been used for years in LinkBroad (https://www.linkbroad.com) gateway product.
+libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs. This  library has been used for years in LinkBroad (https://www.linkbroad.com) gateway product. Th main features of libocli includes:
+- Line editing keys, TAB for auto keyword completion, and '?’ for next help.
+- Commonly used lexical types including: IP, IPv6, MAC address, Domain Name, URLs, etc.
+- Easy-to-use command syntax building APIs.
+- Support multi-view, and builtin "no" command.
+- Builtin "man" command to show all syntaxes of a command. Cisco IOS lacks this while we need it.
 
 How to build and install:
 ```
 make
 make install
 ```
-The libocli.so will be installed into /usr/local/lib, and library header files will be installed into /usr/local/include/ocli .
-
-Main features of libocli includes:
-- Line editing keys, TAB for auto keyword completion, and '?’ for next help.
-- Commonly used lexical types including: IP, IPv6, MAC address, Domain Name, URLs, etc.
-- Easy-to-use command syntax building APIs.
-- Support multi-view, and builtin "no" command.
-- Builtin "man" command to show all syntaxes of a command. Cisco IOS lacks this while we need it.
+After making build & install, The libocli.so will be installed into /usr/local/lib, and library header files will be installed into /usr/local/include/ocli . The making process will also generate a "democli" program which is used to briefly demonstrate how to use libocli.
 
 Below shows a example to briefly describe how to build a ping command with libocli. For details please refer to example/netutils.c .
 The ping command syntax is designed as:
