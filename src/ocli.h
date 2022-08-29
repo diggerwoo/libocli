@@ -28,6 +28,7 @@
 
 #include "list.h"
 #include "ocli_defs.h"
+#include "lex.h"
 
 /* parsing error code definitions */
 enum error_code {
@@ -303,9 +304,16 @@ extern void ocli_rl_set_timeout(int sec);
 extern int ocli_rl_set_echo(int on);
 extern int ocli_rl_get_view(void);
 extern void ocli_rl_set_view(int view);
-extern int ocli_rl_getc(FILE *fp);
+extern void ocli_rl_set_prompt(char *prompt);
 
+extern int ocli_rl_getc(FILE *fp);
 extern void ocli_rl_set_debug(int flag);
+
+extern void ocli_rl_set_eof_cmd(char *cmd);
+extern void ocli_rl_exec_eof_cmd(void);
+
+extern void ocli_rl_loop(void);
+
 extern int ocli_rl_init(void);
 extern void ocli_rl_exit(void);
 
