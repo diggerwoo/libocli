@@ -43,7 +43,7 @@
 	if ((debug_flag & x)) fprintf(stderr, __VA_ARGS__)
 
 static int debug_flag = 0;
-static int ocli_init_ok = 0;
+static int olic_core_init_ok = 0;
 static struct list_head cmd_tree_list;
 
 static char *err_info[] = {
@@ -1877,27 +1877,27 @@ ocli_set_debug(int flag)
 }
 
 /*
- * init module
+ * init core module
  */
 int
-ocli_init(void)
+ocli_core_init(void)
 {
-	if (ocli_init_ok) return 0;
+	if (olic_core_init_ok) return 0;
 
 	lex_init();
 	symbol_init();
 	INIT_LIST_HEAD(&cmd_tree_list);
 
-	ocli_init_ok = 1;
+	olic_core_init_ok = 1;
 	return 0;
 
 }
 
 /*
- * exit module
+ * exit core module
  */
 void
-ocli_exit(void)
+ocli_core_exit(void)
 {
 	struct cmd_tree *ent, *tmp;
 
@@ -1907,5 +1907,5 @@ ocli_exit(void)
 
 	symbol_exit();
 	lex_exit();
-	ocli_init_ok = 0;
+	olic_core_init_ok = 0;
 }
