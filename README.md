@@ -47,13 +47,13 @@ cmd_ping_init()
 		return -1;
 	}
         
-        /* create a syntax tree for "ping", callback to cmd_ping() */
-        cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
-        
-        /* add a syntax, also create the manual which can be displayed by "man ping" */
-        add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
+	/* create a syntax tree for "ping", callback to cmd_ping() */
+	cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
+
+	/* add a syntax, also create the manual which can be displayed by "man ping" */
+	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       ALL_VIEW_MASK, DO_FLAG);
-        retuturn 0;
+	retuturn 0;
 }
 
 /* callback function of ping */
@@ -77,9 +77,9 @@ cmd_ping(cmd_arg_t *cmd_arg, int do_flag);
 			req_count = atoi(value);
 		else if (IS_ARG(name, PKT_SIZE))
 			pkt_size = atoi(value);
-		else if (IS_ARG(name, DST_HOST)) {
+		else if (IS_ARG(name, DST_HOST))
 			strncpy(dst_host, value, sizeof(dst_host)-1);
-		else if (IS_ARG(name, LOCAL_ADDR)) {
+		else if (IS_ARG(name, LOCAL_ADDR))
 			strncpy(local_addr, value, sizeof(local_addr)-1);
 	}
 
