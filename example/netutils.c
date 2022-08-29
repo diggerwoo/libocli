@@ -21,7 +21,7 @@
 #include "lex.h"
 #include "ocli.h"
 
-/* declare all keyword and variable symbols for ping and trace-route */
+/* Define all keyword / variable symbols for "ping" and "trace-route" */
 static symbol_t symbols[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
 	DEF_KEY		("-c",		"Set count of requests"),
@@ -59,13 +59,13 @@ cmd_net_utils_init()
 	/* Create a syntax tree for "ping", callback to cmd_ping() */
 	cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
         
-	/* add a syntax, also create the manual which can be displayed by "man ping" */
+	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       ALL_VIEW_MASK, DO_FLAG);
 
 	/*
 	 * Create a syntax tree for "trace-route", callback to cmd_trace()
-	 * For demonstraion purpose, "trace-route" is only accessible in enabled view
+	 * For demo purpose, "trace-route" is only accessible in ENABLE_VIEW
 	 */
 	cmd_tree = create_cmd_tree("trace-route", &symbols[0], cmd_trace);
 	add_cmd_easily(cmd_tree, "trace-route { HOST | HOST_IP }",
@@ -73,14 +73,14 @@ cmd_net_utils_init()
 	return 0;
 }
 
-/* callback function of ping */
+/* Callback function of "ping" command */
 static int
 cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 {
 	int	i;
 	char	*name, *value;
-	int	req_count = 5;	/* default 5 echo requests */
-	int	pkt_size = 56;	/* default 56 bytes packet */
+	int	req_count = 5;	/* Default 5 ICMP echo requests */
+	int	pkt_size = 56;	/* Default 56 bytes length packet */
 	char	dst_host[128];
 	char	local_addr[128];
 	char	cmd_str[256];
@@ -109,7 +109,7 @@ cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 	return system(cmd_str);
 }
 
-/* callback function of trace-route */
+/* Callback function of "trace-route" command */
 static int
 cmd_trace(cmd_arg_t *cmd_arg, int do_flag)
 {

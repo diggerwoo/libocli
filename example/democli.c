@@ -50,7 +50,7 @@ main(int argc, char **argv)
 	/* Init ocli readline environment */
 	ocli_rl_set_auto_completion(1);
 
-	/* for the sake of securty, exit if idled for 5 minutes */
+	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
 
 	/* Start with BASIC_VIEW */
@@ -80,17 +80,17 @@ main(int argc, char **argv)
 		}
 	}
 
-	/* call ocli_rl_exit before exit */
+	/* Call ocli_rl_exit before exit */
 	ocli_rl_exit();
 	return 0;
 }
 
 /*
- * here we create two system commands, "enable [password]" and "exit".
+ * Here we create two system commands, "enable [password]" and "exit".
  */
 static symbol_t symbols[] = {
-	DEF_KEY         ("enable",	"Access privileged view"),
-	DEF_KEY_ARG     ("password",	"Change password of privileged view",
+	DEF_KEY         ("enable",	"Enabled view access"),
+	DEF_KEY_ARG     ("password",	"Change password of enabled view",
                          ARG(SET_PASSWD)),
 
 	DEF_KEY         ("exit",	"Exit current view of democli"),
@@ -108,7 +108,11 @@ cmd_sys_init()
 	}
 
 	cmd_tree = create_cmd_tree("enable", &symbols[0], cmd_enable);
+
+	/* BASIC_VIEW: "enable" to access ENABLE_VIEW */
 	add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
+
+	/* ENABLE_VIEW: "enable password" to update the password */
 	add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
 
 	cmd_tree = create_cmd_tree("exit", &symbols[0], cmd_exit);
@@ -117,6 +121,9 @@ cmd_sys_init()
 	return 0;
 }
 
+/*
+ * Callback function of "enable" command
+ */
 int
 cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 {
@@ -137,16 +144,20 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 			ocli_rl_set_view(ENABLE_VIEW);
 			set_current_prompt(ENABLE_VIEW);
 		} else {
-			printf("For demonstration purpose, please input \"ocli\" as the enabled password\n");
+			printf("For demo purpose, please input \"ocli\" as the enabled password\n");
 		}
 	} else if (view == ENABLE_VIEW && set_passwd) {
-		printf("This demonstrats a command can have different syntax for different view.\n");
-		printf("The password change operation should only be access in privileged view.\n");
+		printf("This is to demo the multi-view capability of libocli.\n");
+		printf("One command can have different syntaxes for different views.\n");
+		printf("The password change operation should only be access in enabled view.\n");
 	}
 
 	return 0;
 }
 
+/*
+ * Callback function of "exit" command
+ */
 int
 cmd_exit(cmd_arg_t *cmd_arg, int do_flag)
 {
