@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <termios.h>
 
-#include "lex.h"
 #include "ocli.h"
 
 #define TERM_TIMO_SEC	180
@@ -45,8 +44,10 @@ static int ocli_rl_timeout_flag = 0;
 static int debug_flag = 0;
 
 static int cur_view = BASIC_VIEW;
-static char prompt_buf[MAX_WORD_LEN];
+static char cur_prompt[MAX_WORD_LEN];
 static char word_break_chars[] = " \t\r\n";
+
+static char eof_cmd[MAX_WORD_LEN] = "";
 
 /* limit max helping tokens displayed */
 #define MAX_TOK_NUM	80
@@ -400,6 +401,16 @@ ocli_rl_get_view()
 }
 
 /*
+ * set current readline prompt
+ */
+void
+ocli_rl_set_prompt(char *prompt)
+{
+	if (prompt && *prompt)
+		snprintf(cur_prompt, sizeof(cur_prompt), prompt);
+}
+
+/*
  * set readline timeout
  */
 void
@@ -529,6 +540,53 @@ ocli_rl_set_debug(int flag)
 }
 
 /*
+ * set command to be trigger when EOF encountered
+ */
+void
+ocli_rl_set_eof_cmd(char *cmd)
+{
+	if (cmd && cmd[0])
+		snprintf(eof_cmd, sizeof(eof_cmd), cmd);
+}
+
+/*
+ * exec EOF command
+ */
+void
+ocli_rl_exec_eof_cmd()
+{
+	if (eof_cmd[0]) {
+		rl_insert_text("exit");
+		rl_redisplay();
+		rl_crlf();
+		ocli_rl_submit("exit", ocli_rl_get_view());
+	}
+}
+
+/*
+ * readline loop with auto completion enabled
+ */
+void
+ocli_rl_loop()
+{
+	char	*cmd;
+
+	ocli_rl_set_auto_completion(1);
+
+	while (!ocli_rl_finished) {
+		if ((cmd = readline(cur_prompt))) {
+			if (!is_empty_line(cmd)) {
+				ocli_rl_submit(cmd, ocli_rl_get_view());
+				add_history(cmd);
+			}
+		} else {
+			ocli_rl_exec_eof_cmd();
+		}
+	}
+}
+
+
+/*
  * exit readline interface module
  */
 void
@@ -551,7 +609,7 @@ ocli_rl_init()
 {
 	ocli_core_init();
 
-	bzero(prompt_buf, MAX_WORD_LEN);
+	bzero(cur_prompt, MAX_WORD_LEN);
 	bzero(&pending_toks[0], sizeof(pending_toks));
 	toks_index = 0;
 
