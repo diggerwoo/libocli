@@ -32,7 +32,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "lex.h"
 #include "ocli.h"
 
 #define	DBG_LIST	0x01
