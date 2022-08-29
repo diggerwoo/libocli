@@ -21,6 +21,7 @@
 #ifndef	_OCLI_H
 #define	_OCLI_H
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <readline/readline.h>
 #include <readline/history.h>
