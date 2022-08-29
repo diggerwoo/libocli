@@ -960,6 +960,21 @@ is_ppp_ifname(char *str)
 }
 
 /*
+ * is str a empty line ?
+ */
+int
+is_empty_line(char *str)
+{
+	if (!str || !str[0]) return 1;
+
+	while (*str) {
+		if (!isspace(*str++))
+			return 0;
+	}
+	return 1;
+}
+
+/*
  * register a lex parsing entry
  */
 static int

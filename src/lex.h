@@ -165,6 +165,8 @@ extern int is_tun_ifname(char *str);
 extern int is_ppp_ifname(char *str);
 extern int get_max_ifindex(char *prefix);
 
+extern int is_empty_line(char *str);
+
 /*
  * string funcs
  */
@@ -177,6 +179,5 @@ extern int get_formal_mac(char *str, char *mac_addr, int len);
 extern int get_ip_range(char *str, struct in_addr *ia_from, struct in_addr *ia_to);
 extern int get_port_range(char *str, u_short *port_from, u_short *port_to);
 extern int get_uri_elements(char *str, char **pproto, char **phost, char **ppath, char **pfile);
-extern char *get_full_lex_string(int type, char *str);
 
 #endif
