@@ -1,9 +1,9 @@
 # libocli
-libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs. This  library has been used for years in [LinkBroad](https://www.linkbroad.com) gateway product. Th main features of libocli includes:
-- Line editing keys support, TAB for auto keyword completion, and '?’ for next help.
+libocli is a C library to provide Cisco style command line interface. It is developed on Linux and depends on GNU readline and pcre libs.. The main features of libocli includes:
+- Line editing keys support, TAB for auto keyword completion, '?’ for next help.
 - Commonly used lexical types including: IP, IPv6, MAC address, Domain Name, URLs, etc.
 - Easy-to-use APIs for command syntax building.
-- Support multi-view, and builtin "no" command.
+- Support multi-view, and builtin "no" command for system.
 - Builtin "man" command to show all syntaxes of command. Cisco IOS lacks this while we need it.
 
 How to build and install:
