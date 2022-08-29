@@ -29,11 +29,6 @@
 #include <signal.h>
 #include <errno.h>
 #include <termios.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 
 #include "lex.h"
 #include "ocli.h"
@@ -521,7 +516,6 @@ int sig;
 {
 	fprintf(stdout, "\nTerminated by signal %d\n", sig);
 	ocli_rl_exit();
-	ocli_exit();
 	exit(1);
 }
 
@@ -545,6 +539,8 @@ ocli_rl_exit()
 
 	free_pending_toks();
 	tcsetattr(0, TCSADRAIN, &init_termios);
+
+	ocli_core_exit();
 }
 
 /*
@@ -553,6 +549,8 @@ ocli_rl_exit()
 int
 ocli_rl_init()
 {
+	ocli_core_init();
+
 	bzero(prompt_buf, MAX_WORD_LEN);
 	bzero(&pending_toks[0], sizeof(pending_toks));
 	toks_index = 0;
