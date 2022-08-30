@@ -12,7 +12,7 @@ AR := ar
 RM := rm -rf
 CP := cp -rf
 
-default: all demo
+default: all
 
 all: libocli.a libocli.so
 
@@ -31,7 +31,7 @@ DEMODIR = ./example
 DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/netutils.c
 
 demo: $(DEMOSRC) libocli.a
-	$(CC) $(CFLAGS) -o democli $(DEMOSRC) libocli.a -lpcre -lreadline
+	$(CC) $(CFLAGS) -o democli $(DEMOSRC) -locli -lpcre -lreadline
 
 libocli.so: $(OBJS) $(HDRS)
 	rm -rf $(OBJS)
@@ -48,6 +48,7 @@ libocli.so: $(OBJS) $(HDRS)
 
 install: libocli.so $(HDRS)
 	install -m 755 -o root -g root libocli.so /usr/local/lib/
+	install -m 755 -o root -g root libocli.a /usr/local/lib/
 	install -m 644 -o root -g root -D $(SRC)/list.h /usr/local/include/ocli/list.h
 	install -m 644 -o root -g root -D $(SRC)/ocli_defs.h /usr/local/include/ocli/ocli_defs.h
 	install -m 644 -o root -g root -D $(SRC)/lex.h /usr/local/include/ocli/lex.h
