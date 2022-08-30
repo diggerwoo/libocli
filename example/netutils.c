@@ -18,8 +18,7 @@
  */
 
 #include <stdio.h>
-#include "lex.h"
-#include "ocli.h"
+#include <ocli/ocli.h>
 
 /* Define all keyword / variable symbols for "ping" and "trace-route" */
 static symbol_t symbols[] = {
@@ -37,8 +36,8 @@ static symbol_t symbols[] = {
 	DEF_KEY		("from",	"Set ping source address"),
 	DEF_VAR		("IFADDR",	"Interface IP address",
 			 LEX_IP_ADDR,	ARG(LOCAL_ADDR)),
-	/* trace route reuses above HOST* args of ping */
-	DEF_KEY         ("trace-route",	"Trace route utility"),
+	/* trace-route reuses above HOST* args of ping */
+	DEF_KEY         ("trace-route",	"Trace-route utility"),
 	DEF_END
 };
 
