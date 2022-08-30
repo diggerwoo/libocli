@@ -981,17 +981,18 @@ static int
 set_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix)
 {
 	if (type < 0 || type >= MAX_LEX_TYPE) {
-		fprintf(stderr, "invalid lex index %d\n", type);
+		fprintf(stderr, "set_lex_ent: invalid index %d\n", type);
 		return -1;
 	}
 
-	if (!name || !name[0]) {
-		fprintf(stderr, "invalid lex name\n");
+	if (!name || !name[0] || !help || !help[0] || !fun) {
+		fprintf(stderr, "set_lex_ent: invalid parm\n");
 		return -1;
 	}
 
-	if (!help || !help[0]) {
-		fprintf(stderr, "invalid lex help info\n");
+	if (lex_ent[type].name[0]) {
+		fprintf(stderr, "set_lex_ent: '%s' rejected, lex_ent[%d] occupied by \"%s\"\n",
+			name, type, lex_ent[type].name);
 		return -1;
 	}
 
@@ -1004,6 +1005,20 @@ set_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix)
 		strncpy(lex_ent[type].prefix, prefix, LEX_TEXT_LEN-1);
 
 	return 0;
+}
+
+/*
+ * extend a customized lex_ent
+ */
+int
+set_custom_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix)
+{
+	if (!IS_CUSTOM_LEX_TYPE(type)) {
+		fprintf(stderr, "invalid customized lex index %d\n", type);
+		return -1;
+	}
+
+	return set_lex_ent(type, name, fun, help, prefix);
 }
 
 /*
@@ -1442,7 +1457,7 @@ main(int argc, char **argv)
 				if (res != 1) continue;
 
 				printf("%s(\"%s\") = true, "
-					"help = %s,  pfx = %s\n"
+					"help = %s,  pfx = %s\n",
 					lex_ent[j].name, argv[i],
 					lex_ent[j].help,
 					(lex_ent[j].prefix[0]) ?

@@ -90,8 +90,15 @@ typedef enum lex_type {
 	LEX_TUN_IFNAME,
 	LEX_PPP_IFNAME,
 	LEX_MBITS_BW,
-	MAX_LEX_TYPE
+	LEX_CUSTOM_BASE_TYPE	/* customized type starts here */
 } lex_type_t;
+
+#define MAX_CUSTOM_LEX_NUM	128
+
+#define MAX_LEX_TYPE (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM)
+
+#define IS_CUSTOM_LEX_TYPE(type) \
+	(type >= LEX_CUSTOM_BASE_TYPE && type < MAX_LEX_TYPE)
 
 #define IS_VALID_LEX_TYPE(type) \
 	(type >= 0 && type < MAX_LEX_TYPE)
@@ -106,6 +113,8 @@ extern int lex_init(void);
 extern void lex_exit(void);
 extern struct lex_ent *get_lex_ent(int type);
 extern struct lex_ent *get_lex_ent_by_name(char *name);
+
+extern int set_custom_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix);
 
 /*
  * paring funcs, return TRUE (1) if matched, else return FALSE (0)
