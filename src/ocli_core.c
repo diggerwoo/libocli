@@ -89,20 +89,23 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, cmd_fun_t fun)
 	struct list_head *prev = NULL;
 
 	if (!cmd || !cmd[0] || strlen(cmd) >= MAX_WORD_LEN) {
-		fprintf(stderr,
-			"create_cmd_tree: command empty or too long\n");
+		fprintf(stderr, "create_cmd_tree: command empty or too long\n");
 		return NULL;
 	}
 
 	if (!sym_table) {
-		fprintf(stderr,
-			"create_cmd_tree: empty symbol table\n");
+		fprintf(stderr, "create_cmd_tree: empty symbol table\n");
+		return NULL;
+	}
+
+	if (prepare_symbols(sym_table) < 0) {
+		fprintf(stderr, "create_cmd_tree: symbol build error\n");
+		cleanup_symbols(sym_table);
 		return NULL;
 	}
 
 	if ((node = get_node_by_name(sym_table, cmd)) == NULL) {
-		fprintf(stderr,
-			"create_cmd_tree: no symbol found for \'%s\'\n", cmd);
+		fprintf(stderr, "create_cmd_tree: no symbol found for \'%s\'\n", cmd);
 		return NULL;
 	}
 
