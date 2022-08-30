@@ -18,13 +18,29 @@
  */
 
 #include <stdio.h>
-#include "ocli.h"
+#include <unistd.h>
+#include <ocli/ocli.h>
 
 int cmd_sys_init();
 int cmd_enable(cmd_arg_t *cmd_arg, int do_flag);
 int cmd_exit(cmd_arg_t *cmd_arg, int do_flag);
 
 int cmd_net_utils_init();
+
+/* A demo func to set application specific view-based prompt */
+void
+set_democli_prompt(int view)
+{
+	char	host[32];
+	char	prompt[64];
+
+	bzero(host, sizeof(host));
+	gethostname(host, sizeof(host)-1);
+	snprintf(prompt, sizeof(prompt),
+		"%s%s ", host, (view == BASIC_VIEW) ? ">":"#");
+
+	ocli_rl_set_prompt(prompt);
+}
 
 int
 main(int argc, char **argv)
@@ -34,10 +50,6 @@ main(int argc, char **argv)
 
 	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
-
-	/* Start with BASIC_VIEW */
-	ocli_rl_set_view(BASIC_VIEW);
-	ocli_rl_set_prompt("democli> ");
 
 	/* Create libocli builtin command "man" */
 	cmd_manual_init();
@@ -51,10 +63,14 @@ main(int argc, char **argv)
 	/* Auto exec "exit" if EOF encountered */
 	ocli_rl_set_eof_cmd("exit");
 
+	/* Start from BASIC_VIEW */
+	ocli_rl_set_view(BASIC_VIEW);
+	set_democli_prompt(BASIC_VIEW);
+
 	/* Main loop to parsing and exec commands */
 	ocli_rl_loop();
 
-	/* Call ocli_rl_exit before exit */
+	/* Call ocli_rl_exit to restore original terminal attributes */
 	ocli_rl_exit();
 	return 0;
 }
@@ -116,7 +132,7 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 		passwd = read_password("Password: ");
 		if (strcmp(passwd, "ocli") == 0) {
 			ocli_rl_set_view(ENABLE_VIEW);
-			ocli_rl_set_prompt("democli# ");
+			set_democli_prompt(ENABLE_VIEW);
 		} else {
 			printf("For demo purpose, please input \"ocli\" as the enabled password\n");
 		}
@@ -143,7 +159,7 @@ cmd_exit(cmd_arg_t *cmd_arg, int do_flag)
 		break;
 	case ENABLE_VIEW:
 		ocli_rl_set_view(BASIC_VIEW);
-		ocli_rl_set_prompt("democli> ");
+		set_democli_prompt(BASIC_VIEW);
 		break;
 	default:
 		break;
