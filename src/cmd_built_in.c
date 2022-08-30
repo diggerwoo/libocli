@@ -43,11 +43,6 @@ cmd_undo_init()
 {
 	struct cmd_tree *cmd_tree;
 
-	if (prepare_symbols(&symbols[0]) < 0) {
-		cleanup_symbols(&symbols[0]);
-		return -1;
-	}
-
 	cmd_tree = create_cmd_tree(UNDO_CMD, &symbols[0], NULL);
 	if (cmd_tree == NULL) return -1;
 
@@ -63,10 +58,6 @@ cmd_manual_init()
 {
 	struct cmd_tree *cmd_tree;
 
-	if (prepare_symbols(&symbols[0]) < 0) {
-		cleanup_symbols(&symbols[0]);
-		return -1;
-	}
 	cmd_tree = create_cmd_tree(MANUAL_CMD, &symbols[0], cmd_manual);
 	if (cmd_tree == NULL) return -1;
 
