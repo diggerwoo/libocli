@@ -92,11 +92,6 @@ cmd_sys_init()
 {
 	struct cmd_tree *cmd_tree;
 
-	if (prepare_symbols(&symbols[0]) < 0) {
-		cleanup_symbols(&symbols[0]);
-		return -1;
-	}
-
 	cmd_tree = create_cmd_tree("enable", &symbols[0], cmd_enable);
 
 	/* BASIC_VIEW: "enable" to access ENABLE_VIEW */

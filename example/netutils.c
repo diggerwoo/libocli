@@ -49,12 +49,6 @@ cmd_net_utils_init()
 {
 	struct cmd_tree *cmd_tree;
         
-        /* Initilize the symbol table */
-	if (prepare_symbols(&symbols[0]) < 0) {
-		cleanup_symbols(&symbols[0]);
-		return -1;
-	}
-        
 	/* Create a syntax tree for "ping", callback to cmd_ping() */
 	cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
         
