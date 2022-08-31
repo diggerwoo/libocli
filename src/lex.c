@@ -552,7 +552,7 @@ is_http_url(char *str)
 
 	res = pcre_match(str, LEX_HTTP_URL,
 			 "^[hH][tT][tT][pP]:\\/\\/"
-			 "\\w[\\w\\-\\.]*\\w+"
+                         "([\\w\\-]+\\.)+\\w+"
 			 "(:(([0-9]{1,4})|([0-5][0-9]{1,4})|(6[0-5][0-5][0-3][0-5])))?"
 			 "(\\/[\\w\\.\\-\\?#%=+&]*)*\\/?$");
 
@@ -571,7 +571,7 @@ is_https_url(char *str)
 
 	res = pcre_match(str, LEX_HTTPS_URL,
 			 "^[hH][tT][tT][pP][sS]:\\/\\/"
-			 "\\w[\\w\\-\\.]*\\w+"
+                         "([\\w\\-]+\\.)+\\w+"
 			 "(:(([0-9]{1,4})|([0-5][0-9]{1,4})|(6[0-5][0-5][0-3][0-5])))?"
 			 "(\\/[\\w\\.\\-\\?#%=+&]*)*\\/?$");
 
@@ -591,9 +591,9 @@ is_ftp_url(char *str)
 	/* support user:passwd@ inside FTP url */
 	res = pcre_match(str, LEX_FTP_URL,
 			 "^[fF][tT][pP]:\\/\\/"
-			 "(\\w[\\w\\-\\.]*:[\\w\\-\\.]+@)?"
-			 "\\w[\\w\\-\\.]*\\w+"
-			 "(\\/[\\w\\.\\-]*)+$");
+			 "([\\w\\-]+[\\.]?\\w+:[\\w\\-\\.]+@)?"
+                         "([\\w\\-]+\\.)+\\w+"
+			 "(\\/[\\w\\.\\-]+)+$");
 
 	return (res == 1);
 }
@@ -611,10 +611,10 @@ is_scp_url(char *str)
 	/* must have user@ inside SCP url */
 	res = pcre_match(str, LEX_SCP_URL,
 			 "^[sS][cC][pP]:\\/\\/"
-			 "\\w[\\w\\-\\.]*@"
-			 "\\w[\\w\\-\\.]*\\w+"
+			 "[\\w\\-]+(\\.\\w+)?@"
+                         "([\\w\\-]+\\.)+\\w+"
 			 "(:(([0-9]{1,4})|([0-5][0-9]{1,4})|(6[0-5][0-5][0-3][0-5])))?"
-			 "(\\/[\\w\\.\\-]*)+$");
+			 "(\\/[\\w\\.\\-]+)+$");
 
 	return (res == 1);
 }
@@ -631,8 +631,8 @@ is_tftp_url(char *str)
 
 	res = pcre_match(str, LEX_TFTP_URL,
 			 "^[tT][fF][tT][pP]:\\/\\/"
-			 "\\w[\\w\\-\\.]*\\w+"
-			 "(\\/[\\w\\.\\-]*)+$");
+                         "([\\w\\-]+\\.)+\\w+"
+			 "(\\/[\\w\\.\\-]+)+$");
 
 	return (res == 1);
 }
@@ -1381,11 +1381,11 @@ lex_init(void)
 	set_lex_ent(LEX_DOMAIN_WILDCARD, "DOMAIN_WILDCARD", is_domain_wildcard, "*.domain", NULL);
 	set_lex_ent(LEX_DOMAIN_EXT, "DOMAIN_EXT", is_domain_ext, "[*.]domain", NULL);
 	set_lex_ent(LEX_EMAIL_ADDR, "EMAIL_ADDR", is_email_addr, "user@domain.name", NULL);
-	set_lex_ent(LEX_HTTP_URL, "HTTP_URL", is_http_url, "http://host/path", NULL);
-	set_lex_ent(LEX_HTTPS_URL, "HTTPS_URL", is_https_url, "https://host/path", NULL);
-	set_lex_ent(LEX_FTP_URL, "FTP_URL", is_ftp_url, "ftp://[user:password@]host/path", NULL);
-	set_lex_ent(LEX_SCP_URL, "SCP_URL", is_scp_url, "scp://user@host/path", NULL);
-	set_lex_ent(LEX_TFTP_URL, "TFTP_URL", is_tftp_url, "tftp://host/path", NULL);
+	set_lex_ent(LEX_HTTP_URL, "HTTP_URL", is_http_url, "http://host/path", "http://");
+	set_lex_ent(LEX_HTTPS_URL, "HTTPS_URL", is_https_url, "https://host/path", "https://");
+	set_lex_ent(LEX_FTP_URL, "FTP_URL", is_ftp_url, "ftp://[user:password@]host/path", "ftp://");
+	set_lex_ent(LEX_SCP_URL, "SCP_URL", is_scp_url, "scp://user@host/path", "scp://");
+	set_lex_ent(LEX_TFTP_URL, "TFTP_URL", is_tftp_url, "tftp://host/path", "tftp://");
 	set_lex_ent(LEX_FILE_NAME, "FILE", is_file_name, "File", NULL);
 	set_lex_ent(LEX_FILE_PATH, "PATH", is_file_path, "Path", NULL);
 	set_lex_ent(LEX_UID, "UID", is_uid, "UserID", NULL);
