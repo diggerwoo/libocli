@@ -38,9 +38,6 @@
 #define	DBG_TREE	0x02
 #define	DBG_SYN		0x04
 
-#define	dprintf(x, ...) \
-	if ((debug_flag & x)) fprintf(stderr, __VA_ARGS__)
-
 static int debug_flag = 0;
 static int olic_core_init_ok = 0;
 static struct list_head cmd_tree_list;
