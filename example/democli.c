@@ -26,8 +26,9 @@ int cmd_enable(cmd_arg_t *cmd_arg, int do_flag);
 int cmd_config(cmd_arg_t *cmd_arg, int do_flag);
 int cmd_exit(cmd_arg_t *cmd_arg, int do_flag);
 
-int cmd_net_utils_init();
-int cmd_show_init();
+extern int cmd_net_utils_init();
+extern int cmd_route_init();
+extern int cmd_show_init();
 
 /* A demo func to set application specific view-based prompt */
 void
@@ -57,15 +58,16 @@ main(int argc, char **argv)
 	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
 
-	/* Create libocli builtin command "man" */
+	/* Create libocli builtin command "man" and "no" */
 	cmd_manual_init();
+	cmd_undo_init();
 
 	/* Create "enable", "configure", and "exit" commands */
 	cmd_sys_init();
-
 	/* Create "ping" and "trace-route" commands */
 	cmd_net_utils_init();
-
+	/* Create "route" command */
+	cmd_route_init();
 	/* Create "show" commands */
 	cmd_show_init();
 
@@ -148,12 +150,13 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 			ocli_rl_set_view(ENABLE_VIEW);
 			set_democli_prompt(ENABLE_VIEW);
 		} else {
-			printf("For demo purpose, please input \"ocli\" as the enabled password\n");
+			printf("For demo purpose, please input \"ocli\" as the enabled password.\n");
 		}
 	} else if (view == ENABLE_VIEW && set_passwd) {
-		printf("This is to demo the multi-view capability of libocli.\n");
-		printf("One command can have different syntaxes for different views.\n");
-		printf("The password changing should only be accessed in enabled view.\n");
+		printf("This is only a demo to modify enabled password.\n");
+		read_password("Input old password: ");
+		read_password("Input new password: ");
+		read_password("Confirm new password: ");
 	}
 
 	return 0;
