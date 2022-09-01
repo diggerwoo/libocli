@@ -140,8 +140,6 @@ typedef struct symbol {
 	struct list_head list;	/* link to symbol table */
 } symbol_t;
 
-#define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
-
 /* Macros to simply symbol element initialization */
 
 #define DEF_SYM(n, h, t, c, x, y, a) {	\
@@ -266,6 +264,9 @@ extern int display_file_more(char *path);
 /*
  * core functions
  */
+#define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
+#define SYM_TABLE(syms) &syms[0], SYM_NUM(syms)
+
 extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num,
 					cmd_fun_t fun);
 extern int get_cmd_tree(char *cmd, int view, int do_flag,
