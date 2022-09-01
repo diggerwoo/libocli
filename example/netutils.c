@@ -55,19 +55,16 @@ cmd_net_utils_init()
 	struct cmd_tree *cmd_tree;
         
 	/* Create a syntax tree for "ping", callback to cmd_ping() */
-	cmd_tree = create_cmd_tree("ping", &syms_ping[0], SYM_NUM(syms_ping), cmd_ping);
+	cmd_tree = create_cmd_tree("ping", SYM_TABLE(syms_ping), cmd_ping);
         
 	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       ALL_VIEW_MASK, DO_FLAG);
 
-	/*
-	 * Create a syntax tree for "trace-route", callback to cmd_trace()
-	 * For demo purpose, "trace-route" is only accessible in ENABLE_VIEW
-	 */
-	cmd_tree = create_cmd_tree("trace-route", &syms_trace[0], SYM_NUM(syms_trace), cmd_trace);
+	/* Create a syntax tree for "trace-route", callback to cmd_trace() */
+	cmd_tree = create_cmd_tree("trace-route", SYM_TABLE(syms_trace), cmd_trace);
 	add_cmd_easily(cmd_tree, "trace-route { HOST | HOST_IP }",
-		       ENABLE_VIEW, DO_FLAG);
+		       ALL_VIEW_MASK, DO_FLAG);
 	return 0;
 }
 
