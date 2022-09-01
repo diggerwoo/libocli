@@ -234,6 +234,10 @@ struct cmd_tree {
 	struct list_head cmd_tree_list;	/* link to list of command tree */
 };
 	
+/* declare module static debug_flag to call this */
+#define	dprintf(x, ...) \
+	if ((debug_flag & x)) fprintf(stderr, __VA_ARGS__)
+
 /*
  * symbol utils functions
  */
