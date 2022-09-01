@@ -40,22 +40,24 @@ static int debug_flag = 0;
 /*
  * reserved symbols for [ ] { | } syntax support.
  */
-static symbol_t sym_builtin[] = {
+static symbol_t sym_reserv[] = {
 	DEF_RSV	("[",	"OPT start"),
 	DEF_RSV	("*",	"OPT any"),
 	DEF_RSV	("]",	"OPT end"),
 	DEF_RSV	("{",	"ALT start"),
 	DEF_RSV	("|",	"ALT or"),
-	DEF_RSV	("}",	"ALT end"),
-	DEF_END
+	DEF_RSV	("}",	"ALT end")
 };
 
 int sym_init_ok = 0;
 
+/* reserved symbol list */
+struct list_head sym_reserv_list;
+
 /*
  * set node data for a symbol
  */
-static int
+int
 set_symbol_node(symbol_t *symbol)
 {
 	node_t *node;
@@ -155,13 +157,15 @@ set_symbol_node(symbol_t *symbol)
  * get symbol by name
  */
 symbol_t *
-get_symbol_by_name(symbol_t *symbol, char *name)
+get_symbol_by_name(struct list_head *sym_list, char *name)
 {
-	while (symbol && symbol->name && symbol->name[0]) {
-		if (strcmp(symbol->name, name) == 0)
-			return symbol;
-		symbol++;
+	symbol_t *sym;
+
+	list_for_each_entry(sym, sym_list, list) {
+		if (strcmp(sym->name, name) == 0)
+			return sym;
 	}
+
 	return NULL;
 }
 
@@ -169,28 +173,41 @@ get_symbol_by_name(symbol_t *symbol, char *name)
  * get symbol node pointer by name
  */
 node_t *
-get_node_by_name(symbol_t *symbol, char *name)
+get_node_by_name(struct list_head *sym_list, char *name)
 {
 	symbol_t *sym;
-	if (symbol && (sym = get_symbol_by_name(symbol, name)) != NULL)
+
+	if (sym_list && (sym = get_symbol_by_name(sym_list, name)) != NULL)
 		return sym->node;
-	else if (!symbol && (sym = get_symbol_by_name(sym_builtin, name)) != NULL)
+	else if (!sym_list && (sym = get_symbol_by_name(&sym_reserv_list, name)) != NULL)
 		return sym->node;
 	else
 		return NULL;
 }
 
 /*
- * scan and prepare the node_t data for each symbol
+ * batch add and set symbols
  */
 int
-prepare_symbols(symbol_t *symbol)
+prepare_symbols(struct list_head *sym_list, symbol_t *sym_table, int limit)
 {
-	while (symbol && symbol->name && symbol->name[0] &&
-	       symbol->node == NULL) {
-		if (set_symbol_node(symbol) < 0)
+	symbol_t *ent = NULL, *ptr = sym_table;
+
+	while (ptr && limit > 0 &&
+	       ptr->name && ptr->name[0] && ptr->node == NULL) {
+
+		if ((ent = malloc(sizeof(symbol_t))) == NULL) {
+			fprintf(stderr, "prepare_symbol: malloc failed\n");
 			return -1;
-		symbol++;
+		}
+		memcpy(ent, ptr, sizeof(symbol_t));
+
+		if (set_symbol_node(ent) < 0)
+			return -1;
+
+		list_add_tail(&ent->list, sym_list);
+		ptr++;
+		limit--;
 	}
 
 	return 0;
@@ -199,18 +216,18 @@ prepare_symbols(symbol_t *symbol)
 /*
  * cleanup the node_t data of symbol array
  */
-int
-cleanup_symbols(symbol_t *symbol)
+void
+cleanup_symbols(struct list_head *sym_list)
 {
-	while (symbol && symbol->name) {
-		if (symbol->node) {
-			free(symbol->node);
-			symbol->node = NULL;
-		}
-		symbol++;
-	}
+	symbol_t *sym, *tmp;
 
-	return 0;
+	list_for_each_entry_safe(sym, tmp, sym_list, list) {
+		if (sym->node) {
+			free(sym->node);
+			sym->node = NULL;
+		}
+		free(sym);
+	}
 }
 
 /*
@@ -219,11 +236,18 @@ cleanup_symbols(symbol_t *symbol)
 int
 symbol_init()
 {
-	if (!sym_init_ok) {
-		prepare_symbols(sym_builtin);
-		sym_init_ok = 1;
+	if (sym_init_ok) return 0;
+
+	INIT_LIST_HEAD(&sym_reserv_list);
+
+	if (prepare_symbols(&sym_reserv_list, &sym_reserv[0],
+			    SYM_NUM(sym_reserv)) < 0) {
+		fprintf(stderr, "symbol_init: failed to init sym_reserv_list");
+		return -1;
 	}
-	return 1;
+
+	sym_init_ok = 1;
+	return 0;
 }
 
 /*
@@ -232,6 +256,6 @@ symbol_init()
 void
 symbol_exit()
 {
-	cleanup_symbols(sym_builtin);
+	cleanup_symbols(&sym_reserv_list);
 	sym_init_ok = 0;
 }
