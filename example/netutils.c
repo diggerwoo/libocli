@@ -59,12 +59,12 @@ cmd_net_utils_init()
         
 	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
-		       ALL_VIEW_MASK, DO_FLAG);
+		       (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
 
 	/* Create a syntax tree for "trace-route", callback to cmd_trace() */
 	cmd_tree = create_cmd_tree("trace-route", SYM_TABLE(syms_trace), cmd_trace);
 	add_cmd_easily(cmd_tree, "trace-route { HOST | HOST_IP }",
-		       ALL_VIEW_MASK, DO_FLAG);
+		       (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
 	return 0;
 }
 
