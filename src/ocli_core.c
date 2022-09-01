@@ -81,7 +81,7 @@ static int set_cmd_arg(node_t *node, char *str, cmd_arg_t *cmd_arg);
  * create a cmd_tree
  */
 struct cmd_tree *
-create_cmd_tree(char *cmd, symbol_t *sym_table, cmd_fun_t fun)
+create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num, cmd_fun_t fun)
 {
 	int	res;
 	node_t	*node;
@@ -93,19 +93,8 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, cmd_fun_t fun)
 		return NULL;
 	}
 
-	if (!sym_table) {
-		fprintf(stderr, "create_cmd_tree: empty symbol table\n");
-		return NULL;
-	}
-
-	if (prepare_symbols(sym_table) < 0) {
-		fprintf(stderr, "create_cmd_tree: symbol build error\n");
-		cleanup_symbols(sym_table);
-		return NULL;
-	}
-
-	if ((node = get_node_by_name(sym_table, cmd)) == NULL) {
-		fprintf(stderr, "create_cmd_tree: no symbol found for \'%s\'\n", cmd);
+	if (!sym_table || sym_num <= 0) {
+		fprintf(stderr, "create_cmd_tree: bad sym_table parm\n");
 		return NULL;
 	}
 
@@ -113,17 +102,33 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, cmd_fun_t fun)
 		fprintf(stderr, "create_cmd_tree: no memory\n");
 		return NULL;
 	}
+
 	bzero(cmd_tree, sizeof(struct cmd_tree));
 	strncpy(cmd_tree->cmd, cmd, MAX_WORD_LEN-1);
+
 	INIT_LIST_HEAD(&cmd_tree->manual_list);
-	cmd_tree->sym_table = sym_table;
-	cmd_tree->fun = fun;
+	INIT_LIST_HEAD(&cmd_tree->symbol_list);
+
+	if (prepare_symbols(&cmd_tree->symbol_list, sym_table, sym_num) < 0) {
+		fprintf(stderr, "create_cmd_tree: failed to process symbols\n");
+		free_cmd_tree(cmd_tree);
+		return NULL;
+	}
+
+	if ((node = get_node_by_name(&cmd_tree->symbol_list, cmd)) == NULL) {
+		fprintf(stderr, "create_cmd_tree: no symbol found for \'%s\'\n", cmd);
+		free_cmd_tree(cmd_tree);
+		return NULL;
+	}
+
 
 	if (plant_root(&cmd_tree->tree, node) != 0) {
 		fprintf(stderr, "create_cmd_tree: set root error\n");
-		free(cmd_tree);
+		free_cmd_tree(cmd_tree);
 		return NULL;
 	}
+
+	cmd_tree->fun = fun;
 
 	/* fake undo command tree */
 	if (strcmp(cmd_tree->cmd, UNDO_CMD) == 0) {
@@ -147,7 +152,7 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, cmd_fun_t fun)
 			} else if (res == 0) {
 				fprintf(stderr, "create_cmd_tree: '%s' exists\n",
 					cmd);
-				free(cmd_tree);
+				free_cmd_tree(cmd_tree);
 				return ent;
 			}
 		}
@@ -251,6 +256,19 @@ get_cmd_manual(struct cmd_tree *cmd_tree, int view, char *buf, int limit)
 }
 
 /*
+ * free all manuals
+ */
+void
+cleanup_manuals(struct list_head *man_list)
+{
+	struct manual *man, *tmp;
+
+	list_for_each_entry_safe(man, tmp, man_list, manual_list) {
+		free(man);
+	}
+}
+
+/*
  * track special syntax chars and set back is_spec flag.
  * set is_spec TRUE only if arg in "{}[*]", or is '|' inside "{...}".
  */
@@ -302,7 +320,7 @@ add_cmd_syntax(struct cmd_tree *cmd_tree, char *syntax,
 
 	for (i = 0; i < arg_num; i++) {
 		track_syntax_char(args[i], &is_spec, &in_alt);
-		nodes[i] = get_node_by_name((!is_spec) ? cmd_tree->sym_table : NULL, args[i]);
+		nodes[i] = get_node_by_name((!is_spec) ? &cmd_tree->symbol_list : NULL, args[i]);
 		if (nodes[i] == NULL) {
 			fprintf(stderr, "add_cmd_syntax: "
 				"bad symbol of command \'%s\', "
@@ -399,7 +417,7 @@ sprout_cmd_syntax(struct cmd_tree *cmd_tree, char *syntax,
 
 	for (i = 0; i < arg_num; i++) {
 		track_syntax_char(args[i], &is_spec, &in_alt);
-		nodes[i] = get_node_by_name((!is_spec) ? cmd_tree->sym_table : NULL, args[i]);
+		nodes[i] = get_node_by_name((!is_spec) ? &cmd_tree->symbol_list : NULL, args[i]);
 		if (nodes[i] == NULL) {
 			fprintf(stderr, "sprout_cmd_syntax: "
 				"bad symbol of command \'%s\', "
@@ -1714,7 +1732,8 @@ static void
 free_cmd_tree(struct cmd_tree *cmd_tree)
 {
 	dprintf(DBG_TREE, "free tree [%s]\n", cmd_tree->cmd);
-	cleanup_symbols(cmd_tree->sym_table);
+	cleanup_manuals(&cmd_tree->manual_list);
+	cleanup_symbols(&cmd_tree->symbol_list);
 	free_tree(cmd_tree->tree);
 	free(cmd_tree);
 }
