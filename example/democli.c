@@ -78,13 +78,14 @@ main(int argc, char **argv)
 /*
  * Here we create two system commands, "enable [password]" and "exit".
  */
-static symbol_t symbols[] = {
+static symbol_t syms_enable[] = {
 	DEF_KEY         ("enable",	"Enabled view access"),
 	DEF_KEY_ARG     ("password",	"Change password of enabled view",
-                         ARG(SET_PASSWD)),
+                         ARG(SET_PASSWD))
+};
 
-	DEF_KEY         ("exit",	"Exit current view of democli"),
-	DEF_END
+static symbol_t syms_exit[] = {
+	DEF_KEY         ("exit",	"Exit current view of democli")
 };
 
 int
@@ -92,7 +93,7 @@ cmd_sys_init()
 {
 	struct cmd_tree *cmd_tree;
 
-	cmd_tree = create_cmd_tree("enable", &symbols[0], cmd_enable);
+	cmd_tree = create_cmd_tree("enable", &syms_enable[0], SYM_NUM(syms_enable), cmd_enable);
 
 	/* BASIC_VIEW: "enable" to access ENABLE_VIEW */
 	add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
@@ -100,7 +101,7 @@ cmd_sys_init()
 	/* ENABLE_VIEW: "enable password" to update the password */
 	add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
 
-	cmd_tree = create_cmd_tree("exit", &symbols[0], cmd_exit);
+	cmd_tree = create_cmd_tree("exit", &syms_exit[0], SYM_NUM(syms_exit), cmd_exit);
 	add_cmd_easily(cmd_tree, "exit", ALL_VIEW_MASK, DO_FLAG);
 
 	return 0;

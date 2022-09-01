@@ -21,7 +21,7 @@
 #include <ocli/ocli.h>
 
 /* Define all keyword / variable symbols for "ping" and "trace-route" */
-static symbol_t symbols[] = {
+static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
 	DEF_KEY		("-c",		"Set count of requests"),
 	DEF_VAR_RANGE	("COUNT",	"<1-100> count of requests",
@@ -35,10 +35,15 @@ static symbol_t symbols[] = {
 			 LEX_IP_ADDR,	ARG(DST_HOST)),
 	DEF_KEY		("from",	"Set ping source address"),
 	DEF_VAR		("IFADDR",	"Interface IP address",
-			 LEX_IP_ADDR,	ARG(LOCAL_ADDR)),
-	/* trace-route reuses above HOST* args of ping */
+			 LEX_IP_ADDR,	ARG(LOCAL_ADDR))
+};
+
+static symbol_t syms_trace[] = {
 	DEF_KEY         ("trace-route",	"Trace-route utility"),
-	DEF_END
+	DEF_VAR		("HOST",	"Destination domain name",
+			 LEX_DOMAIN_NAME, ARG(DST_HOST)),
+	DEF_VAR		("HOST_IP",	"Destination IP address",
+			 LEX_IP_ADDR,	ARG(DST_HOST))
 };
 
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag);
@@ -50,7 +55,7 @@ cmd_net_utils_init()
 	struct cmd_tree *cmd_tree;
         
 	/* Create a syntax tree for "ping", callback to cmd_ping() */
-	cmd_tree = create_cmd_tree("ping", &symbols[0], cmd_ping);
+	cmd_tree = create_cmd_tree("ping", &syms_ping[0], SYM_NUM(syms_ping), cmd_ping);
         
 	/* Add a syntax, also create the manual which can be displayed by "man ping" */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
@@ -60,7 +65,7 @@ cmd_net_utils_init()
 	 * Create a syntax tree for "trace-route", callback to cmd_trace()
 	 * For demo purpose, "trace-route" is only accessible in ENABLE_VIEW
 	 */
-	cmd_tree = create_cmd_tree("trace-route", &symbols[0], cmd_trace);
+	cmd_tree = create_cmd_tree("trace-route", &syms_trace[0], SYM_NUM(syms_trace), cmd_trace);
 	add_cmd_easily(cmd_tree, "trace-route { HOST | HOST_IP }",
 		       ENABLE_VIEW, DO_FLAG);
 	return 0;
