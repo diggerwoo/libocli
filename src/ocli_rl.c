@@ -39,8 +39,8 @@ int ocli_rl_finished = 0;
 
 static int ocli_rl_timeout_flag = 0;
 
-#define	dprintf(x, ...) \
-	if ((debug_flag & x)) fprintf(stderr, __VA_ARGS__)
+#define	DBG_RL		0x01
+
 static int debug_flag = 0;
 
 static int cur_view = BASIC_VIEW;
@@ -85,13 +85,13 @@ ocli_rl_generator(const char *text, int state)
 	while (toks_index < MAX_TOK_NUM && (tok = pending_toks[toks_index])) {
 		toks_index++;
 		if (strncmp(tok, text, len) == 0) {
-			dprintf(1, "gen stat=%d tok=\'%s\'\n", state, tok);
+			dprintf(DBG_RL, "gen stat=%d tok=\'%s\'\n", state, tok);
 			return (strdup(tok));
 		}
 	}
 
 	/* If no names matched, then return NULL. */
-	dprintf(1, "gen stat=%d tok=NULL\n", state);
+	dprintf(DBG_RL, "gen stat=%d tok=NULL\n", state);
 	return NULL;
 }
 
@@ -123,15 +123,15 @@ ocli_rl_prepare(char *text, int start, int end)
 		arg_end = starts[i] + strlen(args[i]) - 1;
 		/* Ignore completion if rl_point inside or before word */
 		if (rl_point >= starts[i] && rl_point <= arg_end) {
-			dprintf(1, "inside arg[%d], ignore\n", i);
+			dprintf(DBG_RL, "inside arg[%d], ignore\n", i);
 			ignore = 1;
 			break;
 		} else if (rl_point < starts[i]) {
-			dprintf(1, "begore arg[%d], ignore\n", i);
+			dprintf(DBG_RL, "begore arg[%d], ignore\n", i);
 			ignore = 1;
 			break;
 		} else if (rl_point == (arg_end + 1)) {
-			dprintf(1, "right after arg[%d], OK\n", i);
+			dprintf(DBG_RL, "right after arg[%d], OK\n", i);
 			argi = i;
 			break;
 		}
@@ -139,8 +139,8 @@ ocli_rl_prepare(char *text, int start, int end)
 
 	if (ignore) goto out;
 
-	dprintf(1, "-->[%s], pos[%d], ", rl_line_buffer, rl_point);
-	dprintf(1, "complete: arg[%d]=[%s]\n", argi, text);
+	dprintf(DBG_RL, "-->[%s], pos[%d], ", rl_line_buffer, rl_point);
+	dprintf(DBG_RL, "complete: arg[%d]=[%s]\n", argi, text);
 	
 	if (arg_num == 0) {
 		tok_num = get_node_matches(NULL, NULL, &pending_toks[0],
@@ -167,27 +167,27 @@ ocli_rl_prepare(char *text, int start, int end)
 	}
 
 	if (cmd_stat.last_argi == argi) {
-		dprintf(1, "res %d,last[%d]=argi[%d]\n",
+		dprintf(DBG_RL, "res %d,last[%d]=argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
 		tok_num = get_node_matches(cmd_stat.last_node, text,
 					   &pending_toks[0], MAX_TOK_NUM,
 					   cur_view, cmd_stat.do_flag);
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (argi - 1)) {
-		dprintf(1, "res %d,last[%d]=argi[%d]-1\n",
+		dprintf(DBG_RL, "res %d,last[%d]=argi[%d]-1\n",
 			res, cmd_stat.last_argi, argi);
 		tok_num = get_node_next_matches(cmd_stat.last_node, text,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (arg_num - 1) && argi == -1) {
-		dprintf(1, "res %d, after last[%d]\n",
+		dprintf(DBG_RL, "res %d, after last[%d]\n",
 			res, cmd_stat.last_argi);
 		tok_num = get_node_next_matches(cmd_stat.last_node, NULL,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
 	} else {
-		dprintf(1, "NULL, res %d last[%d] argi[%d]\n",
+		dprintf(DBG_RL, "NULL, res %d last[%d] argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
 		ignore = 1;
 	}
@@ -239,12 +239,12 @@ ocli_rl_help(int count, int key)
 	if (arg_num > 0) {
 		arg_end = starts[arg_num-1] + strlen(args[arg_num-1]) - 1;
 		if (rl_point == (arg_end + 1)) {
-			dprintf(1, "\nhelp the last word\n");
+			dprintf(DBG_RL, "\nhelp the last word\n");
 			argi = arg_num - 1;
 		} else if (rl_point > (arg_end + 1)) {
-			dprintf(1, "\nhelp after the last word\n");
+			dprintf(DBG_RL, "\nhelp after the last word\n");
 		} else {
-			dprintf(1, "ignore help\n");
+			dprintf(DBG_RL, "ignore help\n");
 			free_argv(args);
 			return 0;
 		}
@@ -257,7 +257,7 @@ ocli_rl_help(int count, int key)
 	}
 	bzero(help_buf, HELP_BUF_SIZE);
 	if (arg_num == 0) {
-		dprintf(1, "first help\n");
+		dprintf(DBG_RL, "first help\n");
 		get_node_help(NULL, NULL, help_buf, HELP_BUF_SIZE,
 			      cur_view, DO_FLAG);
 		goto out;
@@ -276,27 +276,27 @@ ocli_rl_help(int count, int key)
 	}
 
 	if (cmd_stat.last_argi == argi) {
-		dprintf(1, "res %d,last[%d]=argi[%d]\n",
+		dprintf(DBG_RL, "res %d,last[%d]=argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
 		len = get_node_help(cmd_stat.last_node, args[argi],
 				    help_buf, HELP_BUF_SIZE,
 				    cur_view, cmd_stat.do_flag);
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (argi - 1)) {
-		dprintf(1, "res %d,last[%d]=argi[%d]-1\n",
+		dprintf(DBG_RL, "res %d,last[%d]=argi[%d]-1\n",
 			res, cmd_stat.last_argi, argi);
 		len = get_node_next_help(cmd_stat.last_node, args[argi],
 					 help_buf, HELP_BUF_SIZE,
 					 cur_view, cmd_stat.do_flag);
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (arg_num - 1) && argi == -1) {
-		dprintf(1, "res %d, after last[%d]\n",
+		dprintf(DBG_RL, "res %d, after last[%d]\n",
 			res, cmd_stat.last_argi);
 		len = get_node_next_help(cmd_stat.last_node, NULL,
 					 help_buf, HELP_BUF_SIZE,
 					 cur_view, cmd_stat.do_flag);
 	} else {
-		dprintf(1, "NULL, res %d last[%d] argi[%d]\n",
+		dprintf(DBG_RL, "NULL, res %d last[%d] argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
 	}
 
