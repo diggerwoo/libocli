@@ -39,7 +39,7 @@ cmd_undo_init()
 
 	struct cmd_tree *cmd_tree;
 
-	cmd_tree = create_cmd_tree(UNDO_CMD, &symbols[0], SYM_NUM(symbols), NULL);
+	cmd_tree = create_cmd_tree(UNDO_CMD, SYM_TABLE(symbols), NULL);
 	if (cmd_tree == NULL) return -1;
 
 	add_cmd_manual(cmd_tree, UNDO_CMD" COMMAND ...", UNDO_VIEW_MASK);
@@ -60,7 +60,7 @@ cmd_manual_init()
 
 	struct cmd_tree *cmd_tree;
 
-	cmd_tree = create_cmd_tree(MANUAL_CMD, &symbols[0], SYM_NUM(symbols), cmd_manual);
+	cmd_tree = create_cmd_tree(MANUAL_CMD, SYM_TABLE(symbols), cmd_manual);
 	if (cmd_tree == NULL) return -1;
 
 	add_cmd_manual(cmd_tree, MANUAL_CMD" COMMAND", ALL_VIEW_MASK);
