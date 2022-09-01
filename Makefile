@@ -28,7 +28,7 @@ lexdebug: $(SRC)/lex.c $(SRC)/lex.h
 	$(CC) $(CFLAGS) -DDEBUG_LEX_MAIN -o lexdebug $(SRC)/lex.c -lpcre
 	
 DEMODIR = ./example
-DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/netutils.c
+DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/netutils.c $(DEMODIR)/show.c
 
 demo: $(DEMOSRC) libocli.a
 	$(CC) $(CFLAGS) -o democli $(DEMOSRC) -locli -lpcre -lreadline
