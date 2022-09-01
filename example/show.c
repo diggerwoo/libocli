@@ -27,7 +27,11 @@ static symbol_t syms_show[] = {
 	DEF_KEY_ARG	("arp",		"ARP table",
 			 ARG(OPT_ARP)),
 	DEF_KEY_ARG	("route",	"Route table",
-			 ARG(OPT_ROUTE))
+			 ARG(OPT_ROUTE)),
+	DEF_KEY_ARG	("running-config",	"Running configuration",
+			 ARG(OPT_RUN_CFG)),
+	DEF_KEY_ARG	("startup-config",	"Startup configuration",
+			 ARG(OPT_START_CFG))
 };
 
 static int cmd_show(cmd_arg_t *cmd_arg, int do_flag);
@@ -40,8 +44,10 @@ cmd_show_init()
 	cmd_tree = create_cmd_tree("show", SYM_TABLE(syms_show), cmd_show);
 	add_cmd_easily(cmd_tree, "show version", ALL_VIEW_MASK, DO_FLAG);
 
-	/* ARP/Route table can only be displayed above ENABLE_VIEW */
+	/* show syntaxes which can be only accessed above ENABLE_VIEW */
 	add_cmd_easily(cmd_tree, "show { arp | route }", ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+	add_cmd_easily(cmd_tree, "show { running-config | startup-config }",
+		       ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
 	return 0;
 }
 
@@ -50,24 +56,26 @@ cmd_show(cmd_arg_t *cmd_arg, int do_flag)
 {
 	int	i;
 	char	*name, *value;
-	int	opt_ver = 0;
-	int	opt_arp = 0, opt_route = 0;
+	int	opt_run_cfg = 0, opt_start_cfg = 0;
 
 	for_each_cmd_arg(cmd_arg, i, name, value) {
 		if (IS_ARG(name, OPT_VERSION))
-			opt_ver = 1;
+			return(system("uname -a"));
 		else if (IS_ARG(name, OPT_ARP))
-			opt_arp = 1;
+			return(system("arp -na"));
 		else if (IS_ARG(name, OPT_ROUTE))
-			opt_route = 1;
+			return(system("route -n"));
+		else if (IS_ARG(name, OPT_RUN_CFG))
+			opt_run_cfg = 1;
+		else if (IS_ARG(name, OPT_START_CFG))
+			opt_start_cfg = 1;
 	}
 
-	if (opt_ver)
-		return(system("uname -a"));
-	else if (opt_arp)
-		return(system("arp -na"));
-	else if (opt_route)
-		return(system("route -n"));
+
+	if (opt_run_cfg)
+		printf("!\nThis is a demo for showing running-config\n");
+	else if (opt_start_cfg)
+		printf("!\nThis is a demo for showing startup-config\n");
 
 	return 0;
 }
