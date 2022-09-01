@@ -137,33 +137,44 @@ typedef struct symbol {
 	double	max_val;	/* maximal value of range */
 	char	*arg_name;	/* if set an arg name */
 	node_t	*node;		/* pointer to an assiciated node */
+	struct list_head list;	/* link to symbol table */
 } symbol_t;
+
+#define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
 
 /* Macros to simply symbol element initialization */
 
+#define DEF_SYM(n, h, t, c, x, y, a) {	\
+	.name		= n,		\
+	.help		= h,		\
+	.lex_type	= t,		\
+	.chk_range	= c,		\
+	.min_val	= x,		\
+	.max_val	= y,		\
+	.arg_name	= a,		\
+	.node		= NULL,		\
+	.list		= {NULL, NULL}	\
+}
+
 /* Define a keyword symbol */
-#define DEF_KEY(name, help) \
-	{name, help, -1, 0, 0, 0, NULL, NULL}
+#define DEF_KEY(n, h) \
+	DEF_SYM(n, h, -1, 0, 0, 0, NULL)
 
 /* Define a keyword symbol with arg */
-#define DEF_KEY_ARG(name, help, arg) \
-	{name, help, -1, 0, 0, 0, arg, NULL}
+#define DEF_KEY_ARG(n, h, a) \
+	DEF_SYM(n, h, -1, 0, 0, 0, a)
 
 /* Define a var symbol with type and arg */
-#define DEF_VAR(name, help, type, arg) \
-	{name, help, type, 0, 0, 0, arg, NULL}
+#define DEF_VAR(n, h, t, a) \
+	DEF_SYM(n, h, t, 0, 0, 0, a)
 
 /* Define a var symbol with type, arg and range */
-#define DEF_VAR_RANGE(name, help, type, arg, x, y) \
-	{name, help, type, 1, x, y, arg, NULL}
+#define DEF_VAR_RANGE(n, h, t, a, x, y) \
+	DEF_SYM(n, h, t, 1, x, y, a)
 
 /* Define a reserved syntax symbol */
-#define DEF_RSV(name, help) \
-	{name, help, -2, 0, 0, 0, NULL, NULL}
-
-/* end of symbol list */
-#define DEF_END \
-	{NULL, NULL, -1, 0, 0, 0, NULL, NULL}
+#define DEF_RSV(n, h) \
+	DEF_SYM(n, h, -2, 0, 0, 0, NULL)
 
 /* Definition of arg type of name/value pair */
 typedef struct cmd_arg {
@@ -216,9 +227,9 @@ typedef int (*cmd_fun_t)(cmd_arg_t *, int);
 /* a command tree, one tree, multi manuals ... */
 struct cmd_tree {
 	char	cmd[MAX_WORD_LEN];	/* command name */
-	symbol_t *sym_table;		/* symbol table */
 	node_t	*tree;			/* root of syntax tree */
 	cmd_fun_t fun;			/* command exec function */
+	struct list_head symbol_list;	/* list head of symbols */
 	struct list_head manual_list;	/* list head of manuals */
 	struct list_head cmd_tree_list;	/* link to list of command tree */
 };
@@ -226,10 +237,12 @@ struct cmd_tree {
 /*
  * symbol utils functions
  */
-extern int prepare_symbols(symbol_t *symbol);
-extern int cleanup_symbols(symbol_t *symbol);
-extern symbol_t *get_symbol_by_name(symbol_t *symbol, char *name);
-extern node_t *get_node_by_name(symbol_t *symbol, char *name);
+extern int set_symbol_node(symbol_t *symbol);
+extern int prepare_symbols(struct list_head *sym_list,
+			   symbol_t *sym_table, int limit);
+extern void cleanup_symbols(struct list_head *sym_list);
+extern symbol_t *get_symbol_by_name(struct list_head *sym_list, char *name);
+extern node_t *get_node_by_name(struct list_head *sym_list, char *name);
 extern int symbol_init(void);
 extern void symbol_exit(void);
 
@@ -249,7 +262,7 @@ extern int display_file_more(char *path);
 /*
  * core functions
  */
-extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table,
+extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num,
 					cmd_fun_t fun);
 extern int get_cmd_tree(char *cmd, int view, int do_flag,
 			struct cmd_tree **cmd_tree);
