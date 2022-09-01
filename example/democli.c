@@ -23,9 +23,11 @@
 
 int cmd_sys_init();
 int cmd_enable(cmd_arg_t *cmd_arg, int do_flag);
+int cmd_config(cmd_arg_t *cmd_arg, int do_flag);
 int cmd_exit(cmd_arg_t *cmd_arg, int do_flag);
 
 int cmd_net_utils_init();
+int cmd_show_init();
 
 /* A demo func to set application specific view-based prompt */
 void
@@ -36,8 +38,12 @@ set_democli_prompt(int view)
 
 	bzero(host, sizeof(host));
 	gethostname(host, sizeof(host)-1);
-	snprintf(prompt, sizeof(prompt),
-		"%s%s ", host, (view == BASIC_VIEW) ? ">":"#");
+
+	if (view == CONFIG_VIEW)
+		snprintf(prompt, sizeof(prompt), "%s-cfg# ", host);
+	else
+		snprintf(prompt, sizeof(prompt),
+			"%s%s ", host, (view == BASIC_VIEW) ? ">":"#");
 
 	ocli_rl_set_prompt(prompt);
 }
@@ -54,20 +60,23 @@ main(int argc, char **argv)
 	/* Create libocli builtin command "man" */
 	cmd_manual_init();
 
-	/* Create "enable" and "exit" commands */
+	/* Create "enable", "configure", and "exit" commands */
 	cmd_sys_init();
 
-	/* Create customized command "ping" and "trace-route" */
+	/* Create "ping" and "trace-route" commands */
 	cmd_net_utils_init();
 
-	/* Auto exec "exit" if EOF encountered */
+	/* Create "show" commands */
+	cmd_show_init();
+
+	/* Auto exec "exit" for EOF, terminal timeout or CTRL-D pressed */
 	ocli_rl_set_eof_cmd("exit");
 
 	/* Start from BASIC_VIEW */
 	ocli_rl_set_view(BASIC_VIEW);
 	set_democli_prompt(BASIC_VIEW);
 
-	/* Main loop to parsing and exec commands */
+	/* Loop to parsing and exec commands */
 	ocli_rl_loop();
 
 	/* Call ocli_rl_exit to restore original terminal attributes */
@@ -76,12 +85,18 @@ main(int argc, char **argv)
 }
 
 /*
- * Here we create two system commands, "enable [password]" and "exit".
+ * Here we create three system commands which affect view changes:
+ * "enable [password]", "configure terminal", "exit".
  */
 static symbol_t syms_enable[] = {
 	DEF_KEY         ("enable",	"Enabled view access"),
 	DEF_KEY_ARG     ("password",	"Change password of enabled view",
                          ARG(SET_PASSWD))
+};
+
+static symbol_t syms_config[] = {
+	DEF_KEY         ("configure",	"Configure view access"),
+	DEF_KEY		("terminal",	"Terminal mode")
 };
 
 static symbol_t syms_exit[] = {
@@ -100,6 +115,9 @@ cmd_sys_init()
 
 	/* ENABLE_VIEW: "enable password" to update the password */
 	add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
+
+	cmd_tree = create_cmd_tree("configure", SYM_TABLE(syms_config), cmd_config);
+	add_cmd_easily(cmd_tree, "configure terminal", ENABLE_VIEW, DO_FLAG);
 
 	cmd_tree = create_cmd_tree("exit", SYM_TABLE(syms_exit), cmd_exit);
 	add_cmd_easily(cmd_tree, "exit", ALL_VIEW_MASK, DO_FLAG);
@@ -142,6 +160,22 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 }
 
 /*
+ * Callback function of "configure" command
+ */
+int
+cmd_config(cmd_arg_t *cmd_arg, int do_flag)
+{
+	int	view = ocli_rl_get_view();
+
+	if (view == ENABLE_VIEW) {
+		ocli_rl_set_view(CONFIG_VIEW);
+		set_democli_prompt(CONFIG_VIEW);
+	}
+
+	return 0;
+}
+
+/*
  * Callback function of "exit" command
  */
 int
@@ -156,6 +190,10 @@ cmd_exit(cmd_arg_t *cmd_arg, int do_flag)
 	case ENABLE_VIEW:
 		ocli_rl_set_view(BASIC_VIEW);
 		set_democli_prompt(BASIC_VIEW);
+		break;
+	case CONFIG_VIEW:
+		ocli_rl_set_view(ENABLE_VIEW);
+		set_democli_prompt(ENABLE_VIEW);
 		break;
 	default:
 		break;
