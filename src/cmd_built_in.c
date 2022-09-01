@@ -25,14 +25,6 @@
 #include <stdio.h>
 #include "ocli.h"
 
-static symbol_t symbols[] = {
-	DEF_KEY		(UNDO_CMD,	"Undo configuration"),
-	DEF_KEY		(MANUAL_CMD,	"Display manual text"),
-	DEF_VAR		("COMMAND",	"Command keyword",
-			 LEX_WORD,	MANUAL_ARG),
-	DEF_END
-};
-
 static int cmd_manual(cmd_arg_t *cmd_arg, int do_flag);
 
 /*
@@ -41,9 +33,13 @@ static int cmd_manual(cmd_arg_t *cmd_arg, int do_flag);
 int
 cmd_undo_init()
 {
+	symbol_t symbols[] = {
+		DEF_KEY		(UNDO_CMD,	"Undo configuration")
+	};
+
 	struct cmd_tree *cmd_tree;
 
-	cmd_tree = create_cmd_tree(UNDO_CMD, &symbols[0], NULL);
+	cmd_tree = create_cmd_tree(UNDO_CMD, &symbols[0], SYM_NUM(symbols), NULL);
 	if (cmd_tree == NULL) return -1;
 
 	add_cmd_manual(cmd_tree, UNDO_CMD" COMMAND ...", UNDO_VIEW_MASK);
@@ -56,9 +52,15 @@ cmd_undo_init()
 int
 cmd_manual_init()
 {
+	symbol_t symbols[] = {
+		DEF_KEY		(MANUAL_CMD,	"Display manual text"),
+		DEF_VAR		("COMMAND",	"Command keyword",
+				 LEX_WORD,	MANUAL_ARG)
+	};
+
 	struct cmd_tree *cmd_tree;
 
-	cmd_tree = create_cmd_tree(MANUAL_CMD, &symbols[0], cmd_manual);
+	cmd_tree = create_cmd_tree(MANUAL_CMD, &symbols[0], SYM_NUM(symbols), cmd_manual);
 	if (cmd_tree == NULL) return -1;
 
 	add_cmd_manual(cmd_tree, MANUAL_CMD" COMMAND", ALL_VIEW_MASK);
