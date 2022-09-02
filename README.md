@@ -1,7 +1,7 @@
 # Libocli
-Libocli is a Linux C library / framework which is helpful for fast building of Cisco style command line interface. A example named "democli" is also incuded to demonstrates the capability of libocli as below.
+Library of Open Command Line Interface - is a Linux C library / framework which is helpful for fast building of Cisco style command line interface. A example named "democli" is also incuded to demonstrates the capability of libocli as below.
 
-Keywords auto completion, "man" to get syntax help:  
+Keywords auto completion by TAB, lexical help by '?',  and syntax help by builtin "man" command:  
 ![image](https://github.com/diggerwoo/blobs/blob/main/img/democli1.gif)
 
 Multi-view support, "no" & "show" examples:  
