@@ -6,31 +6,31 @@ English | [中文](Quick%20Start%20Guide.zh_CN.md)
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
-Libocli itself does not implement VTY I/O or editing fucntions, it depends on GNU readline which has strong capacity including: EMACS keys, TAB auto completion, double TABs help list, line history, etc.
+Libocli itself does not implement VTY I/O or editing fucntions, it depends on GNU readline which has strong capacity including: Emacs keys, TAB auto completion, double TABs help list, line history, etc.
 
-Libocli is actuall an add-on which encapsulate GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
-By utilizing Libocli, develper need only focus on CLI syntax design, and callback implementaion.
-The example codes in this section shows how to use Libocli to quickly build a ping command.
+Libocli is actuall an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
+By utilizing Libocli, develpers need only focusing on CLI syntax design, and callback implementaion.
+The example code in this section shows how to use Libocli to quickly build a ping command.
 
 ## 1.1 Create a command and register syntaxes
 
-Below codes are from [example/netutils.c](../example/netutils.c)  
+Below code are from [example/netutils.c](../example/netutils.c)  
 
-It gives a example ping CLI, which has three options:
-- Options after "ping" keyword：-c to specify number of ICMP Echo requests, -s to specify packet length.
-- "from" clause after destination host, to specify ping source interface address.
+It implements a ping CLI, which has three options:
+- Options after the "ping" keyword："-c" to specify number of ICMP Echo requests, and "-s" to specify packet length.
+- Optional "from" clause after destination host parameter, to specify the source IP address of ping.
 
-Like the convention of Linix manual, the syntax can be represents as:
+As the convention of Linix manual, the syntax can be represented as:
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 Define a symbol table
 ```
 /*
- * symbol table: syms_ping
- * DEF_KEY Macro: Define a symbol of Keyword type
- * DEF_VAR Macro: Define a symbol of Variable type
- * ARG Macro: Define a callback arg, which will be delivered to callback function if command parsing successful
- * LEX_* Macro: Define the lexcical type, for details reference src/lex.h
+ * Symbol table:  syms_ping
+ * DEF_KEY Macro: Defines a symbol of Keyword type
+ * DEF_VAR Macro: Defines a symbol of Variable type
+ * ARG Macro:     Defines a callback argument, which will be delivered to callback function if parsing successful
+ * LEX_* Macros:   Define the lexcical type, e.g LEX_IP_ADDR means IP address format.
  */
 static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
@@ -106,7 +106,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 Main program
 
-Below codes are from [example/democli.c](../example/democli.c), which demonstrate how to initialize Libocli and start command parsing.
+Below code is from [example/democli.c](../example/democli.c), which demonstrates how to initialize Libocli and start command parsing.
 
 ```
 /* libocli header */
@@ -120,20 +120,20 @@ int main()
 	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
 
-	/* Create libocli builtin command "man" and "no" */
+	/* Create libocli builtin commands: "man" and "no" */
 	cmd_manual_init();
 	cmd_undo_init();
 
-	/* Create "enable", "configure", and "exit" commands */
+	/* Create customized "enable", "configure", and "exit" commands */
 	cmd_sys_init();
-	/* Create "ping" and "trace-route" commands */
+	/* Create customized "ping" and "trace-route" commands */
 	cmd_net_utils_init();
-	/* Create "route" command */
+	/* Create customized "route" command */
 	cmd_route_init();
-	/* Create "show" commands */
+	/* Create customized "show" commands */
 	cmd_show_init();
 
-	/* Auto exec "exit" for when CTRL-D pressed */
+	/* Auto exec "exit" for when CTRL-D being pressed */
 	ocli_rl_set_eof_cmd("exit");
 
 	/* Start from BASIC_VIEW */
