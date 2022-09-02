@@ -116,6 +116,9 @@ int main()
 	/* 初始化 libocli */
 	ocli_rl_init();
 
+	/* 终端 5 分钟空闲，自动退出，这通常是专业命令行必备的安全设置项 */
+	ocli_rl_set_timeout(300);
+    
 	/* 启用 libocli 内置命令： "man" 和 "no" */
 	cmd_manual_init();
 	cmd_undo_init();
@@ -129,9 +132,6 @@ int main()
 	/* 创建自定义命令 "show" */
 	cmd_show_init();
 
-	/* 终端 5 分钟空闲，自动退出，这通常是专业命令行必备的安全设置项 */
-	ocli_rl_set_timeout(300);
-    
 	/* 若按下 CTRL-D，自动执行 "exit" 命令，就像 bash 那样  */
 	ocli_rl_set_eof_cmd("exit");
 
