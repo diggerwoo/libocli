@@ -18,6 +18,6 @@ make
 make install
 make demo
 ```
-After making process, libocli.so and libocli.a will be installed into /usr/local/lib, and library headers will be installed into /usr/local/include/ocli. The "make demo" generates a "democli" program in the working directory.
+After making process, libocli.so and libocli.a will be installed into /usr/local/lib, and library headers will be installed into /usr/local/include/ocli. The "make demo" generates a executable file "democli" shown up in above vidoes in the working directory.
 
 For details please refer to the API manual in the doc directory.
