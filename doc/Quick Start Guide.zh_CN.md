@@ -13,7 +13,7 @@ Libocli 其实就是封装了 GNU Readline 所实现的一套可定制词法、�
 
 ## 1.1 注册一个命令行以及语法
 
-本例程序片段摘自 [example/netutil.c](../example/netutil.c)  
+本例程序片段摘自 [example/netutil.c](../example/netutils.c)  
 
 例子中设计了一个简单的 ping 命令语法，可指定三个选项：
 - ping 关键字之后两个可选项：-c 指定发送 ICMP Echo 报文次数，-s 指定报文长度
@@ -104,6 +104,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 ```
 
 ## 1.2 主程序流程
+
 以下主程序片段摘自 [example/democli.c](../example/democli.c)，演示了如何利用 Libocli 初始化、启动命令行解析：
 
 ```
