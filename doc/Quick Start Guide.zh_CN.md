@@ -17,20 +17,20 @@ Libocli 其实就是在 GNU Readline 之上实现的可定制词法、语法解�
 本例程序片段摘自 [example/netutils.c](../example/netutils.c)  
 
 例子中设计了一个简单的 ping 命令语法，可指定三个选项：
-- ping 关键字之后两个可选项：-c 指定发送 ICMP Echo 报文次数，-s 指定报文长度
-- ping 目的地址参数后，一个可选的 from 子句，可指定 ping 的 IP 源地址  
+- ping 关键字之后两个可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
+- ping 目的地址参数后，可选的 "from" 子句，指定 ping 的 IP 源地址  
 
-按 Linux 手册的惯常写法，上述 ping 语法可表达如下：
+按 Linux 手册的惯常写法，上述 ping 语法可表示为：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 定义一个符号表
 ```
 /*
- * 定义符号表 syms_ping
+ * 定义符号表： syms_ping
  * DEF_KEY 宏：定义一个关键字类型符号
  * DEF_VAR 宏：定义一个变量类型符号，DEF_VAR_RANGE：定义一个带数值范围的变量类型符号
- * ARG 宏：定义该符号对应的回调返回参数，若命令最终解析成功，该参数会传递给回调函数
- * LEX_* 宏：定义变量类型符号的词法，Libocli 支持的词法类型参考 src/lex.h
+ * ARG 宏：    定义该符号对应的回调参数，若命令最终解析成功，该参数会被传递给回调函数
+ * LEX_* 宏：  定义变量类型符号的词法类型，比如 LEX_IP_ADDR 表示 IP 地址格式
  */
 static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
@@ -106,7 +106,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 主程序流程
 
-以下主程序片段摘自 [example/democli.c](../example/democli.c)，演示了如何利用 Libocli 初始化、启动命令行解析：
+以下主程序片段摘自 [example/democli.c](../example/democli.c)。主程序的写法很简单，ocli_rl_init()初始化，然后调用各个模块的 cmd_xxx_init() 注册命令和语法，之后 ocli_rl_loop() 启动命令行读取循环，执行所有的命令解析和回调，直到程序退出：
 
 ```
 /* libocli 头文件 */
