@@ -8,7 +8,7 @@ Library of Open Command Line Interface - 是一个开源 Linux C 库，可用于
 >
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli1.gif)
 
-- "enble" 和 "conf t" 多层权限视图支持, 以及 "no" 和 "show" 命令的演示：
+- "enable" 和 "conf t" 多层权限视图支持, 以及 "no" 和 "show" 命令的演示：
 >
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
 
