@@ -1101,7 +1101,6 @@ get_subnet_mask(char *str, struct in_addr *ia_net, struct in_addr *ia_mask, int 
 		else
 			bits = atoi(mask);
 
-
 		ia_mask->s_addr = bits_to_netmask(bits);
 		if (fix_net) ia_net->s_addr &= ia_mask->s_addr;
 

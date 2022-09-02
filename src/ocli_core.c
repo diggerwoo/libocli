@@ -118,7 +118,6 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num, cmd_fun_t fun)
 		return NULL;
 	}
 
-
 	if (plant_root(&cmd_tree->tree, node) != 0) {
 		fprintf(stderr, "create_cmd_tree: set root error\n");
 		free_cmd_tree(cmd_tree);
