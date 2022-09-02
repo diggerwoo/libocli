@@ -13,7 +13,7 @@ By utilizing Libocli, develper need only focus on CLI syntax design, and callbac
 
 ## 1.1 Create a command and register syntax
 
-Below codes are from [example/netutil.c](../example/netutils.c)  
+Below codes are from [example/netutils.c](../example/netutils.c)  
 
 It gives a example ping CLI, which has thres options:
 - Options after "ping" keyword：-c to specify number of ICMP echo requests, -s to specify packet length.
