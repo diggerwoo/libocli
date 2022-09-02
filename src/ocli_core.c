@@ -1144,6 +1144,11 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 			return n_match;
 		} else if (node->arg_helper && limit >= 1) {
 			return node->arg_helper(cmd, matches, limit);
+		} else if (lex->prefix &&
+		           (!cmd || !cmd[0] ||
+		           strncmp(lex->prefix, cmd, strlen(cmd)) == 0)) {
+			matches[n_match++] = strdup(lex->prefix);
+			return n_match;
 		}
 	}
 	    
