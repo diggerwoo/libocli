@@ -1,1 +1,0 @@
-# Libocli API Manual
