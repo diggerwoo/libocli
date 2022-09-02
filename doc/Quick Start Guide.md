@@ -10,8 +10,9 @@ Libocli itself does not implement VTY I/O or editing fucntions, it depends on GN
 
 Libocli is actuall an add-on which encapsulate GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
 By utilizing Libocli, develper need only focus on CLI syntax design, and callback implementaion.
+In this section I describe how to use Libocli to quickly build a ping command which has optioal arguments syntax.
 
-## 1.1 Create a command and register syntax
+## 1.1 Create a command and register syntaxes
 
 Below codes are from [example/netutils.c](../example/netutils.c)  
 
@@ -55,7 +56,7 @@ int cmd_net_utils_init()
 {
 	struct cmd_tree *cmd_tree;
         
-	/* Create "ping" command，wile symbol table: syms_ping, and callback function: cmd_ping() */
+	/* Create "ping" command，with symbol table: syms_ping, and callback function: cmd_ping() */
 	cmd_tree = create_cmd_tree("ping", SYM_TABLE(syms_ping), cmd_ping);
         
 	/* Register the syntax，and auto generate manual for "man ping" */
