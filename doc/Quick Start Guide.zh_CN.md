@@ -24,6 +24,9 @@ Libocli 其实就是在 GNU Readline 之上实现的可定制词法、语法解�
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 定义一个符号表
+
+实现一个命令之前，我们需要先定义符号表，符号表中要包含 ping 命令语法所需的所有符号。
+
 ```
 /*
  * 定义符号表： syms_ping
@@ -51,6 +54,8 @@ static symbol_t syms_ping[] = {
 ```
 
 ### 1.1.2 创建命令，并注册语法
+
+之后，我们基于符号表创建命令、注册语法。注册语法串中出现的所有单词都应该是符号表中预先定义过的，否则会注册失败。
 ```
 int cmd_net_utils_init()
 {
@@ -68,6 +73,7 @@ int cmd_net_utils_init()
 
 ### 1.1.3 实现回调业务函数
 
+现在我们可以实现回调函数了。回调函数尝试解析所有的回调参数（符号表里 ARG 宏定义的），然后拼装出一条系统 ping 命令，并执行。
 ```
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 {
@@ -106,7 +112,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 主程序流程
 
-以下主程序片段摘自 [example/democli.c](../example/democli.c)。主程序的写法很简单，ocli_rl_init()初始化，然后调用各个模块的 cmd_xxx_init() 注册命令和语法，之后 ocli_rl_loop() 启动命令行读取循环，执行所有的命令解析和回调，直到程序退出：
+以下主程序片段摘自 [example/democli.c](../example/democli.c)。主程序的写法很简单，ocli_rl_init() 初始化，然后调用各个模块的 cmd_xxx_init() 注册命令和语法，之后 ocli_rl_loop() 启动命令行读取循环，执行所有的命令解析和回调，直到程序退出：
 
 ```
 /* libocli 头文件 */
