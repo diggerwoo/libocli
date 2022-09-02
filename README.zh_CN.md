@@ -1,5 +1,5 @@
 # Libocli
-[English](REAME.md)
+[English](README.md)
 
 Library of Open Command Line Interface - 是一个开源 Linux C 库，可用于快速构建具有 Cisco 风格的命令行程序。
 项目中包含了一个 "democli" 例子程序用于演示 Libocli 的特性，演示效果如下方视频。
