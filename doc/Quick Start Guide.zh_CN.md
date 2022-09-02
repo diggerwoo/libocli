@@ -2,7 +2,7 @@
 
 中文 | [English](Quick%20Start%20Guide.md)
 <br>
-[<< 上一级目录]("README.zh_CN.md")  
+[<< 上一级目录](README.zh_CN.md)  
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
