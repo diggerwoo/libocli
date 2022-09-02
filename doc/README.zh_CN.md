@@ -5,4 +5,4 @@
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
-1. [Quick Start](Quick%20Start%20Guide.zh_CN.md)
+1. [快速入门](Quick%20Start%20Guide.zh_CN.md)
