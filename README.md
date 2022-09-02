@@ -1,19 +1,23 @@
 # Libocli
-Library of Open Command Line Interface - is a Linux C library / framework which is helpful for fast building of Cisco style command line interface. A example named "democli" is also incuded to demonstrates the capability of libocli as below.
+English | [中文](REAME.zh_CN.md)
 
-Keywords auto completion by TAB, lexical help by '?',  and syntax help by builtin "man" command:  
-![image](https://github.com/diggerwoo/blobs/blob/main/img/democli1.gif)
+Library of Open Command Line Interface - is a Linux C library / framework which is helpful for the fast building of Cisco style command line interface. A example named "democli" is also incuded to simply demonstrates the features of libocli as below.
 
-Multi-view support, "no" & "show" examples:  
-![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
+- Keywords auto completion by TAB, lexical help by '?',  and syntax help by builtin "man" command:  
+>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli1.gif)
+
+- “enable", "conf t" to change priority VIEW, and "no" & "show" examples: 
+>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
 
 ## How to install:
-Libocli depends on GNU readline and pcre libraries. Please make sure both realine and pcre development packages are installed in your system. The Building and installation processes are quite straightforward as below:
+Libocli depends on GNU readline and pcre libraries. Please make sure both realine and pcre development packages are present in your system before installation, then make as below:
 ```
 make
 make install
 make demo
 ```
-After making processes, libocli.so and libocli.a will be installed into /usr/local/lib, library headers will be installed into /usr/local/include/ocli, and a "democli" program which shown in the above videos will be gernerated inside the working directory.
+After making process, libocli.so and libocli.a will be installed into /usr/local/lib, and library headers will be installed into /usr/local/include/ocli. The "make demo" generates a "democli" program in the working directory.
 
 For details please refer to the API manual in the doc directory.
