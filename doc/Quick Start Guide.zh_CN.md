@@ -4,24 +4,33 @@
 <br>
 [<< 上一级目录]("API%20Manual.zh_EN.md")  
 
-## 1.1 概览
+作者：Digger Wu (digger.wu@linkbroad.com)
+
 Libocli 本身并不实现终端字符读取、编辑功能，此方面功能直接利用 GNU Readline。
-GNU Readline 是个非常全面的终端行编辑库 / 框架，提供了所有的命令行编辑能力，包括且不限于：Emacs 风格编辑快捷键、关键字 TAB 补齐、双 TAB 列出下一关键字序列、命令行历史记录、等等。
-Libocli 其实就是封装了 GNU Readline 实现的一套带有词法、语法解析的外挂。使用 Libocli 开发命令行程序时，你只要专注于：注册一个命令行语法，实现该命令行对应回调业务函数。
+GNU Readline 是个非常强的终端行编辑库 / 框架，提供了所有的命令行编辑能力，包括且不限于：Emacs 风格编辑快捷键、关键字 TAB 补齐、双 TAB 列出下一关键字序列、命令行历史记录、等等。
+Libocli 其实就是封装了 GNU Readline 所实现的一套可定制词法、语法解析和命令回调的外挂。
+使用 Libocli 开发命令行程序时，开发者只要专注于：注册一个命令行和以及语法，实现该命令行对应的回调业务函数。
 
-## 1.2 注册一个命令以及语法
-例如设计一个简单的 ping 命令语法，可以指定三个选项：
-- ping 之后的两个选项：-c 指定发送 ICMP Echo 报文次数，-s 指定报文长度
-- 最后可选的 from 子句，可以指定 ping 的 IP 源地址  
+## 1.1 注册一个命令行以及语法
 
-按 Linux man 的惯常写法，语法表达如下：
+本例程序片段摘自 [example/netutil.c](../example/netutil.c)  
+
+例子中设计了一个简单的 ping 命令语法，可指定三个选项：
+- ping 关键字之后两个可选项：-c 指定发送 ICMP Echo 报文次数，-s 指定报文长度
+- ping 目的地址参数后，一个可选的 from 子句，可指定 ping 的 IP 源地址  
+
+按 Linux 手册的惯常写法，上述 ping 语法可表达如下：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
-以下演示注册一个 ping 语法，程序片段摘自 [example/netutil.c](../example/netutil.c)  
-
-1. 制作一个符号表：
+### 1.1.1 定义一个符号表
 ```
-/* 定义 "ping" 命令的符号表 syms_ping，包括关键字，和变量 */
+/*
+ * 定义符号表 syms_ping
+ * DEF_KEY 宏：定义一个关键字类型符号
+ * DEF_VAR 宏：定义一个变量类型符号，DEF_VAR_RANGE：定义一个带数值范围的变量类型符号
+ * ARG 宏：定义该符号对应的回调返回参数，若命令最终解析成功，该参数会传递给回调函数
+ * LEX_* 宏：定义变量类型符号的词法，Libocli 支持的词法类型参考 src/lex.h
+ */
 static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
 	DEF_KEY		("-c",		"Set count of requests"),
@@ -40,29 +49,62 @@ static symbol_t syms_ping[] = {
 };
 ```
 
-2. 创建命令，注册语法：
+### 1.1.2 创建命令，并注册语法
 ```
 int cmd_net_utils_init()
 {
 	struct cmd_tree *cmd_tree;
         
-	/* 创建 "ping" 命令，指定符号表 syms_ping，回调函数 cmd_ping() */
+	/* 创建 "ping" 命令，符号表为 syms_ping，回调函数为 cmd_ping() */
 	cmd_tree = create_cmd_tree("ping", SYM_TABLE(syms_ping), cmd_ping);
         
-	/* 注册一条语法，并且按此语法创建对应的帮助文本，可以 "man ping" 查看 */
+	/* 注册一条语法，并且按此语法创建对应的帮助文本，可供 "man ping" 查看 */
 	add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
 		       (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
         return 0;
 }
 ```
 
-3. 实现回调业务函数：
+### 1.1.3 实现回调业务函数
 
-TODO
+```
+static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
+{
+	int	i;
+	char	*name, *value;
+	int	req_count = 5;	/* 默认 5 个 ICMP Echo 请求报文 */
+	int	pkt_size = 56;	/* 默认 56 字节报文长度 */
+	char	dst_host[128];
+	char	local_addr[128];
+	char	cmd_str[256];
 
-## 1.3 主程序流程
+	bzero(dst_host, sizeof(dst_host));
+	bzero(local_addr, sizeof(local_addr));
+
+	/* 使用 for_each_cmd_arg() 和 IS_ARG() 宏，解析符号表中所定义的变量 */
+	for_each_cmd_arg(cmd_arg, i, name, value) {
+		if (IS_ARG(name, REQ_COUNT))
+			req_count = atoi(value);
+		else if (IS_ARG(name, PKT_SIZE))
+			pkt_size = atoi(value);
+		else if (IS_ARG(name, DST_HOST))
+			strncpy(dst_host, value, sizeof(dst_host)-1);
+		else if (IS_ARG(name, LOCAL_ADDR))
+			strncpy(local_addr, value, sizeof(local_addr)-1);
+	}
+
+	/* 组装出一条 Linux 的 ping 命令，并执行 */
+	snprintf(cmd_str, sizeof(cmd_str), "ping -c %d -s %d %s %s %s",
+		req_count, pkt_size,
+		local_addr[0] ? "-I":"",
+		local_addr[0] ? local_addr:"",
+		dst_host); 
+	return system(cmd_str);
+}
+```
+
+## 1.2 主程序流程
 以下主程序片段摘自 [example/democli.c](../example/democli.c)，演示了如何利用 Libocli 初始化、启动命令行解析：
-
 
 ```
 /* libocli 头文件 */
@@ -86,17 +128,17 @@ int main()
 	/* 创建自定义命令 "show" */
 	cmd_show_init();
 
-	/* 终端 5 分钟空闲，自动退出，这是专业命令行必备的安全设置项 */
+	/* 终端 5 分钟空闲，自动退出，这通常是专业命令行必备的安全设置项 */
 	ocli_rl_set_timeout(300);
     
-	/* 终端空闲超时，或者 CTRL-D，自动执行 "exit" 命令 */
+	/* 若按下 CTRL-D，自动执行 "exit" 命令，就像 bash 那样  */
 	ocli_rl_set_eof_cmd("exit");
 
 	/* 设置初始权限视图为 BASIC_VIEW  */
 	ocli_rl_set_view(BASIC_VIEW);
 	set_democli_prompt(BASIC_VIEW);
 
-	/* 开始 libocli 命令行读取循环 */
+	/* 开始 libocli 命令行读取主循环 */
 	ocli_rl_loop();
 
 	/* 退出 libocli，恢复程序启动前的的终端设置 */
