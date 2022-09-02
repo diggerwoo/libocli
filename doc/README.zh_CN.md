@@ -1,4 +1,4 @@
-# Libocli API Manual
+# Libocli API 手册
 
 中文 | [English](README.md)
 <br>
