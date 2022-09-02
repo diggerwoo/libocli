@@ -556,10 +556,10 @@ void
 ocli_rl_exec_eof_cmd()
 {
 	if (eof_cmd[0]) {
-		rl_insert_text("exit");
+		rl_insert_text(eof_cmd);
 		rl_redisplay();
 		rl_crlf();
-		ocli_rl_submit("exit", ocli_rl_get_view());
+		ocli_rl_submit(eof_cmd, ocli_rl_get_view());
 	}
 }
 
@@ -584,7 +584,6 @@ ocli_rl_loop()
 		}
 	}
 }
-
 
 /*
  * exit readline interface module
