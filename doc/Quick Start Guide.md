@@ -2,7 +2,7 @@
 
 English | [中文](Quick%20Start%20Guide.zh_CN.md)
 <br>
-[<< Upper Level]("README.md")  
+[<< Upper Level](README.md)  
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
