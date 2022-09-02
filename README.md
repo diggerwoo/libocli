@@ -12,7 +12,7 @@ Library of Open Command Line Interface - is a Linux C library / framework which 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
 
 ## How to install:
-Libocli depends on GNU readline and pcre libraries. Please make sure both realine and pcre development packages are present in your system before installation, then make as below:
+Libocli depends on GNU readline and pcre libraries. Please make sure both readline and pcre development packages are present in your system before installation, then make as below:
 ```
 make
 make install
