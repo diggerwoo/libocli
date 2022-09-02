@@ -110,6 +110,7 @@ ocli_rl_prepare(char *text, int start, int end)
 	int	tok_num = 0;
 	int	res;
 	char	*cmd = NULL;
+	char	mate[MAX_WORD_LEN];
 	struct cmd_stat cmd_stat;
 
 	/* free used pending_toks for each preparation */
@@ -179,6 +180,16 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, text,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
+		/*
+		 * MATCH_ERROR but get one token, it is a VAR prefix.
+		 * XXX cheat readline to complete the prefix without trailing SPACE.
+		 */
+		if (cmd_stat.err_code == MATCH_ERROR && tok_num == 1) {
+			snprintf(mate, sizeof(mate), "%s?", pending_toks[0]);
+			dprintf(DBG_RL, "partially match '%s', add '%s'\n",
+				pending_toks[0], mate);
+			pending_toks[tok_num++] = strdup(mate);
+		}
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (arg_num - 1) && argi == -1) {
 		dprintf(DBG_RL, "res %d, after last[%d]\n",
