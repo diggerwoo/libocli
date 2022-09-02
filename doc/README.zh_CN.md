@@ -3,6 +3,6 @@
 中文 | [English](README.md)
 <br>
 
-Author: Digger Wu (digger.wu@linkbroad.com)
+作者: Digger Wu (digger.wu@linkbroad.com)
 
-1. [快速入门](Quick%20Start%20Guide.zh_CN.md)
+1. [快速入门指南](Quick%20Start%20Guide.zh_CN.md)
