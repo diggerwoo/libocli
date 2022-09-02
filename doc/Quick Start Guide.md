@@ -10,7 +10,7 @@ Libocli itself does not implement VTY I/O or editing fucntions, it depends on GN
 
 Libocli is actuall an add-on which encapsulate GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
 By utilizing Libocli, develper need only focus on CLI syntax design, and callback implementaion.
-In this section I describe how to use Libocli to quickly build a ping command which has optioal arguments syntax.
+The example codes in this section shows how to use Libocli to quickly build a ping command.
 
 ## 1.1 Create a command and register syntaxes
 
