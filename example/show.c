@@ -71,7 +71,6 @@ cmd_show(cmd_arg_t *cmd_arg, int do_flag)
 			opt_start_cfg = 1;
 	}
 
-
 	if (opt_run_cfg)
 		printf("!\nThis is a demo for showing running-config\n");
 	else if (opt_start_cfg)
