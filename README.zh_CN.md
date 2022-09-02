@@ -13,7 +13,7 @@ Library of Open Command Line Interface - 是一个开源 Linux C 库，可用于
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
 
 ## 编译和安装:
-Libocli 依赖于 GNU readline 和 pcre 库。编译安装前请确认系统中已安装 realine 和 pcre 开发包和头文件，之后在工作目录中执行如下 make 序列：
+Libocli 依赖于 GNU readline 和 pcre 库。编译安装前请确认系统中已安装 readline 和 pcre 开发包和头文件，之后在工作目录中执行如下 make 序列：
 ```
 make
 make install
