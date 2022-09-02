@@ -32,7 +32,7 @@ Before the creation of ping command, we shoud define the symbols first. The code
  * DEF_KEY Macro: Defines a symbol of Keyword type
  * DEF_VAR Macro: Defines a symbol of Variable type
  * ARG Macro:     Defines a callback argument, which will be delivered to callback function if parsing successful
- * LEX_* Macros:   Define the lexcical type, e.g LEX_IP_ADDR means IP address format.
+ * LEX_* Macros:  Define the lexcical type, e.g LEX_IP_ADDR means IP address format.
  */
 static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
@@ -54,7 +54,7 @@ static symbol_t syms_ping[] = {
 
 ### 1.1.2 Create command, and register syntaxes
 
-Then based on the symbol table, we create the ping command, and register the syntax.
+Then based on the symbol table, we create the ping command, and register the syntax. All words in the syntax string should be previously defined in the symbol table, or else error occurs.
 ```
 int cmd_net_utils_init()
 {
