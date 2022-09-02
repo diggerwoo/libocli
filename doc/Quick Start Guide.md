@@ -16,8 +16,8 @@ The example codes in this section shows how to use Libocli to quickly build a pi
 
 Below codes are from [example/netutils.c](../example/netutils.c)  
 
-It gives a example ping CLI, which has thres options:
-- Options after "ping" keyword：-c to specify number of ICMP echo requests, -s to specify packet length.
+It gives a example ping CLI, which has three options:
+- Options after "ping" keyword：-c to specify number of ICMP Echo requests, -s to specify packet length.
 - "from" clause after destination host, to specify ping source interface address.
 
 Like the convention of Linix manual, the syntax can be represents as:
