@@ -2,7 +2,7 @@
 
 English | [中文](Quick%20Start%20Guide.zh_CN.md)
 <br>
-[<< Upper Level]("API%20Manual.zh_EN.md")  
+[<< Upper Level]("README.md")  
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
