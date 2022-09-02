@@ -1,5 +1,5 @@
 # Libocli
-[English](README.md)
+中文 | [English](README.md)
 
 Library of Open Command Line Interface - 是一个开源 Linux C 库，可用于快速构建具有 Cisco 风格的命令行程序。
 项目中包含了一个 "democli" 例子程序用于演示 Libocli 的特性，演示效果如下方视频。
@@ -20,6 +20,6 @@ make install
 make demo
 ```
 编译安装完毕后，库文件 libocli.so 和 libocli.a 会被安装到 /usr/local/lib 目录，头文件会被安装到 /usr/local/include/ocli 目录，
-make demo 在工作目录中生成一个 "democli" 可执行文件，即上面演示视频中所执行的程序.
+make demo 在工作目录中生成上面演示视频所用的 "democli" 可执行文件.
 
 详细开发资料请参考 doc 目录下的 API 说明文档.
