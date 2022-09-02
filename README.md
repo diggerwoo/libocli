@@ -1,5 +1,5 @@
 # Libocli
-English | [中文](REAME.zh_CN.md)
+English | [中文](README.zh_CN.md)
 
 Library of Open Command Line Interface - is a Linux C library / framework which is helpful for the fast building of Cisco style command line interface. A example named "democli" is also incuded to simply demonstrates the features of libocli as below.
 
