@@ -6,9 +6,9 @@
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
-Libocli 本身并不实现终端行编辑功能，而是直接利用 GNU Readline。
-GNU Readline 是个非常强的终端行编辑库和框架，提供了丰富的命令行编辑能力，包括且不限于：Emacs 风格编辑快捷键、关键字 TAB 补齐、双 TAB 列出下一关键字序列、命令行历史记录、等等。
-Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、语法解析、命令回调的，一套外挂。
+Libocli 直接调用 GNU Readline 的终端行编辑功能。
+GNU Readline 的行编辑功能非常丰富，包括且不限于：Emacs 风格编辑快捷键、关键字 TAB 补齐、双 TAB 列出下一关键字序列、命令行历史记录、等等。
+Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、语法分析、命令回调的一套外挂。
 使用 Libocli 开发命令行程序时，开发者只要专注于：注册一个命令行和以及语法，实现该命令行对应的回调业务函数。
 以下用一个 ping 的例子简述如何使用 Libocli 快速构建一个带有可选项语法的命令行。
 
