@@ -8,15 +8,16 @@
 
 Libocli 本身并不实现终端行编辑功能，而是直接利用 GNU Readline。
 GNU Readline 是个非常强的终端行编辑库和框架，提供了丰富的命令行编辑能力，包括且不限于：Emacs 风格编辑快捷键、关键字 TAB 补齐、双 TAB 列出下一关键字序列、命令行历史记录、等等。
-Libocli 其实就是在 GNU Readline 之上实现的可定制词法、语法解析和命令回调的一套外挂。
+Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、语法解析、命令回调的，一套外挂。
 使用 Libocli 开发命令行程序时，开发者只要专注于：注册一个命令行和以及语法，实现该命令行对应的回调业务函数。
 以下用一个 ping 的例子简述如何使用 Libocli 快速构建一个带有可选项语法的命令行。
 
 ## 1.1 注册一个命令行以及语法
 
-本例程序片段摘自 [example/netutils.c](../example/netutils.c)，例子中设计了一个简单的类似 Linux 风格的 ping 命令语法，可指定三个选项： 
-- ping 关键字之后，两个可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
-- ping 目的地址参数后，可选的 "from" 子句，指定 ping 的 IP 源地址  
+本例程序片段摘自 [example/netutils.c](../example/netutils.c)，例子中设计了一个简单的 Linux 选项风格的 ping 命令语法，选项和参数依次定义如下： 
+- 两个可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
+- 目的地址参数，格式可以是 IP 地址，或者域名
+- 可选的 "from" 子句，指定 ping 的接口源 IP 地址  
 
 按 Linux 手册的惯常写法，上述 ping 语法可表达为：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
