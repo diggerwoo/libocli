@@ -1,4 +1,4 @@
-# 3. Libocli 词法分析
+# 3. Libocli 支持的词法类型以及自定义词法
 
 中文 | [English](Lexical%20Parsing.md)
 <br>
