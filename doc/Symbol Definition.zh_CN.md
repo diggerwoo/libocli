@@ -24,7 +24,7 @@ DEF_ 宏参数规则以及范例：
   ```
   DEF_KEY ("ping", "Ping utility")
   ```
-- DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_DOMAIN_NAME，LEX_INT，等等。详细的词法类型可参考下一节 [Libocli 词法解析](Lexical%20Parsing.zh_CN.md)。
+- DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_DOMAIN_NAME，LEX_INT，等等。详细的词法类型可参考下一节 [Libocli 词法分析接口](Lexical%20Parsing.zh_CN.md)。
 
 - 除了 DEF_KEY，其它 DEF_ 宏都必须指定回调变量名，回调变量名是个字符串，例子程序中我们使用 ARG 宏来定义回调变量名，ARG 宏的作用就是将参数展开为一个字符串，下例中的  ARG(DST_HOST)，会展开为 "DST_HOST"
   ```  
