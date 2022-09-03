@@ -15,16 +15,16 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 ## 1.1 注册一个命令行以及语法
 
 本例程序片段摘自 [example/netutils.c](../example/netutils.c)，例子中设计了一个简单的 Linux 选项风格的 ping 命令语法，选项和参数依次定义如下： 
-- 两个可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
+- 两个含参可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
 - 目的地址参数，格式可以是 IP 地址，或者域名
-- 可选的 "from" 子句，指定 ping 的接口源 IP 地址  
+- 可选的含参 "from" 子句，指定 ping 的接口源 IP 地址  
 
 按 Linux 手册的惯常写法，上述 ping 语法可表达为：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 定义一个符号表
 
-实现一个上述 ping 命令之前，我们首先要定义符号表，符号表中包含上述语法中的所有符号，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP"。注意不要使用 Libocli 的保留语法符号： "[ ] { | }" 。
+实现一个上述 ping 命令之前，我们首先要定义符号表，符号表中包含上述语法中的所有符号，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法符号： "[ ] { | }" 。
 
 ```
 /*
