@@ -9,21 +9,22 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 Libocli itself does not implement the terminal line editing functions, it depends on GNU readline which has rich features including: Emacs keys, TAB  for auto completion, double TABs for next help list, ARROW UP/DOWN for history, etc.
 
 Libocli is actually an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
-By utilizing Libocli, develpers need only to focus on CLI syntax design, and callback implementation.
+By utilizing Libocli, develpers need only to focus on command syntax design, and callback implementation.
 The example code in this section shows how to use Libocli to quickly build a ping command.
 
 ## 1.1 Create a command and register syntaxes
 
-The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping:
-- Two options after the "ping" keyword："-c" to specify the number of ICMP Echo requests, and "-s" to specify the length of ICMP packet.
-- Optional "from" clause after destination host parameter, to specify the source interface IP address.
+The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping. The options and paramter are defined as below:
+- Two options："-c" to specify the number of ICMP Echo requests, and "-s" to specify the length of ICMP packet.
+- Madatory destination host parameter: either IP address or domain name format.
+- Optional "from" clause: to specify the source interface IP address.
 
 We can represent the syntax as below in accordance with the convention of Linix manual:
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 Define a symbol table
 
-Before the creation of ping command, we shoud define the symbols first. The code below declares a symbol table that includes all the symbols needed by the ping.
+Before the creation of ping command, we shoud define all the symbols included in the above syntax first, include keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
 ```
 /*
  * Symbol table:  syms_ping
