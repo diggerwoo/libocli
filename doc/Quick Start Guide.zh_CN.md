@@ -24,7 +24,7 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 
 ### 1.1.1 定义一个符号表
 
-实现一个上述 ping 命令之前，我们首先要定义符号表，符号表中包含上述语法中的所有符号，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法符号： "[ ] { | }" 。
+实现上述 ping 命令之前，我们首先要定义符号表，表中包含 ping 语法串中的所有单词，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法标记： "[ ] { | }" 。
 
 ```
 /*
