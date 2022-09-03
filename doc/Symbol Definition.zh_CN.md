@@ -26,7 +26,7 @@
   ```
 - DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_DOMAIN_NAME，LEX_INT，等等。详细的词法类型可参考下一节 [Libocli 词法解析](Lexical%20Parsing.zh_CN.md)。
 
-- 除了 DEF_KEY，其它 DEF_ 宏都必须指定回调变量名，回调变量名是个字符串，例子程序中我们使用 ARG 宏来定义回调变量名，ARG 宏的作用就将宏参数展开为一个字符串，下例中的  ARG(DST_HOST)，会展开为 "DST_HOST"
+- 除了 DEF_KEY，其它 DEF_ 宏都必须指定回调变量名，回调变量名是个字符串，例子程序中我们使用 ARG 宏来定义回调变量名，ARG 宏的作用就是将参数展开为一个字符串，下例中的  ARG(DST_HOST)，会展开为 "DST_HOST"
   ```  
   /* 注意：因为 ping 语法的 HOST_IP 和 HOST 符号二者只能匹配其一，
    * 所以两符号可使用相同的回调参数名 "DST_HOST"，简化回调函数的参数处理
@@ -55,8 +55,8 @@ typedef struct cmd_arg {
 Libocli 的解析过程如下：
 - "ping" 匹配关键字符号 "ping"
 - “-c" 匹配关键字符号 "-c"
-- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 带有回调参数 "REQ_COUNT"，那么生成第一个回调参数元素 cmd_arg[0]，.name = "REQ_COUNT", .value = "5"
-- “www.bing.com” 匹配 "HOST" 符号，"HOST" 符号带有回调参数 "DST_HOST"，那么生成第二个回调参数元素 cmd_arg[1]，.name = "DST_HOST", .value = "www.bing.com"
+- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 带有回调参数 "REQ_COUNT"，那么生成第一个回调参数元素 cmd_arg[0]，name 指向 "REQ_COUNT", value 指向 "5"
+- “www.bing.com” 匹配 "HOST" 符号，"HOST" 符号带有回调参数 "DST_HOST"，那么生成第二个回调参数元素 cmd_arg[1]，name 指向 "DST_HOST", value 指向 "www.bing.com"
 
 解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 调用的 for_each_cmd_arg(cmd_arg, i, name, value)，实际上就是在遍历 cmd_arg[] 数组中各元素，若 name 匹配，就取出其 value。
 
@@ -70,4 +70,4 @@ Libocli 的解析过程如下：
 	}
 ```
 
-上述代码段中的 IS_ARG 宏的作用是做一个名字匹配检查，比如 IS_ARG(name, REQ_COUNT) 会展开为 strcmp(name, "REQ_COUNT") == 0 
+上例代码段中的 IS_ARG 宏与符号定义中的 ARG 宏配合，目的仍然是简化程序和增加可读性。IS_ARG 宏的作用是就是调用 strcmp() 做一个名字匹配检查，比如 IS_ARG(name, REQ_COUNT) 会展开为 (strcmp(name, "REQ_COUNT") == 0)，匹配则返回真。
