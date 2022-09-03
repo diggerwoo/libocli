@@ -6,7 +6,7 @@
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
-在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化/赋值会使得程序冗长，因此 Libocli 提供了几个宏，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和宏定义可参考 [ocli.h](src/ocli.h) 。
+在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化/赋值会使得程序冗长，因此 Libocli 提供了几个宏，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和宏定义可参考 [ocli.h](../src/ocli.h) 。
 
 ## 2.1 定义一个符号
 
