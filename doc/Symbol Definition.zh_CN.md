@@ -1,4 +1,4 @@
-# 2. Libocli 语法符号定义
+# 2. Libocli 符号定义和回调传参
 
 中文 | [English](Symbol%20Definition.md)
 <br>
@@ -6,7 +6,7 @@
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
-在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化/赋值会使得程序冗长，因此 Libocli 提供了几个宏，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和定义可参考 [ocli.h](src/ocli.h) 。
+在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化/赋值会使得程序冗长，因此 Libocli 提供了几个宏，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和宏定义可参考 [ocli.h](src/ocli.h) 。
 
 ## 2.1 定义一个符号
 
@@ -28,7 +28,36 @@
 - DEF_RAR_RANGE 必须指定数值参数类型，LEX_INT 或 LEX_DECIMAL，最后给出最小和最大值限制，例如 COUNT 符号（ping 请求报文次数限制）的定义，限定 1-100 个报文：
 - > DEF_VAR_RANGE	("COUNT",	"<1-100> count of requests", LEX_INT,	ARG(REQ_COUNT), 1, 100)
 
+上述范例中定义回调参数时使用到 ARG 宏，ARG 宏的作用就是生成一个字符串，比如 ARG(DST_HOST)，就展开为 "DST_HOST"。
 
+## 2.2 回调参数的传递
 
+当命令行解析成功后，一个 cmd_arg_t 类型的数组将会被传递给回调函数，cmd_arg_t 包含两个元素：变量名name，和变量值 value。
+```
+typedef struct cmd_arg {
+	char	*name;		/* arg name */
+	char	*value;		/* arg value */
+} cmd_arg_t;
+```
+比如执行：
+>ping -c 5 www.bing.com
 
+Libocli 的解析过程如下：
+- "ping" 匹配关键字符号 "ping"
+- “-c" 匹配关键字符号 "-c"
+- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 有回调参数 "REQ_COUNT"，那么生成一个回调参数元素 cmd_arg[0]，name = "REQ_COUNT", value = "5"
+- “www.bing.com” 匹配了 "HOST" 符号，"HOST" 符号有回调参数 "DST_HOST"，那么生成一个回调参数元素 cmd_arg[1]，name = "DST_HOST", value = "www.bing.com"
 
+解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 调用的 for_each_cmd_arg(cmd_arg, i, name, value)，实际上就是在遍历 cmd_arg[] 数组各元素，若 name 匹配元素，就取出其 value。
+
+```
+	for_each_cmd_arg(cmd_arg, i, name, value) {
+		if (IS_ARG(name, REQ_COUNT))
+			req_count = atoi(value);
+		else if (IS_ARG(name, DST_HOST))
+			strncpy(dst_host, value, sizeof(dst_host)-1);
+		/* ... */
+	}
+```
+
+上述代码段中的 IS_ARG 宏的作用是做一个名字匹配检查，比如 IS_ARG(name, REQ_COUNT) 会展开为 strcmp(name, "REQ_COUNT") == 0 
