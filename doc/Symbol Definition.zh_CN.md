@@ -6,11 +6,11 @@
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
-在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化/赋值会使得程序冗长，因此 Libocli 提供了几个宏，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和宏定义可参考 [ocli.h](../src/ocli.h) 。
+在[快速入门指南](Quick%20Start%20Guide.zh_CN.md)中，我们介绍了定制一个命令行的第一步就是要先定义符号表。符号表是包含多个 symbol_t 元素的数组，而 symbol_t 是个包含了多个元素的 struct，如果直接手写初始化 / 赋值会使得程序冗长，因此 Libocli 提供了一些宏工具，有助于减少初始化的代码量，并提升程序可读性。相关数据结构和宏定义可参考 [ocli.h](../src/ocli.h) 。
 
 ## 2.1 定义一个符号
 
-以下列出定义符号所用的宏定义。
+以下列出定义符号所用的 DEF_ 宏。
 | 宏名称 | 作用 | 宏参数 |
 | :--- | :--- | :--- |
 | DEF_KEY | 定义关键字类型符号 | (符号，帮助文本) |
@@ -18,7 +18,7 @@
 | DEF_VAR | 定义变量类型符号 | (符号，帮助文本，词法类型，回调变量名) |
 | DEF_VAR_RANGE | 定义数值变量类型符号，带数值范围校验 | (符号，帮助文本，数值词法类型，回调变量名，最小值，最大值) |
 
-宏参数规则以及范例：
+DEF_ 宏参数规则以及范例：
 - 所有宏的首两个参数都是：符号名，帮助文本，这个两个参数都是字符串。帮助文本用于在命令行交互中使用 '?' 列出本词或下一词的帮助信息。例如首个关键字符号 "ping" 的定义：
   > 
   ```
@@ -53,12 +53,12 @@ typedef struct cmd_arg {
 >ping -c 5 www.bing.com
 
 Libocli 的解析过程如下：
-- "ping" 匹配关键字符号 "ping"
-- “-c" 匹配关键字符号 "-c"
-- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 带有回调参数 "REQ_COUNT"，那么生成第一个回调参数元素 cmd_arg[0]，name 指向 "REQ_COUNT", value 指向 "5"
-- “www.bing.com” 匹配 "HOST" 符号，"HOST" 符号带有回调参数 "DST_HOST"，那么生成第二个回调参数元素 cmd_arg[1]，name 指向 "DST_HOST", value 指向 "www.bing.com"
+1. "ping" 匹配关键字符号 "ping"
+2. “-c" 匹配关键字符号 "-c"
+3. "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 带有回调参数 "REQ_COUNT"，那么生成第一个回调参数元素 cmd_arg[0]，name 指向 "REQ_COUNT", value 指向 "5"
+4. “www.bing.com” 匹配 "HOST" 符号，"HOST" 符号带有回调参数 "DST_HOST"，那么生成第二个回调参数元素 cmd_arg[1]，name 指向 "DST_HOST", value 指向 "www.bing.com"
 
-解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 调用的 for_each_cmd_arg(cmd_arg, i, name, value)，实际上就是在遍历 cmd_arg[] 数组中各元素，若 name 匹配，就取出其 value。
+解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 的 for_each_cmd_arg(cmd_arg, i, name, value) 循环就是在遍历 cmd_arg[] 数组，若数组元素 name 匹配，则取出其 value。
 
 ```
 	for_each_cmd_arg(cmd_arg, i, name, value) {
