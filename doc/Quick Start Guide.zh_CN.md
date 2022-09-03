@@ -86,7 +86,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 	bzero(dst_host, sizeof(dst_host));
 	bzero(local_addr, sizeof(local_addr));
 
-	/* 使用 for_each_cmd_arg() 和 IS_ARG() 宏，解析符号表中所定义的变量 */
+	/* 使用 for_each_cmd_arg() 和 IS_ARG() 宏，解析符号表中所定义的回调参数 */
 	for_each_cmd_arg(cmd_arg, i, name, value) {
 		if (IS_ARG(name, REQ_COUNT))
 			req_count = atoi(value);
