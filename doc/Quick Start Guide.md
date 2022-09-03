@@ -8,24 +8,22 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 Libocli itself does not implement the terminal line editing functions, it depends on GNU readline which has rich features including: Emacs keys, TAB  for auto completion, double TABs for next help list, ARROW UP/DOWN for history, etc.
 
-Libocli is actuall an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
+Libocli is actually an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
 By utilizing Libocli, develpers need only to focus on CLI syntax design, and callback implementation.
 The example code in this section shows how to use Libocli to quickly build a ping command.
 
 ## 1.1 Create a command and register syntaxes
 
-Below code is extracted from [example/netutils.c](../example/netutils.c)  
+The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping:
+- Two options after the "ping" keyword："-c" to specify the number of ICMP Echo requests, and "-s" to specify the length of ICMP packet.
+- Optional "from" clause after destination host parameter, to specify the source interface IP address.
 
-It implements a ping CLI, which has three options:
-- Options after the "ping" keyword："-c" to specify number of ICMP Echo requests, and "-s" to specify packet length.
-- Optional "from" clause after destination host parameter, to specify the source IP address of ping.
-
-In accordance with the convention of Linix manual, the syntax can be represented as:
+We can represent the syntax as below in accordance with the convention of Linix manual:
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 Define a symbol table
 
-Before the creation of ping command, we shoud define the symbols first. The code below declares a symbol table which includes all the symbols needed by the ping.
+Before the creation of ping command, we shoud define the symbols first. The code below declares a symbol table that includes all the symbols needed by the ping.
 ```
 /*
  * Symbol table:  syms_ping
@@ -54,7 +52,7 @@ static symbol_t syms_ping[] = {
 
 ### 1.1.2 Create command, and register syntaxes
 
-Then based on the symbol table, we create the ping command, and register the syntax. All words in the syntax string should be previously defined in the symbol table, or else error occurs.
+Then based on the symbol table, we create the ping command, and register a syntax. Please note that all words in the syntax string should be previously defined in the symbol table, or else error occurs.
 ```
 int cmd_net_utils_init()
 {
@@ -72,7 +70,7 @@ int cmd_net_utils_init()
 
 ### 1.1.3 Implement callback function
 
-Now we can implement the callback function. The callback function parses all the ARGs defined previously in the symbol table, then compose a system ping command, finally excecute it.
+Now we can implement the callback function. The callback function parses and gets all the ARGs defined previously in the symbol table, then compose an external ping command, finally excecutes it.
 
 ```
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
@@ -112,7 +110,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 Main program
 
-Below code is extracted from [example/democli.c](../example/democli.c). The main() function is quite straitforward: ocli_rl_init() to initialize，then cmd_xxx_init() to create commands and syntaxes，finally ocli_rl_loop() to parse command and execute callbacks untill exit.
+Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward to utlize the libocli APIs: call ocli_rl_init() to initialize libocli runtime environment，then call bunch of cmd_xxx_init() functions to create commands and syntaxes，finally call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
 ```
 /* libocli header */
