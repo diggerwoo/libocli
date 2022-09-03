@@ -1,4 +1,4 @@
-# 3. Libocli 词法解析
+# 3. Libocli 词法分析
 
 中文 | [English](Lexical%20Parsing.md)
 <br>
@@ -6,11 +6,11 @@
 
 作者：Digger Wu (digger.wu@linkbroad.com)
 
-## 3.1 词法类型和解析函数
+## 3.1 词法类型和词法分析函数
 
-Libocli 在 [lex.h](../src/lex.h) 中定义了常用的词法，用于定义变量类型符号的词法类型。每个词法类型对应一个词法解析函数（基于 pcre 实现）可直接用于判断词法。词法解析函数统一为 int is_xxx(str) 风格命名，参数为字符串指针，匹配则返回真。
+Libocli 在 [lex.h](../src/lex.h) 中定义了常用的词法，用于定义变量类型符号的词法类型。每个词法类型对应一个词法分析函数（基于 pcre 实现）可直接用于判断词法。词法分析函数统一为 int is_xxx(str) 风格命名，参数为字符串指针，匹配则返回真。
 
-| 词法类型 | 说明 | 词法解析函数 |
+| 词法类型 | 说明 | 词法分析函数 |
 | :--- | :--- | :--- |
 | LEX_INT | 10进制整型 | is_int() |
 | LEX_HEX | 16进制整型 | is_hex() |
@@ -49,7 +49,7 @@ Libocli 支持自定义词法，最多可自定义 MAX_CUSTOM_LEX_NUM (128）个
 #define LEX_FOO_0 LEX_CUSTOM_BASE_TYPE
 #define LEX_FOO_1 (LEX_CUSTOM_BASE_TYPE + 1)
 
-/* 词法解析函数 */
+/* 词法分析函数 */
 extern int is_foo_0(char *str);
 extern int is_foo_1(char *str);
 
@@ -57,7 +57,7 @@ extern int is_foo_1(char *str);
 int mylex_init();
 ```
 
-2. 在自定义词法解析模块中实现解析函数和初始化函数：
+2. 在自定义词法分析模块中实现上述函数：
 ```
 #include "mylex.h"
 
@@ -81,7 +81,7 @@ int mylex_init()
 ```
 
 3. 主程序初始化 libocli_rl_init() 后，调用 mylex_init()，注册自定义词法
-4. 之后各个模块都可以使用 LEX_FOO_0 和 LEX_FOO_1 来定义自己的符号词法类型了，注意不要忘记 #include <mylex.h>
+4. 之后各个模块都可以使用 LEX_FOO_0 和 LEX_FOO_1 来定义自己的符号词法类型了，注意不要忘记 #include "mylex.h"
 
 
 
