@@ -111,7 +111,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 Main program
 
-Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward to utlize the libocli APIs: call ocli_rl_init() to initialize libocli runtime environment，then call bunch of cmd_xxx_init() functions to create commands and syntaxes，finally call ocli_rl_loop() to parse commands and execute callbacks until exit.
+Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: call ocli_rl_init() to initialize libocli runtime environment，then call bunch of cmd_xxx_init() functions to create commands and syntaxes，finally call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
 ```
 /* libocli header */
