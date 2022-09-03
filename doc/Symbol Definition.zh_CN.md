@@ -11,12 +11,12 @@
 ## 2.1 定义一个符号
 
 以下列出定义符号所用的宏定义。
-| 宏名 | 说明 | 宏参 |
-| --- | --- | --- |
-| DEF_KEY | 定义一个关键字类型符号 | 语法符号，帮助文本 |
-| DEF_KEY_ARG | 定义一个关键字类型符号，带回调参数 | 语法符号，帮助文本，回调变量名 |
-| DEF_VAR | 定义一个可变参数类型符号 | 语法符号，帮助文本，词法类型，回调变量名 |
-| DEF_VAR_RANGE | 定义一个可变参数类型符号，带数值范围校验 | 语法符号，帮助文本，数值词法类型，回调变量名，最小值，最大值
+| 宏名称 | 作用 | 宏参数 |
+| :--- | :--- | :--- |
+| DEF_KEY | 定义关键字类型符号 | (符号，帮助文本) |
+| DEF_KEY_ARG | 定义关键字类型符号，带回调参数 | (符号，帮助文本，回调变量名) |
+| DEF_VAR | 定义变量类型符号 | (符号，帮助文本，词法类型，回调变量名) |
+| DEF_VAR_RANGE | 定义数值变量类型符号，带数值范围校验 | (符号，帮助文本，数值词法类型，回调变量名，最小值，最大值) |
 
 宏参数规则以及范例：
 - 所有宏的首两个参数都是：符号名，帮助文本，这个两个参数都是字符串。帮助文本用于在命令行交互中使用 '?' 列出本词或下一词的帮助信息。例如首个关键字符号 "ping" 的定义：
@@ -24,40 +24,41 @@
   ```
   DEF_KEY ("ping", "Ping utility")
   ```
-- 回调变量名 对于 DEF_* 是必选的，对于 DEF_VAR* 则是可选的，多个符号可以使用相关的回调变量。
-- 所有 DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_INT，等等。例如 HOST 是域名格式，但是 HOST_IP 是 IP 地址格式，两者都使用了相同的回调变量 DST_HOST：
-  > 
-  ```
+- DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_DOMAIN_NAME，LEX_INT，等等。详细的词法类型可参考下一节 [Libocli 词法解析](Lexical%20Parsing.zh_CN.md)。
+
+- 除了 DEF_KEY，其它 DEF_ 宏都必须指定回调变量名，回调变量名是个字符串，例子程序中我们使用 ARG 宏来定义回调变量名，ARG 宏的作用就将宏参数展开为一个字符串，下例中的  ARG(DST_HOST)，会展开为 "DST_HOST"
+  ```  
+  /* 注意：因为 ping 语法的 HOST_IP 和 HOST 符号二者只能匹配其一，
+   * 所以两符号可使用相同的回调参数名 "DST_HOST"，简化回调函数的参数处理
+   */
   DEF_VAR ("HOST_IP", "Destination IP address", LEX_IP_ADDR, ARG(DST_HOST)),  
   DEF_VAR ("HOST", "Destination domain name", LEX_DOMAIN_NAME, ARG(DST_HOST))
   ```
-- DEF_RAR_RANGE 必须指定数值参数类型，LEX_INT 或 LEX_DECIMAL，最后给出最小和最大值限制，例如 COUNT 符号（ping 请求报文次数限制）的定义，限定 1-100 个报文：
+- DEF_VAR_RANGE 必须指定数值词法类型（LEX_INT 或 LEX_DECIMAL），并给出最小和最大数值参数，下例中 COUNT 符号（ping 请求报文次数限制）限定输入 1-100 整型：
   >
   ```
   DEF_VAR_RANGE	("COUNT", "<1-100> count of requests", LEX_INT, ARG(REQ_COUNT), 1, 100)
   ```
 
-上述范例中定义回调参数时使用到 ARG 宏，ARG 宏的作用就将宏参数展开为一个字符串，比如 ARG(DST_HOST)，就展开为 "DST_HOST"。
-
 ## 2.2 回调参数的传递
 
-当命令行解析成功后，一个 cmd_arg_t 类型的数组将会被传递给回调函数，cmd_arg_t 包含两个元素：变量名name，和变量值 value。
+当命令行解析成功后，一个 cmd_arg_t 类型的数组将会被传递给回调函数，cmd_arg_t 包含两个元素：变量名 name，和变量值 value。
 ```
 typedef struct cmd_arg {
 	char	*name;		/* arg name */
 	char	*value;		/* arg value */
 } cmd_arg_t;
 ```
-比如执行：
+比如执行如下 ping 命令行：
 >ping -c 5 www.bing.com
 
 Libocli 的解析过程如下：
 - "ping" 匹配关键字符号 "ping"
 - “-c" 匹配关键字符号 "-c"
-- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 有回调参数 "REQ_COUNT"，那么生成一个回调参数元素 cmd_arg[0]，name = "REQ_COUNT", value = "5"
-- “www.bing.com” 匹配了 "HOST" 符号，"HOST" 符号有回调参数 "DST_HOST"，那么生成一个回调参数元素 cmd_arg[1]，name = "DST_HOST", value = "www.bing.com"
+- "5" 匹配 "COUNT" 符号，且满足 1 < 5 < 100，因 COUNT 带有回调参数 "REQ_COUNT"，那么生成第一个回调参数元素 cmd_arg[0]，.name = "REQ_COUNT", .value = "5"
+- “www.bing.com” 匹配 "HOST" 符号，"HOST" 符号带有回调参数 "DST_HOST"，那么生成第二个回调参数元素 cmd_arg[1]，.name = "DST_HOST", .value = "www.bing.com"
 
-解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 调用的 for_each_cmd_arg(cmd_arg, i, name, value)，实际上就是在遍历 cmd_arg[] 数组各元素，若 name 匹配元素，就取出其 value。
+解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 调用的 for_each_cmd_arg(cmd_arg, i, name, value)，实际上就是在遍历 cmd_arg[] 数组中各元素，若 name 匹配，就取出其 value。
 
 ```
 	for_each_cmd_arg(cmd_arg, i, name, value) {
