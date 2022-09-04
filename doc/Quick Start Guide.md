@@ -12,7 +12,7 @@ Libocli is actually an add-on which encapsulates GNU Readline to provide command
 By utilizing Libocli, develpers need only to focus on command syntax design, and callback implementation.
 The example code in this section shows how to use Libocli to quickly build a ping command.
 
-## 1.1 Create a command and register syntaxes
+## 1.1 Quick building of a ping command
 
 The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping. The options and paramter are defined as below:
 - Two options："-c" to specify the number of ICMP Echo requests, and "-s" to specify the length of ICMP packet.
@@ -111,7 +111,11 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 Main program
 
-Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: call ocli_rl_init() to initialize libocli runtime environment，then call bunch of cmd_xxx_init() functions to create commands and syntaxes，finally call ocli_rl_loop() to parse commands and execute callbacks until exit.
+Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
+- Call ocli_rl_init() to initialize libocli runtime environment.
+- Create all command and syntaxes, the commands creation and syntaxes registration are in each cmd_xxx_init() functions, including cmd_net_utils_init() which creates the "ping".
+- Cutomize libocli settings, including terminal timeout, initial VIEW and prompts.
+- Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
 ```
 /* libocli header */
@@ -121,9 +125,6 @@ int main()
 {
 	/* Always init ocli_rl_init first */
 	ocli_rl_init();
-
-	/* For the sake of security, exit if terminal idled for 5 minutes */
-	ocli_rl_set_timeout(300);
 
 	/* Create libocli builtin commands: "man" and "no" */
 	cmd_manual_init();
@@ -140,6 +141,9 @@ int main()
 
 	/* Auto exec "exit" for when CTRL-D being pressed */
 	ocli_rl_set_eof_cmd("exit");
+
+	/* For the sake of security, exit if terminal idled for 5 minutes */
+	ocli_rl_set_timeout(300);
 
 	/* Start from BASIC_VIEW */
 	ocli_rl_set_view(BASIC_VIEW);
