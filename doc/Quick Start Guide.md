@@ -14,7 +14,7 @@ The example code in this section shows how to use Libocli to quickly build a pin
 
 ## 1.1 Quick building of a ping command
 
-The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping. The options and paramter are defined as below:
+The following code segments are taken from [example/netutils.c](../example/netutils.c) which implements a ping CLI with simple options like Linux ping‘s. The options and paramter are defined as below:
 - Two options："-c" to specify the number of ICMP Echo requests, and "-s" to specify the length of ICMP packet.
 - Madatory destination host parameter: either IP address or domain name format.
 - Optional "from" clause: to specify the source interface IP address.
@@ -24,7 +24,7 @@ We can represent the syntax as below in accordance with the convention of Linix 
 
 ### 1.1.1 Define a symbol table
 
-Before the creation of ping command, we shoud define all the symbols included in the above syntax first, include keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
+Before the creation of ping command, we shoud firstly define all the symbols included in the above syntax, include keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
 ```
 /*
  * Symbol table:  syms_ping
@@ -51,7 +51,7 @@ static symbol_t syms_ping[] = {
 };
 ```
 
-### 1.1.2 Create command, and register syntaxes
+### 1.1.2 Create command and register syntax
 
 Then based on the symbol table, we create the ping command, and register a syntax. Please note that all words in the syntax string should be previously defined in the symbol table, or else error occurs.
 ```
@@ -113,7 +113,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
 - Call ocli_rl_init() to initialize libocli runtime environment.
-- Create all command and syntaxes, the commands creation and syntaxes registration are in each cmd_xxx_init() functions, including cmd_net_utils_init() which creates the "ping".
+- Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions, including cmd_net_utils_init() that creates the "ping".
 - Cutomize libocli settings, including terminal timeout, initial VIEW and prompts.
 - Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
