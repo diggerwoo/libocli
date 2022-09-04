@@ -1,4 +1,4 @@
-# 4. Libocli 命令行语法注册接口
+# 4. Libocli 命令和语法注册接口
 
 中文 | [English](Syntax%20Register.md)
 <br>
