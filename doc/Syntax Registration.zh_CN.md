@@ -28,7 +28,7 @@ create_cmd_tree(char *cmd,              /* 命令关键字 */
                 );
 ```
 
-SYM_TABLE 宏可以简化调用写法，如 [netutils.c](../example/netutils.c) 所示：
+SYM_TABLE 宏可以简化 create_cmd_tree() 调用写法，如 [netutils.c](../example/netutils.c) 所示：
 ```
 static symbol_t syms_ping[] = {
         DEF_KEY ("ping",        "Ping utility"),
@@ -49,4 +49,54 @@ int cmd_ping_init()
 回调函数类型 cmd_fun_t 的参数：
 - 第一个参数是 cmt_art_t 类型数组指针，指向命令行解析过程所产生的回调参数数组，在 [回调传参](Symbol%20Definition.zh_CN.md) 一节中有具体描述。  
 - 第二个参数是个整型，例子中的回调函数都使用 do_flag 来命名这个参数。这个参数用于告知回调函数当下这个命令常规执行的（即 do_flag| DO_FLAG 为真），还是以 "no" 语法方式执行的（即 do_flag | UNDO_FLAG 为真）。很明显 ping 命令不需要 no 语法，但是配置命令可能需要，比如例子中的 route 命令，删除路由时需要 no route ...，参考 [route.c](../example/route.c)。
+
+## 4.2 注册语法
+
+注册语法接口函数为 add_cmd_easily() 和 add_cmd_syntax()，定义如下：
+```
+/* 预定义的视图，每个视图独立占一位 */
+#define	BASIC_VIEW		0x0001
+#define	ENABLE_VIEW		0x0002
+#define	CONFIG_VIEW		0x0004
+
+/* do_flag 参数的的位定义，仅当需要 "no" 语法，置位 UNDO_FLAG */
+#define	DO_FLAG		0x01
+#define	UNDO_FLAG	0x02
+
+/* 注册语法，并自动生成手册文本，成功返回 0，否则返回 -1 */
+int add_cmd_easily(struct cmd_tree *cmd_tree,   /* create_cmd_tree返回的语法树指针 */
+                   char *syntax,                /* 语法字符串 */
+                   int view_mask,               /* 本语法的视图掩码 */
+                   int do_flag                  /* DO_FLAG 和 UNDO_FLAG 的位或组合 */
+                   );
+
+/* 仅注册语法，参数和返回定义同上 add_cmd_easily() */
+int add_cmd_syntax(struct cmd_tree *cmd_tree,
+                   char *syntax,
+                   int view_mask,
+                   int do_flag);
+
+```
+
+以下给出三个应用范例：
+
+1. 注册一条 ping 语法如下，见 [netutils.c](../example/netutils.c)，这条命令语法只能 enable 后才能访问（除 BASIC_VIEW 之外的所有视图），不支持 "no" 语法（do_flag 赋值 DO_FLAG）。
+```
+add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
+	       (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
+```
+
+2. 分别在不同视图中注册 "enable" 和 "enable password" 语法，见 [democli.c](../example/democli.c)。
+```
+	/* 注册一条 "enable" 语法，只能在 BASIC_VIEW 视图访问（输入密码后提升至 ENABLE_VIEW） */
+	add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
+
+	/* 注册一条 "enable password" 语法，只能在 ENABLE_VIEW 中访问，用于修改 enable 密码 */
+	add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
+```
+
+3. 注册支持 "no" 的 "route" 语法，注意 do_flag 赋值 DO_FLAG|UNDO_FLAG，此条语法只能在 CONFIG_VIEW 视图中访问，见 [route.c](../example/route.c)。
+```
+add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
+```
 
