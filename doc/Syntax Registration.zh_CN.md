@@ -106,8 +106,19 @@ add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG)
 add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
 
 ```
+## 4.3 特殊语法字符 [ ] { | } 的使用以及限制
 
-## 4.3 添加个性化手册文本
+Libocli 注册语法时可使用 " [ ] { | } " 表达选项语法：
+- 多选一语法段，{ | }  ，每个符号单词之间必须使用 | 分隔，比如 " { block | pass } "，" { tcp | udp | icmp } "
+- 可选项语法段，[  ]，一个段落内可包含多个符号单词，比如 " [ -c COUNT ] [ -s PKT_SIZE ] "
+
+使用限制注意：
+- 特殊字符之间，以及特殊字符与其他符号单词之间，必须用空格隔离
+- 可选项段落 [ ] 内不允许再重复嵌套可选项 [ ]，但允许嵌套一层多选一 { }，比如 " [ from { IP_ADDR | IFNAME } ] "
+- 多选一段落 { } 之内不允许再嵌套任何 [ ] 或 { }
+
+
+## 4.4 添加个性化手册文本
 
 如果你不想使用 add_cmd_easily() 自动生成的手册，而需要个性化创建手册，那么可以调用 add_cmd_manual() 接口，再调用 add_cmd_syntax()。add_cmd_manual() 接口定义如下： 
 
