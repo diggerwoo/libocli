@@ -107,9 +107,9 @@ add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
 
 ```
 
-## 4.3 添加手册文本
+## 4.3 添加个性化手册文本
 
-前述范例中调用 add_cmd_easily() 时可以自动根据语法串创建手册行。如果你觉得需要个性化创建手册，可以调用 add_cmd_manual() 接口：
+如果你不想使用 add_cmd_easily() 自动生成的手册，而需要个性化创建手册，那么可以调用 add_cmd_manual() 接口，再调用 add_cmd_syntax()。add_cmd_manual() 接口定义如下： 
 
 ```
 int add_cmd_manual(struct cmd_tree *cmd_tree,	/* 语法树指针 */
