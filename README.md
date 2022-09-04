@@ -1,7 +1,7 @@
 # Libocli
 English | [中文](README.zh_CN.md)
 
-Library of Open Command Line Interface - is a Linux C library / framework which is helpful for the fast building of Cisco style command line interface. The [example directory](example) includes a "democli" program，which demonstates the implementations of "enable", "configure terminal", "ping", “show", and  "route" commands. [Libocli Quick Start Guide](doc/Quick%20Start%20Guide.md) briefly describes how to build a simple "ping" command。
+Library of Open Command Line Interface - is a Linux C library / framework which is helpful for the fast building of Cisco style command line interface. The [example directory](example) includes a "democli" program，which demonstates how to use Libocli to implement the "enable", "configure terminal", "ping", “show", and  "route" commands. [Libocli Quick Start Guide](doc/Quick%20Start%20Guide.md) describes the main steps of how to build a simple "ping" command, including symbol definition, syntax registration, and callback implementation.
 
 Below videos show the runnning result of "democli".
 
