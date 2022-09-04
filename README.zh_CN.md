@@ -1,8 +1,8 @@
 # Libocli
 中文 | [English](README.md)
 
-Library of Open Command Line Interface - 是一个开源 Linux C 库 / 框架，可用于快速构建具有 Cisco 风格的命令行程序。  
-[example目录](example) 中包含了一个 "democli" 例子程序，演示了如何利用 Libocli 实现 "enable", "configure terminal", "ping", “show", "route" 等命令。  
+Library of Open Command Line Interface - 是一个开源 Linux C 库 / 框架，可用于快速构建具有 Cisco 风格的命令行程序。
+[example 目录](example) 中包含了一个 "democli" 例子程序，演示了如何利用 Libocli 实现 "enable", "configure terminal", "ping", “show", "route" 等命令。
 [Libocli 快速入门指南](doc/Quick%20Start%20Guide.zh_CN.md) 以一个简单的 ping 命令为例，讲解了构建命令行所需的几个关键步骤，包括符号表定义，语法注册，和回调函数实现。
 
 ”democli" 例子程序运行效果如下：
