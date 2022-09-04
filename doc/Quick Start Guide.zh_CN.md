@@ -17,12 +17,12 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 本例程序片段摘自 [example/netutils.c](../example/netutils.c)，例子中设计了一个简单的 Linux 选项风格的 ping 命令语法，选项和参数依次定义如下： 
 - 两个含参可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
 - 目的地址参数，格式可以是 IP 地址，或者域名
-- 可选的含参 "from" 子句，指定 ping 的接口源 IP 地址  
+- 可选的 "from" 子句，可指定 ping 的接口源 IP 地址  
 
 按 Linux 手册的惯常写法，上述 ping 语法可表达为：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
-### 1.1.1 定义一个符号表
+### 1.1.1 定义符号表
 
 实现上述 ping 命令之前，我们首先要定义符号表，表中包含 ping 语法串中的所有单词，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法标记： "[ ] { | }" 。
 
@@ -113,8 +113,9 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 以下主程序片段摘自 [example/democli.c](../example/democli.c)。使用 Libocli 后，主程序的写法就很简单了：
 - ocli_rl_init() 初始化
-- 调用各个模块的 cmd_xxx_init() 注册命令和语法，包括了我们注册 ping 命令语法的 cmd_net_utils_init() 函数
-- ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直到程序退出
+- 注册所有的命令和语法，在 democli 这个例子里，命令注册流程都实现在各个模块的 cmd_xxx_init() 函数里，包括了注册 ping 命令语法的 cmd_net_utils_init()
+- 设置必要的命令行控制选项，包括命令行超时时间、初始权限视图、提示符，等等
+- 调用 ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直至程序退出
 
 ```
 /* libocli 头文件 */
@@ -125,9 +126,6 @@ int main()
 	/* 初始化 libocli */
 	ocli_rl_init();
 
-	/* 终端 5 分钟空闲，自动退出，这通常是专业命令行必备的安全设置项 */
-	ocli_rl_set_timeout(300);
-    
 	/* 启用 libocli 内置命令： "man" 和 "no" */
 	cmd_manual_init();
 	cmd_undo_init();
@@ -144,6 +142,9 @@ int main()
 	/* 若按下 CTRL-D，自动执行 "exit" 命令，就像 bash 那样  */
 	ocli_rl_set_eof_cmd("exit");
 
+	/* 终端 5 分钟空闲，自动退出，这通常是专业命令行必备的安全设置项 */
+	ocli_rl_set_timeout(300);
+    
 	/* 设置初始权限视图为 BASIC_VIEW  */
 	ocli_rl_set_view(BASIC_VIEW);
 	set_democli_prompt(BASIC_VIEW);
