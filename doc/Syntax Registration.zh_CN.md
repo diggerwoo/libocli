@@ -81,31 +81,30 @@ int add_cmd_syntax(struct cmd_tree *cmd_tree,
 以下给出几个典型应用范例：
 
 1. 注册一条 ping 语法如下，见 [netutils.c](../example/netutils.c)，这条命令语法只能 enable 后才能访问（除 BASIC_VIEW 之外的所有视图），不支持 "no" 语法（do_flag 赋值 DO_FLAG）。
-```
-add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
-	       (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
-```
+    ```
+    add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
+                   (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
+    ```
 
 2. 分别在不同视图中注册 "enable" 和 "enable password" 语法，见 [democli.c](../example/democli.c)。
-```
-/* 注册一条 "enable" 语法，只能在 BASIC_VIEW 视图访问，用于输入 enable 密码后提权至 ENABLE_VIEW */
-add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
+    ```
+    /* 注册一条 "enable" 语法，只能在 BASIC_VIEW 视图访问，用于输入 enable 密码后提权至 ENABLE_VIEW */
+    add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
 
-/* 注册一条 "enable password" 语法，只能在 ENABLE_VIEW 中访问，用于修改 enable 密码 */
-add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
-```
+    /* 注册一条 "enable password" 语法，只能在 ENABLE_VIEW 中访问，用于修改 enable 密码 */
+    add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
+    ```
 
 3. 注册支持 "no" 的 "route" 语法，注意 do_flag 赋值 DO_FLAG|UNDO_FLAG，此条语法只能在 CONFIG_VIEW 视图中访问，见 [route.c](../example/route.c)。
-```
-add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
-```
+    ```
+    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
+    ```
 
 4. 上例中，你可能觉得 no route 删除路由时，最后一个 GW_ADDR 是多余的，因为 (DST_NET + DST_MASK) 组合就是一条静态路由的主键，如果你真想这么做，就需要做语法拆分，独立注册一条  UNDO_FLAG 的语法，如下所示。
-```
-add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG);
-add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
-
-```
+    ```
+    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG);
+    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
+    ```
 ## 4.3 特殊语法字符 [ ] { | } 的使用以及限制
 
 Libocli 注册语法时可使用 **[ ] { | }** 表达选项语法：
