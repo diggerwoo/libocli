@@ -13,14 +13,14 @@ In the section of [Quick Start Guide](Quick%20Start%20Guide.md) we introduce tha
 The macros being used to define symbols are listed below:
 | Name | Description | Parameters |
 | :--- | :--- | :--- |
-| DEF_KEY | Define a keyword symbol | (sym_name, help_text) |
-| DEF_KEY_ARG | Define a keyword symbol with callback argument | (sym_name, help_text, arg_name) |
-| DEF_VAR | Define a variable symbol | (sym_name, help_text, lex_type, arg_name) |
-| DEF_VAR_RANGE | Define a variable symbol with range limits | (sym_name, help_text, lex_type, arg_name, min_val, max_val) |
+| DEF_KEY | Defines a keyword symbol | (sym_name, help_text) |
+| DEF_KEY_ARG | Defines a keyword symbol with callback argument | (sym_name, help_text, arg_name) |
+| DEF_VAR | Defines a variable symbol | (sym_name, help_text, lex_type, arg_name) |
+| DEF_VAR_RANGE | Defines a variable symbol with range limits | (sym_name, help_text, lex_type, arg_name, min_val, max_val) |
 
 Key points and  examples:
 
-- The first two parameters of all DEF_ macros are alway sym_name and help_text, and both are of string type. The help_text is used to display help information when user pressing '?'. For example, defining the first keyword "ping":
+- The first two parameters of all DEF_ macros are alway sym_name and help_text, and both are of string type. The help_text is used to display help information when user pressing '?'. Below example defines the first keyword "ping":
   > 
   ```
   DEF_KEY ("ping", "Ping utility")
@@ -28,11 +28,12 @@ Key points and  examples:
 - DEF_VAR must have a lex_type parameter, e.g. LEX_IP_ADDR, EX_DOMAIN_NAME, or LEX_INT. For details of lexcical types please refer to the next section [Libocli Lexcical Parsing Interface](Lexical%20Parsing.md).
 
 
-- All DEF_ macros except DEF_KEY should have a arg_name parameter which is the name of the callback argument. In the examples we use ARG macro to define a arg_name. E.g. ARG(DST_HOST) is exactly the "DST_HOST" .
+- All DEF_ macros except DEF_KEY should have an arg_name parameter which is the name of the callback argument. In all examples we use ARG macro to define an arg_name. E.g. ARG(DST_HOST) is exactly the "DST_HOST" .
 
   ```  
-  /* The { HOST_IP | HOST } in the ping syntax are an alternative, so they can be assigned
-   * the same arg_name "DST_HOST", that can simplify the callback process */
+  /* The { HOST_IP | HOST } in the ping syntax are an alternative, so they can be assigned with
+   * the same arg_name "DST_HOST", less callback args can simplify the callback function.
+   */
   DEF_VAR ("HOST_IP", "Destination IP address", LEX_IP_ADDR, ARG(DST_HOST)),  
   DEF_VAR ("HOST", "Destination domain name", LEX_DOMAIN_NAME, ARG(DST_HOST))
   ```
@@ -55,11 +56,11 @@ For example you input a ping command line:
 
 >ping -c 5 www.bing.com
 
-The parsing / matching process of Libocli will be:  
+Then the parsing / matching process will be:  
 1. "ping" matches the symbol "ping".
 2. “-c" matches the symbol "-c".
 3. "5" matches symbol "COUNT" with LEX_INT type and passes the range check 1 < 5 < 100. The symbol has callback argument "REQ_COUNT". So the first element cmd_arg[0] is generated with name = "REQ_COUNT" and value = "5".
-4. “www.bing.com” matches symbol "HOST" with LEX_DOMAIN_NAME type, The symble has callback argument "DST_HOST", so the second element cmd_arg[1] is gernerated with name = "DST_HOST" and value = "www.bing.com".
+4. “www.bing.com” matches symbol "HOST" with LEX_DOMAIN_NAME type, The symbol has callback argument "DST_HOST", so the second element cmd_arg[1] is gernerated with name = "DST_HOST" and value = "www.bing.com".
 
 After finishing parsing, the pointer to cmd_arg[] will be passed to the callback function cmd_ping(). By calling for_each_cmd_arg(cmd_arg, i, name, value) to iterate the whole cmd_arg[] array, cmd_ping() gets the callback arguments and saves them into local variable req_count and dst_host[].
 
