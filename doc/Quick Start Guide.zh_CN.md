@@ -1,4 +1,4 @@
-# 1. Libocli 快速入门
+# 1. Libocli 快速入门指南
 
 中文 | [English](Quick%20Start%20Guide.md)
 <br>
@@ -12,7 +12,7 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 使用 Libocli 开发命令行程序时，开发者只要专注于：注册一个命令行和以及语法，实现该命令行对应的回调业务函数。
 以下用一个 ping 的例子简述如何使用 Libocli 快速构建一个带有可选项语法的命令行。
 
-## 1.1 注册一个命令行以及语法
+## 1.1 在 netutils.c 中实现 ping 命令行
 
 本例程序片段摘自 [example/netutils.c](../example/netutils.c)，例子中设计了一个简单的 Linux 选项风格的 ping 命令语法，选项和参数依次定义如下： 
 - 两个含参可选项："-c" 指定发送 ICMP Echo 报文次数，"-s" 指定报文长度
@@ -22,7 +22,7 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 按 Linux 手册的惯常写法，上述 ping 语法可表达为：
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
-### 1.1.1 定义一个符号表
+### 1.1.1 定义一个符号表 syms_ping
 
 实现上述 ping 命令之前，我们首先要定义符号表，表中包含 ping 语法串中的所有单词，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法标记： "[ ] { | }" 。
 
@@ -52,9 +52,9 @@ static symbol_t syms_ping[] = {
 };
 ```
 
-### 1.1.2 创建命令，并注册语法
+### 1.1.2 在 cmd_net_utils_init() 中创建命令，并注册语法
 
-之后，我们基于符号表创建命令、注册语法。注册语法串中出现的所有单词都应该是符号表中预先定义好的，否则会注册失败。
+之后，我们在 cmd_net_utils() 函数中，基于符号表创建命令、注册语法。注册语法串中出现的所有单词都应该是符号表中预先定义好的，否则会注册失败。
 ```
 int cmd_net_utils_init()
 {
@@ -70,9 +70,9 @@ int cmd_net_utils_init()
 }
 ```
 
-### 1.1.3 实现回调业务函数
+### 1.1.3 实现回调业务函数 cmd_ping()
 
-现在我们可以实现回调函数了。回调函数尝试解析所有的回调参数（符号表里 ARG 宏定义的），然后组装出一条 Linux 系统 ping 命令，并执行。
+现在我们可以实现回调函数 cmd_ping() 了。回调函数尝试解析所有的回调参数（符号表里 ARG 宏定义的），然后组装出一条 Linux 系统 ping 命令，并执行。
 ```
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 {
@@ -109,9 +109,12 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 }
 ```
 
-## 1.2 主程序流程
+## 1.2 将 cmd_net_utils_init() 加入主程序流程
 
-以下主程序片段摘自 [example/democli.c](../example/democli.c)。使用 Libocli 后，主程序的写法就很简单了：ocli_rl_init() 初始化，然后调用各个模块的 cmd_xxx_init() 注册命令和语法，之后 ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直到程序退出：
+以下主程序片段摘自 [example/democli.c](../example/democli.c)。使用 Libocli 后，主程序的写法就很简单了：
+- ocli_rl_init() 初始化
+- 调用各个模块的 cmd_xxx_init() 注册命令和语法，这个过程中嵌入了我们刚开发完毕的 cmd_net_utils_init()
+- ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直到程序退出
 
 ```
 /* libocli 头文件 */
