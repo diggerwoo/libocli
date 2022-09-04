@@ -8,7 +8,7 @@
 
 本节罗列了 Libocli 的命令行控制接口函数，多数都以 ocli_rl_ 前缀命名，大多数函数中都在 [democli.c](../example/democli.c) 的 main() 中出现过。
 
-1. 初始化函数，用于初始化 GNU Readline 和 Libocli 运行时环境，并保存当前的终端特性设置。成功返回 0，失败 -1 。
+1. 初始化函数，用于初始化 GNU Readline 和 Libocli 运行时环境，并保存当前的终端特性设置。
     ```
     int ocli_rl_init(void);
     ```
@@ -29,7 +29,7 @@
     ```           
     void ocli_rl_set_eof_cmd(char *cmd);
     ```
-6. 使能或禁用 TAB 键语法自动补齐 和 '?' 自动帮助提示，如果你的应用启动后并不需要用户认证，初始化后直接调用 ocli_rl_set_auto_completion(1); 
+6. 使能或禁用 TAB 键语法自动补齐 和 '?' 自动帮助提示，ocli_rl_loop() 会自动使能自动补齐。
     ```
     int ocli_rl_set_auto_completion(int enabled);
     ```
