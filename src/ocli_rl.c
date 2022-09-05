@@ -32,7 +32,7 @@
 
 #include "ocli.h"
 
-#define TERM_TIMO_SEC	180
+#define TERM_TIMO_SEC	300
 #define HELP_BUF_SIZE	4096
 
 int ocli_rl_finished = 0;
