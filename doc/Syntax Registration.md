@@ -8,7 +8,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 ## 4.1 Create a command
 
-Function create_cmd_tree() is used to create a command, which is defined as blow.
+Function create_cmd_tree() is used to create a command. Below is the specification.
 
 ```c
 #define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
@@ -28,7 +28,7 @@ create_cmd_tree(char *cmd,              /* Command keyword */
                 );
 ```
 
-The SYM_TABLE macro can be used to simplify create_cmd_tree() call, as shown in [netutils.c](../example/netutils.c):
+The SYM_TABLE macro can be used to simplify create_cmd_tree() calls, as shown in [netutils.c](../example/netutils.c):
 ```c
 static symbol_t syms_ping[] = {
         DEF_KEY ("ping",        "Ping utility"),
@@ -108,8 +108,8 @@ We give several typical sytax registration examples as below.
 ## 4.3 Usage and limitation of reserved syntax chars [ ] { | }
 
 Libocli allows to use **[ ] { | }** for optional / alternative segments when registering syntax:
-- **Alternative** segment **{ | }**  , allows two of more tokens separated by **|**, e.g. " { block | pass } "，" { tcp | udp | icmp } "
-- **Optional** segment **[  ]**, each segment can have multiple tokens, e.g. " [ -c COUNT ] [ -s PKT_SIZE ] "
+- **Alternative** segment **{ | }**  , allows two of more tokens separated by '**|**' . E.g. " { block | pass } "，" { tcp | udp | icmp } "
+- **Optional** segment **[  ]**, each segment can have multiple tokens. E.g. " [ -c COUNT ] [ -s PKT_SIZE ] "
 
 Limitaions:
 - SPACE must be present between reserved chars, or between reserved char and other tokens.
