@@ -40,7 +40,7 @@ Libocli defines lexical types which are commonly used for network adminitration 
 Libocli supports customized lexical type. The customized lexical type IDs range from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
 
 The function set_lex_ent() is used to register a customized lexical type, which is defined as blow:
-```
+```c
 /* Returns 0 on success. The same type ID is not allowed to register repeatedly */
 int set_lex_ent(int type,       /* Lexical type ID */
                 char *name,     /* Readable name of lexical type */
@@ -57,7 +57,7 @@ Unless a lexical type does have a fixed prefix string for the TAB auto completio
 For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_1. The suggested steps will be:
 
 1. Define the lexical types and parsing functions in your own header file, e.g. mylex.h:
-    ```
+    ```c
     #include <ocli/lex.h>
 
     /* Define two customized types */
@@ -73,7 +73,7 @@ For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_
     ```
 
 2. Implement the functions, e.g. in mylex.c:
-    ```
+    ```c
     #include "mylex.h"
 
     int is_foo_0(char *str)

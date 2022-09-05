@@ -21,13 +21,13 @@
 DEF_ 宏参数规则以及范例：
 - 所有宏的首两个参数都是：符号名，帮助文本，这个两个参数都是字符串。帮助文本用于在命令行交互中使用 '?' 列出本词或下一词的帮助信息。例如首个关键字符号 "ping" 的定义：
   > 
-  ```
+  ```c
   DEF_KEY ("ping", "Ping utility")
   ```
 - DEF_VAR 必须要指定词法类型，比如 LEX_IP_ADDR，LEX_DOMAIN_NAME，LEX_INT，等等。详细的词法类型可参考下一节 [Libocli 词法分析接口](Lexical%20Parsing.zh_CN.md)。
 
 - 除了 DEF_KEY，其它 DEF_ 宏都必须指定回调变量名，回调变量名是个字符串，例子程序中我们使用 ARG 宏来定义回调变量名，ARG 宏的作用就是将参数展开为一个字符串，下例中的  ARG(DST_HOST)，会展开为 "DST_HOST"
-  ```  
+  ```c
   /* 注意：因为 ping 语法的 HOST_IP 和 HOST 符号二者只能匹配其一，
    * 所以两符号可使用相同的回调参数名 "DST_HOST"，简化回调函数的参数处理
    */
@@ -36,14 +36,14 @@ DEF_ 宏参数规则以及范例：
   ```
 - DEF_VAR_RANGE 必须指定数值词法类型（LEX_INT 或 LEX_DECIMAL），并给出最小和最大数值参数，下例中 COUNT 符号（ping 请求报文次数限制）限定输入 1-100 整型：
   >
-  ```
+  ```c
   DEF_VAR_RANGE	("COUNT", "<1-100> count of requests", LEX_INT, ARG(REQ_COUNT), 1, 100)
   ```
 
 ## 2.2 回调参数的传递
 
 当命令行解析成功后，一个 cmd_arg_t 类型的数组将会被传递给回调函数，cmd_arg_t 包含两个元素：变量名 name，和变量值 value。
-```
+```c
 typedef struct cmd_arg {
 	char	*name;		/* arg name */
 	char	*value;		/* arg value */
@@ -60,7 +60,7 @@ Libocli 的解析过程如下：
 
 解析完毕，cmd_arg[] 数组会被传递给回调函数 cmd_ping()，cmd_ping() 的 for_each_cmd_arg(cmd_arg, i, name, value) 循环就是在遍历 cmd_arg[] 数组，若数组元素 name 匹配，则取出其 value。
 
-```
+```c
 	for_each_cmd_arg(cmd_arg, i, name, value) {
 		if (IS_ARG(name, REQ_COUNT))
 			req_count = atoi(value);

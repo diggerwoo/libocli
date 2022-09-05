@@ -22,7 +22,7 @@ Key points and  examples:
 
 - The first two parameters of all DEF_ macros are alway sym_name and help_text, and both are of string type. The help_text is used to display help information when user pressing '?'. Below example defines the first keyword "ping":
   > 
-  ```
+  ```c
   DEF_KEY ("ping", "Ping utility")
   ```
 - DEF_VAR must have a lex_type parameter, e.g. LEX_IP_ADDR, EX_DOMAIN_NAME, or LEX_INT. For details of lexical types please refer to the next section [Libocli Lexical Parsing Interface](Lexical%20Parsing.md).
@@ -30,7 +30,7 @@ Key points and  examples:
 
 - All DEF_ macros except DEF_KEY should have an arg_name parameter which is the name of the callback argument. In all examples we use ARG macro to define an arg_name. E.g. ARG(DST_HOST) is exactly the "DST_HOST" .
 
-  ```  
+  ```c
   /* The { HOST_IP | HOST } in the ping syntax are an alternative, so they can be assigned with
    * the same arg_name "DST_HOST", less callback args can simplify the callback function.
    */
@@ -39,14 +39,14 @@ Key points and  examples:
   ```
 - DEF_VAR_RANGE must have a lex_type parameter of either LEX_INT or LEX_DECIMAL, and range parameters of the min / max value. Below example defines a COUNT symbol of LEX_INT type with range limited between 1 to 100.
   >
-  ```
+  ```c
   DEF_VAR_RANGE	("COUNT", "<1-100> count of requests", LEX_INT, ARG(REQ_COUNT), 1, 100)
   ```
 
 ## 2.2 Passing callback Arguments
 
 When a command line is parsed successfully, an pointer to array of cmd_arg_t will be passed to the callback function. The cmd_arg_t is actually a name value pair as defined below.
-```
+```c
 typedef struct cmd_arg {
 	char	*name;		/* arg name */
 	char	*value;		/* arg value */
@@ -64,7 +64,7 @@ Then the parsing / matching process will be:
 
 After finishing parsing, the pointer to cmd_arg[] will be passed to the callback function cmd_ping(). By calling for_each_cmd_arg(cmd_arg, i, name, value) to iterate the whole cmd_arg[] array, cmd_ping() gets the callback arguments and saves them into local variable req_count and dst_host[].
 
-```
+```c
 	for_each_cmd_arg(cmd_arg, i, name, value) {
 		if (IS_ARG(name, REQ_COUNT))
 			req_count = atoi(value);
