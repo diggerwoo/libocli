@@ -21,7 +21,7 @@
     ```
     void ocli_rl_set_prompt(char *prompt);
     ```
-4. 设置终端空闲超时秒数，若空闲达到此时长，则会中断 ocli_rl_loop() 执行。Libocli 默认终端超时为 180秒。若不需要此特性，初始化后调用 ocli_rl_set_timeout(0); 
+4. 设置终端空闲超时秒数，若空闲达到此时长，则会中断 ocli_rl_loop() 执行。Libocli 默认终端超时为 300 秒。若不需要此特性，初始化后调用 ocli_rl_set_timeout(0); 
     ```
     void ocli_rl_set_timeout(int sec);
     ```
