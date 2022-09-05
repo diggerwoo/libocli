@@ -1,4 +1,4 @@
-# 2. Libocli Symbol Definition and Callback Arguments
+# 2. Symbol Definition and Callback Arguments
 
 English | [中文](Symbol%20Definition.zh_CN.md)
 <br>
