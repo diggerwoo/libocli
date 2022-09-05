@@ -1,6 +1,6 @@
 # 4. Libocli 命令和语法注册接口
 
-中文 | [English](Syntax%20Register.md)
+中文 | [English](Syntax%20Registration.md)
 <br>
 [<< 上一级目录](README.zh_CN.md)  
 
