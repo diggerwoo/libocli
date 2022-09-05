@@ -20,13 +20,16 @@ Libocli 其实就是在 GNU Readline 之上构建的，可实现词法分析、�
 - 可选的 "from" 子句，可指定 ping 的接口源 IP 地址  
 
 按 Linux 手册的惯常写法，上述 ping 语法可表达为：
->ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
+>
+```sh
+ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]
+```
 
 ### 1.1.1 定义符号表
 
 实现上述 ping 命令之前，我们首先要定义符号表，表中包含 ping 语法串中的所有单词，包括关键字类型符号："ping" "-c" "-s" "from"，变量类型符号：”COUNT“ ”SIZE" "HOST" "HOST_IP" "IFADDR"。注意不要使用 Libocli 的保留语法标记： "[ ] { | }" 。
 
-```
+```c
 /*
  * 定义符号表： syms_ping
  * DEF_KEY 宏：定义一个关键字类型符号
@@ -55,7 +58,7 @@ static symbol_t syms_ping[] = {
 ### 1.1.2 创建命令，并注册语法
 
 之后，我们在 cmd_net_utils() 函数中，基于符号表创建命令、注册语法。注册语法串中出现的所有单词都应该是符号表中预先定义好的，否则会注册失败。
-```
+```c
 int cmd_net_utils_init()
 {
 	struct cmd_tree *cmd_tree;
@@ -73,7 +76,7 @@ int cmd_net_utils_init()
 ### 1.1.3 实现回调业务函数
 
 现在我们可以实现回调函数 cmd_ping() 了。回调函数尝试解析所有的回调参数（符号表里 ARG 宏定义的），然后组装出一条 Linux 系统 ping 命令，并执行。
-```
+```c
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 {
 	int	i;
@@ -119,7 +122,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 - 设置必要的命令行控制选项，包括命令行超时时间、初始权限视图、提示符，等等
 - 调用 ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直至程序退出
 
-```
+```c
 /* libocli 头文件 */
 #include <ocli/ocli.h>
 
