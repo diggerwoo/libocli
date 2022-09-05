@@ -25,7 +25,7 @@ We can represent the syntax as below in accordance with the convention of Linux 
 ### 1.1.1 Define a symbol table
 
 Before the creation of ping command, we shoud firstly define all the symbols in the above syntax, including keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
-```
+```c
 /*
  * Symbol table:  syms_ping
  * DEF_KEY Macro: Define a symbol of Keyword type
@@ -54,7 +54,7 @@ static symbol_t syms_ping[] = {
 ### 1.1.2 Create command and register syntax
 
 Then based on the symbol table, we create the ping command, and register a syntax. Please note that all words in the syntax string should be previously defined in the symbol table, or else error occurs.
-```
+```c
 int cmd_net_utils_init()
 {
 	struct cmd_tree *cmd_tree;
@@ -73,7 +73,7 @@ int cmd_net_utils_init()
 
 Now we can implement the callback function. The callback function parses and gets all the ARGs defined previously in the symbol table, then compose an external ping command, finally excecutes it.
 
-```
+```c
 static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 {
 	int	i;
@@ -119,7 +119,7 @@ Below code segment is taken from [example/democli.c](../example/democli.c). The 
 - Cutomize libocli settings, including terminal timeout, initial VIEW and prompts.
 - Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
-```
+```c
 /* libocli header */
 #include <ocli/ocli.h>
 
