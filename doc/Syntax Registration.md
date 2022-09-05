@@ -8,7 +8,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 ## 4.1 Create a command
 
-Function create_cmd_tree() is used to create a command. Internally each command creation will gernerate a syntax tree.
+Function create_cmd_tree() is used to create a command, which is defined as blow.
 
 ```c
 #define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
@@ -46,13 +46,13 @@ int cmd_ping_init()
 }
 ```
 
-The callback function type cmd_fun_t has two parameters:
-- The first one is a pointer of type cmt_art_t, which points to the array of callback argument. Please refer to section 2 of [Callback Argument](Symbol%20Definition.md). 
-- The second one is of int type, we always use "do_flag" to represent this parameter. It is related to the "no" syntax. If the command is started with "no", then (do_flag & UNDO_FLAG) will be true, otherwise the (do_flag & DO_FLAG) will be ture. Apparently the "ping" command doesn't have the "no" syntax. whilst other configuration commands like the "route" command need this. We use "route ..." to add rule, also use "no route ..." to delete rule. Please refer to [route.c](../example/route.c).
+The callback function type **cmd_fun_t** has two parameters:
+- The first is a pointer of type **cmt_art_t**, which points to the array of callback argument. For details please refer to section 2 of [Callback Argument](Symbol%20Definition.md). 
+- The second is a integer that we always use "do_flag" to represent. It is related to the "no" syntax. If the command is started with "no", then (do_flag & UNDO_FLAG) will be True, otherwise the (do_flag & DO_FLAG) will be Ture. Apparently the "ping" command doesn't have the "no" syntax. whilst other configuration commands like the "route" need this. We use "route ..." to add a static route, also use "no route ..." to delete one. Please refer to [route.c](../example/route.c).
 
 ## 4.2 Register a syntax
 
-Functions add_cmd_easily() and add_cmd_syntax() can all be used to register syntax.
+Functions add_cmd_easily() and add_cmd_syntax() can all be used to register a syntax.
 ```c
 /* Predefined VIEW, each coresponds to one bit */
 #define	BASIC_VIEW		0x0001
@@ -78,15 +78,15 @@ int add_cmd_syntax(struct cmd_tree *cmd_tree,
 
 ```
 
-We give several typical examples as below.
+We give several typical sytax registration examples as below.
 
-1. Register a "ping" syntax, as done in [netutils.c](../example/netutils.c). This syntax can only be accessed in all VIEW except the BASIC_VIEW，and dosen't support "no" usage so the last parameter is set to DO_FLAG.
+1. Register a "ping" syntax. As done in [netutils.c](../example/netutils.c), this syntax can be accessed in all VIEW except the BASIC_VIEW and dosen't support "no" usage, so the last parameter is DO_FLAG.
     ```c
     add_cmd_easily(cmd_tree, "ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]",
                    (ALL_VIEW_MASK & ~BASIC_VIEW), DO_FLAG);
     ```
 
-2. Register "enable" and "enable password" syntaxes in different VIEWs, as done in  [democli.c](../example/democli.c).
+2. Register "enable" and "enable password" syntaxes in different VIEWs, as done in [democli.c](../example/democli.c).
     ```c
     /* Reigster "enable" in BASIC_VIEW, which is used to input the enabled password */
     add_cmd_easily(cmd_tree, "enable", BASIC_VIEW, DO_FLAG);
@@ -95,12 +95,12 @@ We give several typical examples as below.
     add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
     ```
 
-3. Register the "[no] route" syntax. Now the do_flag is set to (DO_FLAG|UNDO_FLAG)，This is a configuration command so it is only accessible in CONFIG_VIEW. Refer to [route.c](../example/route.c).
+3. Register the "[no] route" syntax. Now the do_flag is set to (DO_FLAG|UNDO_FLAG). This is a configuration command so it is only accessible in CONFIG_VIEW. Refer to [route.c](../example/route.c).
     ```c
     add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
     ```
 
-4. For the last example, you might think the GW_ADDR is redundant when you use "no route" to delete rule, because (DST_NET + DST_MAKE) is actually a primary key of rule. If you really want to optimized this, you need to do syntax splitting and register an UNDO_FLAG syntax independently, as shown below.
+4. For the previous example, you might think the GW_ADDR is redundant when you use "no route" to delete static route, because (DST_NET + DST_MAKE) is actually the primary key of the route table. If you really want to optimize this, you need to do syntax splitting and register an UNDO_FLAG syntax independently, as shown below.
     ```c
     add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG);
     add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
@@ -128,6 +128,5 @@ int add_cmd_manual(struct cmd_tree *cmd_tree,	/* Pointer to command tree */
 		   );
 ```
 
-When using "man" to view the manual, Libocli displays the manual text line by line, in the order in which the manual text was added.
+When using "man" to read the manual, Libocli displays the manual text line by line, in the order in which the manual text was added.
  
-
