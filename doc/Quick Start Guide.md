@@ -6,7 +6,7 @@ English | [中文](Quick%20Start%20Guide.zh_CN.md)
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
-Libocli itself does not implement the terminal line editing functions, it depends on GNU readline which has rich features including: Emacs keys, TAB  for auto completion, double TABs for next help list, ARROW UP/DOWN for history, etc.
+Libocli itself does not implement the terminal line editing functions, it depends on GNU readline which has rich features including: Emacs editing keys, TAB to auto completion, double TABs to get all possible next words, UP/DOWN to scroll through the history, etc.
 
 Libocli is actually an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
 By utilizing Libocli, develpers need only to focus on command syntax design, and callback implementation.
@@ -19,12 +19,12 @@ The following code segments are taken from [example/netutils.c](../example/netut
 - Madatory destination host parameter: either IP address or domain name format.
 - Optional "from" clause: to specify the source interface IP address.
 
-We can represent the syntax as below in accordance with the convention of Linix manual:
+We can represent the syntax as below in accordance with the convention of Linux manual:
 >ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
 
 ### 1.1.1 Define a symbol table
 
-Before the creation of ping command, we shoud firstly define all the symbols included in the above syntax, include keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
+Before the creation of ping command, we shoud firstly define all the symbols in the above syntax, including keywords: "ping" "-c" "-s" "from", and variable paramaters ”COUNT“ ”SIZE" "HOST" "HOST_IP", with exception of syntax anchors "[ ] { | }".
 ```
 /*
  * Symbol table:  syms_ping
@@ -111,7 +111,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 ## 1.2 Integrate with Main program
 
-Normally we should implement our commands in different modules classified by specific purpose. E.g. in the democli we designate netutils.c to implement useful network utilities like the "ping" and "traceroute", we might add other tools like "nslook", "ssh", etc. Then we write a cmd_net_utils_init() function to do all the commands creation and syntaxes registration. Finally we integrate this cmd_net_utils_init() into main(), and rebuild the program.
+Normally we should implement our commands in different modules classified by specific purpose. E.g. in the democli we designate netutils.c to implement useful network utilities like "ping" and "traceroute", we might add other tools like "nslook", "ssh", etc. Then we write a cmd_net_utils_init() function to do all the commands creation and syntaxes registration. Finally we integrate this cmd_net_utils_init() into main(), and rebuild the program.
 
 Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
 - Call ocli_rl_init() to initialize libocli runtime environment.
