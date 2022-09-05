@@ -37,7 +37,7 @@ Libocli defines lexical types which are commonly used for network adminitration 
 
 ## 3.2 Customized Lexcical Type
 
-Libocli supports customized lexical type. The customized lexical type ID starts from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
+Libocli supports customized lexical type. The customized lexical type IDs range from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
 
 The function set_lex_ent() is used to register a customized lexcial type, which is defined as blow:
 ```
@@ -50,7 +50,7 @@ int set_lex_ent(int type,       /* Lexical type ID */
                 );
 ```
 
-Unless a lexcial type does have a fixed prefix string for TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
+Unless a lexcial type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
 
 ## 3.3 How to Customize
 
@@ -95,6 +95,6 @@ For example you need to add two customized lexcial types, LEX_FOO_0 和 LEX_FOO_
     }
     ```
 
-3. Integrate with main(): Call mylex_init aftger libocli_rl_init().
+3. Integrate with main(): Call mylex_init() after libocli_rl_init().
 4. Now your can define variable symbols with newly customized types LEX_FOO_0 and LEX_FOO_1 in other modules. Don't forget to #include "mylex.h".
 
