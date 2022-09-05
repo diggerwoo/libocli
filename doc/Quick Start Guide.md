@@ -109,11 +109,13 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 }
 ```
 
-## 1.2 Main program
+## 1.2 Integrate with Main program
+
+Normally we should implement our commands in different modules classified by specific purpose. E.g. in the democli we designate netutils.c to implement useful network utilities like the "ping" and "traceroute", we might add other tools like "nslook", "ssh", etc. Then we write a cmd_net_utils_init() function to do all the commands creation and syntaxes registration. Finally we integrate this cmd_net_utils_init() into main(), and rebuild the program.
 
 Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
 - Call ocli_rl_init() to initialize libocli runtime environment.
-- Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions, including cmd_net_utils_init() that creates the "ping".
+- Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions, including cmd_net_utils_init() we just created the "ping".
 - Cutomize libocli settings, including terminal timeout, initial VIEW and prompts.
 - Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
@@ -157,3 +159,10 @@ int main()
 	return 0;
 }
 ```
+
+## 1.3 Test the ping
+
+
+Finally, Let's run the democli to test if the ping works properly.
+
+![image](https://github.com/diggerwoo/blobs/blob/main/img/democli_ping.gif)
