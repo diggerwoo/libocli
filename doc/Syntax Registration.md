@@ -1,6 +1,6 @@
 # 4. Command and Syntax Registration
 
-English | [中文](Syntax%20Register.zh_CN.md)
+English | [中文](Syntax%20Registration.zh_CN.md)
 <br>
 [<< Upper Level](README.md)  
 
