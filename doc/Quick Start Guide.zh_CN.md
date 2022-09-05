@@ -109,7 +109,9 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 }
 ```
 
-## 1.2 主程序流程
+## 1.2 与主程序整合
+
+通常我们开发命令行时，会按特定应用目的将各命令分类实现在不同的业务模块。在 democli 例子程序里，我们指定 netutils.c 去实现一些网络工具，比如 "ping" 和 "traceroute"，或许我们还会在这个模块里加入其它工具，比如 "nslookup"、"ssh" 等等。之后我们在这个业务模块里，实现一个初始化函数 cmd_xxx_init()，注册本模块所有的命令和语法，如上 cmd_net_utils_init() 所示。最后，我们将这个新增的 cmd_xxx_init() 整合到主程序流程，重新编译程序，测试。
 
 以下主程序片段摘自 [example/democli.c](../example/democli.c)。使用 Libocli 后，主程序的写法就很简单了：
 - ocli_rl_init() 初始化
@@ -157,3 +159,9 @@ int main()
 	return 0;
 }
 ```
+## 1.3 测试 ping 命令
+
+
+整合完后，我们执行 democli 测试看看 ping 命令的执行效果.
+
+![image](https://github.com/diggerwoo/blobs/blob/main/img/democli_ping.gif)
