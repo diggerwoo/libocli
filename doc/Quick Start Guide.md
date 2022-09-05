@@ -141,7 +141,7 @@ int main()
 	/* Create customized "show" commands */
 	cmd_show_init();
 
-	/* Auto exec "exit" for when CTRL-D being pressed */
+	/* Auto exec "exit" when CTRL-D being pressed */
 	ocli_rl_set_eof_cmd("exit");
 
 	/* For the sake of security, exit if terminal idled for 5 minutes */
