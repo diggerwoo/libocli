@@ -6,11 +6,11 @@ English | [中文](Lexical%20Parsing.zh_CN.md)
 
 Author: Digger Wu (digger.wu@linkbroad.com)
 
-## 3.1 Lexical Type and Parsing Functions
+## 3.1 Lexical types and parsing functions
 
 Libocli defines lexical types which are commonly used for network adminitration in [lex.h](../src/lex.h), and provides coreponding parsing function for eache lexical type. The parsing functions are all defined as **int is_xxx(char *str)**, which returns True(1) if parsing successful.
 
-| Lexcical Type | Description | Parsing Function |
+| Lexical Type | Description | Parsing Function |
 | :--- | :--- | :--- |
 | LEX_INT | Integer | is_int() |
 | LEX_HEX | Hexidecimal | is_hex() |
@@ -35,11 +35,11 @@ Libocli defines lexical types which are commonly used for network adminitration 
 | LEX_WORD | Word | is_word() |
 | LEX_WORDS | Any string | is_words() |
 
-## 3.2 Customized Lexcical Type
+## 3.2 Customized lexical type
 
 Libocli supports customized lexical type. The customized lexical type IDs range from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
 
-The function set_lex_ent() is used to register a customized lexcial type, which is defined as blow:
+The function set_lex_ent() is used to register a customized lexical type, which is defined as blow:
 ```
 /* Returns 0 on success. The same type ID is not allowed to register repeatedly */
 int set_lex_ent(int type,       /* Lexical type ID */
@@ -50,13 +50,13 @@ int set_lex_ent(int type,       /* Lexical type ID */
                 );
 ```
 
-Unless a lexcial type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
+Unless a lexical type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
 
-## 3.3 How to Customize
+## 3.3 How to customize
 
-For example you need to add two customized lexcial types, LEX_FOO_0 和 LEX_FOO_1. The suggested steps will be:
+For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_1. The suggested steps will be:
 
-1. Define the lexcial types and parsing functions in your own header file, e.g. mylex.h:
+1. Define the lexical types and parsing functions in your own header file, e.g. mylex.h:
     ```
     #include <ocli/lex.h>
 

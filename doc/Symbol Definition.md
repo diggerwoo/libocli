@@ -8,7 +8,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 In the section of [Quick Start Guide](Quick%20Start%20Guide.md) we introduce that the first step to build a command is to build a symbol table. A symbol table is an array of struct (symbol_t). Initializing such an array could be tedious. Libocli provides couple of macros in order to optimize the symbol definition / initilization. Hopefully that can be helpful to ease the code and improve the readability. Please refer to [ocli.h](../src/ocli.h) to understand the related structures and macros.
 
-## 2.1 Define a Symbol
+## 2.1 Define a symbol
 
 The macros being used to define symbols are listed below:
 | Name | Description | Parameters |
@@ -25,7 +25,7 @@ Key points and  examples:
   ```
   DEF_KEY ("ping", "Ping utility")
   ```
-- DEF_VAR must have a lex_type parameter, e.g. LEX_IP_ADDR, EX_DOMAIN_NAME, or LEX_INT. For details of lexcical types please refer to the next section [Libocli Lexcical Parsing Interface](Lexical%20Parsing.md).
+- DEF_VAR must have a lex_type parameter, e.g. LEX_IP_ADDR, EX_DOMAIN_NAME, or LEX_INT. For details of lexical types please refer to the next section [Libocli Lexical Parsing Interface](Lexical%20Parsing.md).
 
 
 - All DEF_ macros except DEF_KEY should have an arg_name parameter which is the name of the callback argument. In all examples we use ARG macro to define an arg_name. E.g. ARG(DST_HOST) is exactly the "DST_HOST" .
@@ -43,7 +43,7 @@ Key points and  examples:
   DEF_VAR_RANGE	("COUNT", "<1-100> count of requests", LEX_INT, ARG(REQ_COUNT), 1, 100)
   ```
 
-## 2.2 Passing Callback Arguments
+## 2.2 Passing callback Arguments
 
 When a command line is parsed successfully, an pointer to array of cmd_arg_t will be passed to the callback function. The cmd_arg_t is actually a name value pair as defined below.
 ```

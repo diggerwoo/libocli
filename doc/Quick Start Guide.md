@@ -8,7 +8,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 Libocli itself does not implement the terminal line editing functions, it depends on GNU readline which has rich features including: Emacs keys, TAB  for auto completion, double TABs for next help list, ARROW UP/DOWN for history, etc.
 
-Libocli is actually an add-on which encapsulates GNU Readline to provide command lexcial parsing, syntax parsing and callback excecution.
+Libocli is actually an add-on which encapsulates GNU Readline to provide command lexial parsing, syntax parsing and callback excecution.
 By utilizing Libocli, develpers need only to focus on command syntax design, and callback implementation.
 The example code in this section shows how to use Libocli to quickly build a ping command.
 
@@ -28,10 +28,10 @@ Before the creation of ping command, we shoud firstly define all the symbols inc
 ```
 /*
  * Symbol table:  syms_ping
- * DEF_KEY Macro: Defines a symbol of Keyword type
- * DEF_VAR Macro: Defines a symbol of Variable type
- * ARG Macro:     Defines a callback argument, which will be delivered to callback function if parsing successful
- * LEX_* Macros:  Define the lexcical type, e.g LEX_IP_ADDR means IP address format.
+ * DEF_KEY Macro: Define a symbol of Keyword type
+ * DEF_VAR Macro: Define a symbol of Variable type
+ * ARG Macro:     Define a callback argument, which will be delivered to callback function if parsing successful
+ * LEX_* Macros:  Define the lexical type, e.g LEX_IP_ADDR means IP address format.
  */
 static symbol_t syms_ping[] = {
 	DEF_KEY         ("ping",	"Ping utility"),
