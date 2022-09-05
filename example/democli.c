@@ -55,9 +55,6 @@ main(int argc, char **argv)
 	/* Always init ocli_rl_init first */
 	ocli_rl_init();
 
-	/* For the sake of security, exit if terminal idled for 5 minutes */
-	ocli_rl_set_timeout(300);
-
 	/* Create libocli builtin command "man" and "no" */
 	cmd_manual_init();
 	cmd_undo_init();
@@ -71,8 +68,11 @@ main(int argc, char **argv)
 	/* Create "show" commands */
 	cmd_show_init();
 
-	/* Auto exec "exit" for EOF, terminal timeout or CTRL-D pressed */
+	/* Auto exec "exit" for EOF when CTRL-D being pressed */
 	ocli_rl_set_eof_cmd("exit");
+
+	/* For the sake of security, exit if terminal idled for 5 minutes */
+	ocli_rl_set_timeout(300);
 
 	/* Start from BASIC_VIEW */
 	ocli_rl_set_view(BASIC_VIEW);
