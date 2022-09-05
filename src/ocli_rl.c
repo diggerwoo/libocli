@@ -37,6 +37,8 @@
 
 int ocli_rl_finished = 0;
 
+static int ocli_rl_init_ok = 0;
+
 static int ocli_rl_timeout_flag = 0;
 
 #define	DBG_RL		0x01
@@ -449,7 +451,7 @@ ocli_rl_set_echo(int on)
 }
 
 /*
- * a readline wrapper function witht auto completion disabled
+ * a readline wrapper function with auto completion disabled
  */
 char *
 read_bare_line(char *prompt)
@@ -609,6 +611,7 @@ ocli_rl_exit()
 	tcsetattr(0, TCSADRAIN, &init_termios);
 
 	ocli_core_exit();
+	ocli_rl_init_ok = 0;
 }
 
 /*
@@ -617,6 +620,8 @@ ocli_rl_exit()
 int
 ocli_rl_init()
 {
+	if (ocli_rl_init_ok) return 0;
+
 	ocli_core_init();
 
 	bzero(cur_prompt, MAX_WORD_LEN);
@@ -646,5 +651,7 @@ ocli_rl_init()
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGUSR1, SIG_IGN);
 	signal(SIGUSR2, SIG_IGN);
+
+	ocli_rl_init_ok = 1;
 	return 0;
 }
