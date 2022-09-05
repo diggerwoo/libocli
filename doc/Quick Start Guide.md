@@ -20,7 +20,9 @@ The following code segments are taken from [example/netutils.c](../example/netut
 - Optional "from" clause: to specify the source interface IP address.
 
 We can represent the syntax as below in accordance with the convention of Linux manual:
->ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]  
+```sh
+ping [ -c COUNT ] [ -s SIZE ] { HOST | HOST_IP } [ from IFADDR ]
+```
 
 ### 1.1.1 Define a symbol table
 
