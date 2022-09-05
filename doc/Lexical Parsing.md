@@ -8,7 +8,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 
 ## 3.1 Lexical Type and Parsing Functions
 
-Libocli defines lexical types which are commonly used for network adminitration inn [lex.h](../src/lex.h), and provides coreponding parsing function for eache lexical type. The parsing functions are all defined as **int is_xxx(char *str)**, which returns True(1) if parsing successful.
+Libocli defines lexical types which are commonly used for network adminitration in [lex.h](../src/lex.h), and provides coreponding parsing function for eache lexical type. The parsing functions are all defined as **int is_xxx(char *str)**, which returns True(1) if parsing successful.
 
 | Lexcical Type | Description | Parsing Function |
 | :--- | :--- | :--- |
@@ -39,9 +39,9 @@ Libocli defines lexical types which are commonly used for network adminitration 
 
 Libocli supports customized lexical type. The customized lexical type ID starts from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
 
-There is a function set_lex_ent() to register customized lexcial type, which is defined as blow:
+The function set_lex_ent() is used to register a customized lexcial type, which is defined as blow:
 ```
-/* Returns 0 on success. The same ID is not allowed to register repeatedly */
+/* Returns 0 on success. The same type ID is not allowed to register repeatedly */
 int set_lex_ent(int type,       /* Lexical type ID */
                 char *name,     /* Readable name of lexical type */
                 lex_fun_t fun,  /* Parsing function */
@@ -50,50 +50,50 @@ int set_lex_ent(int type,       /* Lexical type ID */
                 );
 ```
 
-Unless a lexcial type does have a fixed prefix string for TAB auto completion, the prefix parameter should be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
+Unless a lexcial type does have a fixed prefix string for TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
 
 ## 3.3 How to Customize
 
-If you want to add two customized lexcial types, LEX_FOO_0 和 LEX_FOO_1. The suggested steps will be:
+For example you need to add two customized lexcial types, LEX_FOO_0 和 LEX_FOO_1. The suggested steps will be:
 
 1. Define the lexcial types and parsing functions in your own header file, e.g. mylex.h:
-```
-#include <ocli/lex.h>
+    ```
+    #include <ocli/lex.h>
 
-/* Define two customized types */
-#define LEX_FOO_0 LEX_CUSTOM_BASE_TYPE
-#define LEX_FOO_1 (LEX_CUSTOM_BASE_TYPE + 1)
+    /* Define two customized types */
+    #define LEX_FOO_0 LEX_CUSTOM_BASE_TYPE
+    #define LEX_FOO_1 (LEX_CUSTOM_BASE_TYPE + 1)
 
-/* Parsing functions */
-extern int is_foo_0(char *str);
-extern int is_foo_1(char *str);
+    /* Parsing functions */
+    extern int is_foo_0(char *str);
+    extern int is_foo_1(char *str);
 
-/* Init function to register your cutomized types */
-int mylex_init();
-```
+    /* Init function to register your cutomized types */
+    int mylex_init();
+    ```
 
 2. Implement the functions, e.g. in mylex.c:
-```
-#include "mylex.h"
+    ```
+    #include "mylex.h"
 
-int is_foo_0(char *str)
-{
-        /* ... */
-        return 1;
-}
+    int is_foo_0(char *str)
+    {
+            /* ... */
+            return 1;
+    }
 
-int is_foo_1(char *str)
-{
-        /* ... */
-        return 1;
-}
+    int is_foo_1(char *str)
+    {
+            /* ... */
+            return 1;
+    }
 
-int mylex_init()
-{
-        set_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
-        set_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
-}
-```
+    int mylex_init()
+    {
+            set_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
+            set_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
+    }
+    ```
 
 3. Integrate with main(): Call mylex_init aftger libocli_rl_init().
 4. Now your can define variable symbols with newly customized types LEX_FOO_0 and LEX_FOO_1 in other modules. Don't forget to #include "mylex.h".
