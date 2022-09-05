@@ -1,4 +1,4 @@
-# 3. Libocli Extensible Lexical Parsing Interface
+# 3. Extensible Lexical Parsing Interface
 
 English | [中文](Lexical%20Parsing.zh_CN.md)
 <br>
