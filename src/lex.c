@@ -73,7 +73,6 @@ pcre_match(char *str, int idx, char *pattern)
 			pcre_cache[idx] = pcre;
 		}
 	}
-
 			    
 	res = pcre_exec(pcre, NULL, str, strlen(str), 0, 0, ovector, OVECSIZE);
 
@@ -187,25 +186,6 @@ is_ip6_addr(char *str)
 
 	if (!str || !str[0]) return 0;
 	return (inet_pton(AF_INET6, str, &ia6) == 1);
-}
-
-/*
- * is str an ipv4 or ipv6 address
- */
-int
-is_ip4_ip6_addr(char *str)
-{
-	return (is_ip_addr(str) || is_ip6_addr(str));
-}
-
-/*
- * is interface name or ipv4/ipv6 address
- */
-int
-is_ifname_addr(char *str)
-{
-	return (is_ip4_ip6_addr(str) || is_eth_ifname(str) ||
-		is_tun_ifname(str) || is_ppp_ifname(str));
 }
 
 /*
@@ -398,7 +378,7 @@ is_hex(char *str)
 
 	if (!str || !str[0]) return 0;
 
-	res = pcre_match(str, LEX_HEX, "^(0[xX])?([\\da-fA-F]{1,8})$");
+	res = pcre_match(str, LEX_HEX, "^(0[xX])?([\\da-fA-F]{1,16})$");
 
 	return (res == 1);
 }
@@ -521,21 +501,6 @@ is_words(char *str)
 	if (!str || !str[0]) return 0;
 
 	res = pcre_match(str, LEX_WORDS, "^(\\w|\\W)+$");
-
-	return (res == 1);
-}
-
-/*
- * is str a arbitary word parameter (without space) ?
- */
-int
-is_param(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	res = pcre_match(str, LEX_PARAM, "^[\\w|\\-\\.]+$");
 
 	return (res == 1);
 }
@@ -686,39 +651,6 @@ is_uid(char *str)
 }
 
 /*
- * is str a clear password ?
- */
-int
-is_clear_passwd(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	res = pcre_match(str, LEX_CLEAR_PASSWD, "^([\\x21-\\x7e]{1,20})$");
-
-	return (res == 1);
-}
-
-/*
- * is str a md5 crypted password ?
- */
-int
-is_md5_cipher(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	res = pcre_match(str, LEX_MD5_CIPHER,
-			 "^(\\$1\\$"
-			 "[\\dA-Za-z\\.\\/]{8}\\$"
-			 "[\\dA-Za-z\\.\\/]{22})$");
-
-	return (res == 1);
-}
-
-/*
  * is str a user@domain id ?
  */
 int
@@ -759,24 +691,6 @@ is_net6_uid(char *str)
 }
 
 /*
- * is str a radius user id ?
- */
-int
-is_radius_uid(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	/* allow for PREFIX/user@domain roaming uid pattern */
-	res = pcre_match(str, LEX_RADIUS_UID,
-			 "^(\\w+\\/)?(\\w[\\w\\.\\-]*\\w+)"
-			 "(@\\w[\\w\\-]*(\\.\\w[\\w\\-]*)*)?$");
-
-	return (res == 1);
-}
-
-/*
  * is str a YYYYMMDDhhmm[ss] date time ?
  */
 int
@@ -786,7 +700,7 @@ is_date_time(char *str)
 
 	if (!str || !str[0]) return 0;
 
-	/* XXX we start up from 2015, just forget the past ... */
+	/* XXX since 2015 that libocli started */
 	res = pcre_match(str, LEX_DATE_TIME,
 			 "^(20((1[5-9])|([2-9][0-9]))"
 			 "((0[1-9])|(1[0-2]))"
@@ -794,167 +708,6 @@ is_date_time(char *str)
 			 "(([0-1][0-9])|(2[0-3]))"
 			 "([0-5][0-9]))"
 			 "(\\.[0-5][0-9])?$");
-
-	return (res == 1);
-}
-
-/*
- * is str a YYYYMMDD date ?
- */
-int
-is_date(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	res = pcre_match(str, LEX_DATE,
-			 "^(20((1[5-9])|([2-9][0-9]))"
-			 "((0[1-9])|(1[0-2]))"
-			 "((0[1-9])|([1-2][0-9])|3[0-1]))$");
-
-	return (res == 1);
-}
-
-/*
- * is str a Mbits bandwidth ?
- */
-int
-is_mbits_bw(char *str)
-{
-	int	res;
-
-	if (!str || !str[0]) return 0;
-
-	res = pcre_match(str, LEX_MBITS_BW, "^((\\d+)(\\.\\d*)?)M?$");
-
-	return (res == 1);
-}
-
-#define	ETH_PREFIX	"eth"
-#define	DEF_ETH_IFNUM	4
-#define	MAX_ETH_IFNUM	10
-
-#define	TUN_PREFIX	"tun"
-#define	MAX_TUN_IFNUM	4
-
-#define	PPP_PREFIX	"ppp"
-#define	MAX_PPP_IFNUM	5
-
-static int max_eth_ifindex = -1;
-
-int
-get_eth_ifnum()
-{
-#ifdef DEBUG_LEX_MAIN
-	return 10;
-#else
-	FILE	*fp;
-	char	line[256];
-	char	*tok;
-	int	n, ifidx = -1;
-
-	fp = fopen("/proc/net/dev", "r");
-	if (fp == NULL) {
-		fprintf(stderr, "Open system dev file error\n");
-		return DEF_ETH_IFNUM;
-	}
-
-	while (fgets(line, sizeof(line), fp)) {
-		tok = strtok(line, " \t:");
-		if (tok == NULL) continue;
-		if (strncmp(tok, ETH_PREFIX, 3) != 0) continue;
-
-		n = atoi(tok+3);
-		if (n > ifidx)
-			ifidx = n;
-	}
-	fclose(fp);
-
-	if (ifidx < 0) {
-		fprintf(stderr, "No ethernet dev found\n");
-		return DEF_ETH_IFNUM;
-	}
-
-	++ifidx;
-	return ((ifidx <= MAX_ETH_IFNUM) ? ifidx : MAX_ETH_IFNUM);
-#endif
-}
-
-/*
- * get max ifindex by interface name prefix: 'eth', 'ppp' or 'tun'
- */
-int
-get_max_ifindex(char *prefix)
-{
-	if (!prefix || !prefix[0]) return -1;
-
-	if (strcmp(prefix, ETH_PREFIX) == 0)
-		return max_eth_ifindex;
-	else if (strcmp(prefix, TUN_PREFIX) == 0)
-		return (MAX_TUN_IFNUM - 1);
-	else if (strcmp(prefix, PPP_PREFIX) == 0)
-		return (MAX_PPP_IFNUM - 1);
-	else
-		return -1;
-}
-
-/*
- * is str an ethernet interface name ?
- */
-int
-is_eth_ifname(char *str)
-{
-	int	res;
-	char	pattern[64];
-
-	if (!str || !str[0]) return 0;
-
-	if (max_eth_ifindex < 0)
-		max_eth_ifindex = get_eth_ifnum() - 1;
-
-	bzero(pattern, 64);
-	snprintf(pattern, 64, "^%s[0-%d]$", ETH_PREFIX, max_eth_ifindex);
-
-	res = pcre_match(str, LEX_ETH_IFNAME, pattern);
-
-	return (res == 1);
-}
-
-/*
- * is str a tunnel interface name ?
- */
-int
-is_tun_ifname(char *str)
-{
-	int	res;
-	char	pattern[64];
-
-	if (!str || !str[0]) return 0;
-
-	bzero(pattern, 64);
-	snprintf(pattern, 64, "^%s[0-%d]$", TUN_PREFIX, MAX_TUN_IFNUM - 1);
-
-	res = pcre_match(str, LEX_TUN_IFNAME, pattern);
-
-	return (res == 1);
-}
-
-/*
- * is str a ppp interface name ?
- */
-int
-is_ppp_ifname(char *str)
-{
-	int	res;
-	char	pattern[64];
-
-	if (!str || !str[0]) return 0;
-
-	bzero(pattern, 64);
-	snprintf(pattern, 64, "^%s[0-%d]$", PPP_PREFIX, MAX_PPP_IFNUM - 1);
-
-	res = pcre_match(str, LEX_PPP_IFNAME, pattern);
 
 	return (res == 1);
 }
@@ -1079,8 +832,8 @@ get_subnet_mask(char *str, struct in_addr *ia_net, struct in_addr *ia_mask, int 
 	int	bits;
 
 	if (!str || !str[0] || !ia_net || !ia_mask) return 0;
-	bzero(buf, 64);
-	strncpy(buf, str, 63);
+
+	snprintf(buf, sizeof(buf), "%s", str);
 
 	if (is_ip_block(buf)) {
 		net = buf;
@@ -1194,8 +947,8 @@ get_ip_range(char *str, struct in_addr *ia_from, struct in_addr *ia_to)
 	in_addr_t s_tmp;
 
 	if (!str || !str[0] || !ia_from || !ia_to) return 0;
-	bzero(buf, 80);
-	strncpy(buf, str, 79);
+
+	snprintf(buf, sizeof(buf), "%s", str);
 
 	if (!is_ip_range(buf)) return 0;
 
@@ -1233,8 +986,8 @@ get_port_range(char *str, u_short *port_from, u_short *port_to)
 	u_short tmp;
 
 	if (!str || !str[0] || !port_from || !port_to) return 0;
-	bzero(buf, 20);
-	strncpy(buf, str, 19);
+
+	snprintf(buf, sizeof(buf), "%s", str);
 
 	if (!is_port_range(buf)) return 0;
 
@@ -1344,8 +1097,6 @@ get_lex_ent_by_name(char *name)
 int
 lex_init(void)
 {
-	char	help_txt[LEX_TEXT_LEN];
-
 	if (lex_init_ok) return 0;
 
 	/* init pcre precompile memory */
@@ -1360,17 +1111,14 @@ lex_init(void)
 	set_lex_ent(LEX_IP_BLOCK, "IP_BLOCK", is_ip_block, "a.b.c.d[/<0~32>]", NULL);
 	set_lex_ent(LEX_IP_RANGE, "IP_RANGE", is_ip_range, "a.b.c.d[-a.b.c.d]", NULL);
 	set_lex_ent(LEX_IP6_ADDR, "IP6_ADDR", is_ip6_addr, "IP6Addr", NULL);
-	set_lex_ent(LEX_IP4_IP6_ADDR, "IP4_IP6_ADDR", is_ip4_ip6_addr, "IP4Addr|IP6Addr", NULL);
 	set_lex_ent(LEX_IP6_PREFIX, "IP6_PREFIX", is_ip6_prefix, "IP6Addr/Pfxlen", NULL);
 	set_lex_ent(LEX_IP6_BLOCK, "IP6_BLOCK", is_ip6_block, "IP6Addr[/Pfxlen]", NULL);
-	set_lex_ent(LEX_IFNAME_ADDR, "IFNAME_ADDR", is_ifname_addr, "Interface name|addr", NULL);
 	set_lex_ent(LEX_PORT, "PORT", is_port, "<0~65535>", NULL);
 	set_lex_ent(LEX_PORT_RANGE, "PORT_RANGE", is_port_range, "<0~65535>[-<0~65535>]", NULL);
 	set_lex_ent(LEX_VLAN_ID, "VLAN_ID", is_vlan_id, "<1-4094>", NULL);
 	set_lex_ent(LEX_MAC_ADDR, "MAC_ADDR", is_mac_addr, "xx:xx:xx:xx:xx:xx", NULL);
 	set_lex_ent(LEX_WORD, "WORD", is_word, "Word", NULL);
 	set_lex_ent(LEX_WORDS, "WORDS", is_words, "\"Words...\"", NULL);
-	set_lex_ent(LEX_PARAM, "PARAM", is_param, "Parameter", NULL);
 	set_lex_ent(LEX_INT, "INT", is_int, "Integer", NULL);
 	set_lex_ent(LEX_DECIMAL, "DECIMAL", is_decimal, "Decimal", NULL);
 	set_lex_ent(LEX_HOST_NAME, "HOST_NAME", is_host_name, "Host", NULL);
@@ -1390,30 +1138,7 @@ lex_init(void)
 	set_lex_ent(LEX_UID, "UID", is_uid, "UserID", NULL);
 	set_lex_ent(LEX_NET_UID, "NET_UID", is_net_uid, "user@host", NULL);
 	set_lex_ent(LEX_NET6_UID, "NET6_UID", is_net6_uid, "user@IP6Addr", NULL);
-	set_lex_ent(LEX_RADIUS_UID, "RADIUS_UID", is_radius_uid, "[prefix/]uid[@domain]", NULL);
-	set_lex_ent(LEX_CLEAR_PASSWD, "CLEAR_PASSWD", is_clear_passwd, "ClearPassword", NULL);
-	set_lex_ent(LEX_MD5_CIPHER, "MD5_CIPHER", is_md5_cipher, "MD5Cipher", NULL);
 	set_lex_ent(LEX_DATE_TIME, "DATE_TIME", is_date_time, "YYYYMMDDhhmm[.ss]", NULL);
-	set_lex_ent(LEX_DATE, "DATE", is_date, "YYYYMMDD", NULL);
-	set_lex_ent(LEX_MBITS_BW, "BW", is_mbits_bw, "<Decimal>[M]", NULL);
-
-	if (max_eth_ifindex < 0)
-		max_eth_ifindex = get_eth_ifnum() - 1;
-
-	sprintf(help_txt, "%s[0~%d]", ETH_PREFIX, max_eth_ifindex);
-	set_lex_ent(LEX_ETH_IFNAME, "ETH_IFNAME", is_eth_ifname, help_txt, ETH_PREFIX);
-
-	if (max_eth_ifindex > 6)
-		sprintf(help_txt, "%s[1~4,6~%d]", ETH_PREFIX, max_eth_ifindex);
-	else
-		sprintf(help_txt, "%s[1~%d]", ETH_PREFIX,
-			(max_eth_ifindex > 4) ? 4:max_eth_ifindex);
-
-	sprintf(help_txt, "%s[0~%d]", TUN_PREFIX, MAX_TUN_IFNUM - 1);
-	set_lex_ent(LEX_TUN_IFNAME, "TUN_IFNAME", is_tun_ifname, help_txt, TUN_PREFIX);
-
-	sprintf(help_txt, "%s[0~%d]", PPP_PREFIX, MAX_PPP_IFNUM - 1);
-	set_lex_ent(LEX_PPP_IFNAME, "PPP_IFNAME", is_ppp_ifname, help_txt, PPP_PREFIX);
 
 	lex_init_ok = 1;
 	return 0;
@@ -1441,7 +1166,7 @@ lex_exit(void)
 int
 main(int argc, char **argv)
 {
-	int	i, j, k, res;
+	int	i, j, k;
 	struct in_addr ia_net, ia_mask;
 	struct in_addr ia_from, ia_to;
 	u_short	port_from, port_to;
@@ -1451,45 +1176,43 @@ main(int argc, char **argv)
 
 	for (i = 1; i < argc; i++) {
 		for (j = 1; j < MAX_LEX_TYPE; j++) {
-			if (lex_ent[j].name[0] && lex_ent[j].fun) {
-				res = lex_ent[j].fun(argv[i]);
-				if (res != 1) continue;
+			if (!lex_ent[j].name[0] || !lex_ent[j].fun) continue;
+			if (lex_ent[j].fun(argv[i]) != 1) continue;
 
-				printf("%s(\"%s\") = true, "
-					"help = %s,  pfx = %s\n",
-					lex_ent[j].name, argv[i],
-					lex_ent[j].help,
-					(lex_ent[j].prefix[0]) ?
-						lex_ent[j].prefix:"NULL");
+			printf("%s(\"%s\") = true, "
+				"help = %s,  pfx = %s\n",
+				lex_ent[j].name, argv[i],
+				lex_ent[j].help,
+				(lex_ent[j].prefix[0]) ?
+					lex_ent[j].prefix:"NULL");
 
-				switch (j) {
-				case LEX_IP_PREFIX:
-					get_subnet_mask(argv[i], &ia_net, &ia_mask, 0);
-					printf("	addr: %s\n", inet_ntoa(ia_net));
-					printf("	mask: %s\n", inet_ntoa(ia_mask));
-					break;
-				case LEX_IP_BLOCK:
-					get_subnet_mask(argv[i], &ia_net, &ia_mask, 1);
-					printf("	subnet: %s\n", inet_ntoa(ia_net));
-					printf("	mask: %s\n", inet_ntoa(ia_mask));
-					break;
-				case LEX_IP_RANGE:
-					get_ip_range(argv[i], &ia_from, &ia_to);
-					printf("	from: %s\n", inet_ntoa(ia_from));
-					printf("	to: %s\n", inet_ntoa(ia_to));
-					break;
-				case LEX_PORT_RANGE:
-					get_port_range(argv[i], &port_from, &port_to);
-					printf("	port range: %d-%d\n", port_from, port_to);
-					break;
-				case LEX_MAC_ADDR:
-					get_binary_mac(argv[i], mac, 6);
-					printf("	mac: ");
-					for (k = 0; k < 6; k++) printf("%02X", mac[k]);
-					printf("\n");
-				default:
-					break;
-				}
+			switch (j) {
+			case LEX_IP_PREFIX:
+				get_subnet_mask(argv[i], &ia_net, &ia_mask, 0);
+				printf("	addr: %s\n", inet_ntoa(ia_net));
+				printf("	mask: %s\n", inet_ntoa(ia_mask));
+				break;
+			case LEX_IP_BLOCK:
+				get_subnet_mask(argv[i], &ia_net, &ia_mask, 1);
+				printf("	subnet: %s\n", inet_ntoa(ia_net));
+				printf("	mask: %s\n", inet_ntoa(ia_mask));
+				break;
+			case LEX_IP_RANGE:
+				get_ip_range(argv[i], &ia_from, &ia_to);
+				printf("	from: %s\n", inet_ntoa(ia_from));
+				printf("	to: %s\n", inet_ntoa(ia_to));
+				break;
+			case LEX_PORT_RANGE:
+				get_port_range(argv[i], &port_from, &port_to);
+				printf("	port range: %d-%d\n", port_from, port_to);
+				break;
+			case LEX_MAC_ADDR:
+				get_binary_mac(argv[i], mac, 6);
+				printf("	mac: ");
+				for (k = 0; k < 6; k++) printf("%02X", mac[k]);
+				printf("\n");
+			default:
+				break;
 			}
 		}
 	}
