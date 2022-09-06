@@ -1084,8 +1084,6 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 	int	n_match = 0;
 	struct cmd_tree *ent = NULL;
 	struct lex_ent *lex = NULL;
-	int	i, ifindex = -1;
-	char	ifname[16];
 
 	/* node NULL, or manual arg var, list all matching commands */
 	if (node == NULL ||
@@ -1119,7 +1117,7 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 			return 0;
 	}
 
-	/* var node full match,  or partially match with ifname */
+	/* var node full match, or partially match with prefix */
 	if (node->match_type == MATCH_VAR &&
 	    NODE_IS_ALLOWED(node, view, do_flag) &&
 	    (lex = get_lex_ent(node->match_ent.var.lex_type))) {
@@ -1128,20 +1126,6 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 		    lex->fun(cmd) == 1) {
 			matches[0] = strdup(cmd);
 			return 1;
-		} else if ((node->match_ent.var.lex_type == LEX_ETH_IFNAME ||
-			    node->match_ent.var.lex_type == LEX_PPP_IFNAME ||
-			    node->match_ent.var.lex_type == LEX_TUN_IFNAME) &&
-			   lex->prefix[0] &&
-		           (!cmd || !cmd[0] ||
-		           strncmp(lex->prefix, cmd, strlen(cmd)) == 0)) {
-			ifindex = get_max_ifindex(lex->prefix);
-			for (i = 0; i <= ifindex && limit >= 1; i++) {
-				bzero(ifname, 16);
-				snprintf(ifname, 16, "%s%d", lex->prefix, i);
-				matches[n_match++] = strdup(ifname);
-				limit--;
-			}
-			return n_match;
 		} else if (node->arg_helper && limit >= 1) {
 			return node->arg_helper(cmd, matches, limit);
 		} else if (lex->prefix &&
