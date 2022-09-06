@@ -9,7 +9,7 @@ Author: Digger Wu (digger.wu@linkbroad.com)
 This section lists Libocli's command line control interfaces. Most of the functions are named with the ocli_rl_ prefix, and appear in main() of [democli.c](../example/democli.c).
 
 
-1. Initialize GNU Readline and Libocli runtime environments, and save current terminal settings.
+1. Initialize GNU Readline and Libocli runtime environment, and save current terminal settings.
     ```c
     int ocli_rl_init(void);
     ```
@@ -47,7 +47,7 @@ This section lists Libocli's command line control interfaces. Most of the functi
     ```c
     char *read_bare_line(char *prompt);
     ```
-10. This is a wrapped GNU readline() with terminal ECHO and auto completion disabled, and it resumes auto comepletion after realine() calls ends. This is useful in Libocli context when you need user to input password.
+10. This is a wrapped GNU readline() with both terminal ECHO and auto completion disabled, and it resumes terminal ECHO and auto comepletion after realine() calls ends. This is useful in Libocli context when you need user to input a password.
     ```c
     char *read_password(char *prompt);
     ```
