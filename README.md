@@ -3,13 +3,13 @@ English | [中文](README.zh_CN.md)
 
 Library of Open Command Line Interface - is a Linux C library / framework for quickly building Cisco style command line programs. The [example directory](example) includes a "democli" program, which demonstates how to use Libocli to implement the "enable",  "configure terminal", "ping", “show", and "route" commands. [Libocli Quick Start Guide](doc/Quick%20Start%20Guide.md) describes the keys steps of how to build a simple "ping" command, including symbol definition, syntax registration, and callback implementation. For details please refer to the [Libocli API Manual](doc/README.md).
 
-Below GIFs demonstate the runnning effect of the example program "democli".
+Below are running effect of the "democli" program:
 
-- Keywords auto completion by TAB, lexical help by '?',  and syntax help by builtin "man" command:  
+- Keyword auto completion by TAB, '?' to get lexical help, and "man" to get syntax help:  
 >
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli1.gif)
 
-- “enable", "conf t" to change priority VIEWs, and "no" / "show" commands: 
+- “enable", "conf t" to change privilege VIEWs, and "no route", "show run" commands: 
 >
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![image](https://github.com/diggerwoo/blobs/blob/main/img/democli2.gif)
 
