@@ -39,15 +39,15 @@ Libocli 在 [lex.h](../src/lex.h) 中定义了网络管理领域常用的词法�
 
 Libocli 支持自定义词法，自定义词法类型 ID 值从（LEX_CUSTOM_BASE_TYPE + 0) 开始，到（LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1） 结束。MAX_CUSTOM_LEX_NUM 定义了最大自定义词法数为 128。
 
-自定义词法时需要调用词法注册函数 set_lex_ent() ，函数接口具体定义如下：
+自定义词法时需要调用词法注册函数 set_custom_lex_ent() ，函数接口具体定义如下：
 ```c
 /* 成功返回 0，同一个词法类型 ID 不允许重注册 */
-int set_lex_ent(int type,       /* 词法类型 ID */
-                char *name,     /* 词法类型的内部可读名称 */
-                lex_fun_t fun,  /* 词法解析函数指针 */
-                char *help,     /* 词法的帮助文本，供命令行 '?' 键查看 */
-                char *prefix    /* 词法的固定前缀串，供命令行 TAB 键自动补齐 */
-                );
+int set_custom_lex_ent(int type,       /* 词法类型 ID */
+                       char *name,     /* 词法类型的内部可读名称 */
+                       lex_fun_t fun,  /* 词法解析函数指针 */
+                       char *help,     /* 词法的帮助文本，供命令行 '?' 键查看 */
+                       char *prefix    /* 词法的固定前缀串，供命令行 TAB 键自动补齐 */
+                       );
 ```
 
 除非一个词法确实有固定的前缀串可供 TAB 补齐，否则调用时应将 prefix 设为 NULL。某些 URL 类词法需要 prefix，比如 Libocli 自带的词法 LEX_HTTP_URL 前缀是 "http://" ，LEX_HTTPS_URL 前缀是 "https://" 。其它可能的使用场景是网络接口名字，比如自定义一个以太网接口词法，其命名规则为 "Ethernet<0-99>"，那么可以指定 prefix 参数为 "Ethernet".
@@ -90,8 +90,8 @@ int set_lex_ent(int type,       /* 词法类型 ID */
 
     int mylex_init()
     {
-            set_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
-            set_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
+            set_custom_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
+            set_custom_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
     }
     ```
 

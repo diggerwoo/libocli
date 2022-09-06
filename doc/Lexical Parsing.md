@@ -39,15 +39,15 @@ Libocli defines lexical types which are commonly used for network adminitration 
 
 Libocli supports customized lexical type. The customized lexical type IDs range from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
 
-The function set_lex_ent() is used to register a customized lexical type, which is defined as blow:
+The function set_custom_lex_ent() is used to register a customized lexical type, which is defined as blow:
 ```c
 /* Returns 0 on success. The same type ID is not allowed to register repeatedly */
-int set_lex_ent(int type,       /* Lexical type ID */
-                char *name,     /* Readable name of lexical type */
-                lex_fun_t fun,  /* Parsing function */
-                char *help,     /* Help text for '?' key stroke */
-                char *prefix    /* Prefix string for TAB auto completion */
-                );
+int set_custom_lex_ent(int type,       /* Lexical type ID */
+                       char *name,     /* Readable name of lexical type */
+                       lex_fun_t fun,  /* Parsing function */
+                       char *help,     /* Help text for '?' key stroke */
+                       char *prefix    /* Prefix string for TAB auto completion */
+                       );
 ```
 
 Unless a lexical type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
@@ -90,8 +90,8 @@ For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_
 
     int mylex_init()
     {
-            set_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
-            set_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
+            set_custom_lex_ent(LEX_FOO_0, "FOO 0", is_foo_0, "Help for my foo 0", NULL);
+            set_custom_lex_ent(LEX_FOO_1, "FOO 1", is_foo_1, "Help for my foo 1", NULL);
     }
     ```
 
