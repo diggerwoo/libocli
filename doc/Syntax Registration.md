@@ -47,7 +47,7 @@ int cmd_ping_init()
 ```
 
 The callback function type **cmd_fun_t** has two parameters:
-- The first is a pointer of type **cmt_art_t**, which points to the array of callback argument. For details please refer to section 2 of [Callback Argument](Symbol%20Definition.md). 
+- The first is a pointer of type **cmt_art_t**, which points to the array of callback argument. For details please refer to [Callback Argument section 2.2](Symbol%20Definition.md#22-passing-callback-arguments). 
 - The second is a integer that we always use "do_flag" to represent. It is related to the "no" syntax. If the command is started with "no", then (do_flag & UNDO_FLAG) will be True, otherwise the (do_flag & DO_FLAG) will be Ture. Apparently the "ping" command doesn't have the "no" syntax. whilst other configuration commands like the "route" need this. We use "route ..." to add a static route, also use "no route ..." to delete one. Please refer to [route.c](../example/route.c).
 
 ## 4.2 Register a syntax
