@@ -1,6 +1,6 @@
 # 5. Libocli 命令行控制接口
 
-中文 | [English](Wrapped%20Readline.zh_CN.md)
+中文 | [English](Wrapped%20Readline.md)
 <br>
 [<< 上一级目录](README.zh_CN.md)  
 
@@ -50,6 +50,3 @@
     ```c
     char *read_password(char *prompt);
     ```
-
-
-
