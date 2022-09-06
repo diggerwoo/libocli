@@ -50,17 +50,14 @@ typedef enum lex_type {
 	LEX_IP_BLOCK,
 	LEX_IP_RANGE,
 	LEX_IP6_ADDR,
-	LEX_IP4_IP6_ADDR,
 	LEX_IP6_PREFIX,
 	LEX_IP6_BLOCK,
-	LEX_IFNAME_ADDR,
 	LEX_PORT,
 	LEX_PORT_RANGE,
 	LEX_VLAN_ID,
 	LEX_MAC_ADDR,
 	LEX_WORD,
 	LEX_WORDS,
-	LEX_PARAM,
 	LEX_INT,
 	LEX_HEX,
 	LEX_DECIMAL,
@@ -81,15 +78,7 @@ typedef enum lex_type {
 	LEX_UID,
 	LEX_NET_UID,
 	LEX_NET6_UID,
-	LEX_RADIUS_UID,
-	LEX_CLEAR_PASSWD,
-	LEX_MD5_CIPHER,
 	LEX_DATE_TIME,
-	LEX_DATE,
-	LEX_ETH_IFNAME,
-	LEX_TUN_IFNAME,
-	LEX_PPP_IFNAME,
-	LEX_MBITS_BW,
 	LEX_CUSTOM_BASE_TYPE	/* customized type starts here */
 } lex_type_t;
 
@@ -126,9 +115,7 @@ extern int is_ip_block(char *str);
 extern int is_ip_range(char *str);
 
 extern int is_ip6_addr(char *str);
-extern int is_ip4_ip6_addr(char *str);
 extern int is_ip6_prefix(char *str);
-extern int is_ifname_addr(char *str);
 
 extern int is_vlan_id(char *str);
 extern int is_port(char *str);
@@ -154,25 +141,14 @@ extern int is_mac_addr(char *str);
 
 extern int is_word(char *str);
 extern int is_words(char *str);
-extern int is_param(char *str);
 extern int is_http_url(char *str);
 extern int is_https_url(char *str);
 extern int is_ftp_url(char *str);
 
 extern int is_uid(char *str);
 extern int is_net_uid(char *str);
-extern int is_radius_uid(char *str);
-extern int is_clear_passwd(char *str);
-extern int is_md5_cipher(char *str);
 
 extern int is_date_time(char *str);
-extern int is_date(char *str);
-
-extern int is_eth_ifname(char *str);
-extern int is_xctl_ifname(char *str);
-extern int is_tun_ifname(char *str);
-extern int is_ppp_ifname(char *str);
-extern int get_max_ifindex(char *prefix);
 
 extern int is_empty_line(char *str);
 
