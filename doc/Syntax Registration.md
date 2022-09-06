@@ -47,7 +47,7 @@ int cmd_ping_init()
 ```
 
 The callback function type **cmd_fun_t** has two parameters:
-- The first is a pointer of type **cmt_art_t**, which points to the array of callback argument. For details please refer to [Callback Argument section 2.2](Symbol%20Definition.md#22-passing-callback-arguments). 
+- The first is a pointer of type **cmd_arg_t**, which points to the array of callback argument. For details please refer to [Callback Argument section 2.2](Symbol%20Definition.md#22-passing-callback-arguments). 
 - The second is a integer that we always use "do_flag" to represent. It is related to the "no" syntax. If the command is started with "no", then (do_flag & UNDO_FLAG) will be True, otherwise the (do_flag & DO_FLAG) will be Ture. Apparently the "ping" command doesn't have the "no" syntax. whilst other configuration commands like the "route" need this. We use "route ..." to add a static route, also use "no route ..." to delete one. Please refer to [route.c](../example/route.c).
 
 ## 4.2 Register a syntax
@@ -95,9 +95,9 @@ We give several typical sytax registration examples as below.
     add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
     ```
 
-3. Register the "[no] route" syntax. Now the do_flag is set to (DO_FLAG|UNDO_FLAG). This is a configuration command so it is only accessible in CONFIG_VIEW. Refer to [route.c](../example/route.c).
+3. Register the "[no] route" syntax. Now the do_flag is set to (DO_FLAG | UNDO_FLAG). This is a configuration command so it is only accessible in CONFIG_VIEW. Refer to [route.c](../example/route.c).
     ```c
-    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
+    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, (DO_FLAG | UNDO_FLAG));
     ```
 
 4. For the previous example, you might think the GW_ADDR is redundant when you use "no route" to delete static route, because (DST_NET + DST_MAKE) is actually the primary key of the route table. If you really want to optimize this, you need to do syntax splitting and register an UNDO_FLAG syntax independently, as shown below.

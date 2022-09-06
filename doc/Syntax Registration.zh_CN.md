@@ -47,7 +47,7 @@ int cmd_ping_init()
 ```
 
 回调函数类型 cmd_fun_t 的参数：
-- 第一个参数是 cmt_art_t 类型数组指针，指向命令行解析过程所产生的回调参数数组，在 [回调传参](Symbol%20Definition.zh_CN.md#22-回调参数的传递) 一节中有具体描述。  
+- 第一个参数是 cmd_arg_t 类型数组指针，指向命令行解析过程所产生的回调参数数组，在 [回调传参](Symbol%20Definition.zh_CN.md#22-回调参数的传递) 一节中有具体描述。  
 - 第二个参数是个整型，例子中的回调函数都使用 do_flag 来命名这个参数。这个参数用于告知回调函数当下这个命令是常规的、不带 "no" 执行的（即 do_flag & DO_FLAG 为真），还是以 "no ..." 语法执行的（即 do_flag & UNDO_FLAG 为真）。很明显 ping 命令不需要 no 语法，但是配置命令可能需要，比如例子中的 route 命令，删除路由时需要 no route ...，参考 [route.c](../example/route.c)。
 
 ## 4.2 注册语法
@@ -95,9 +95,9 @@ int add_cmd_syntax(struct cmd_tree *cmd_tree,
     add_cmd_easily(cmd_tree, "enable password", ENABLE_VIEW, DO_FLAG);
     ```
 
-3. 注册支持 "no" 的 "route" 语法，注意 do_flag 赋值 DO_FLAG|UNDO_FLAG，此条语法只能在 CONFIG_VIEW 视图中访问，见 [route.c](../example/route.c)。
+3. 注册支持 "no" 的 "route" 语法，注意 do_flag 赋值 (DO_FLAG | UNDO_FLAG)，此条语法只能在 CONFIG_VIEW 视图中访问，见 [route.c](../example/route.c)。
     ```c
-    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG|UNDO_FLAG);
+    add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, (DO_FLAG | UNDO_FLAG));
     ```
 
 4. 上例中，你可能觉得 no route 删除路由时，最后一个 GW_ADDR 是多余的，因为 (DST_NET + DST_MASK) 组合就是一条静态路由的主键，如果你真想这么做，就需要做语法拆分，独立注册一条  UNDO_FLAG 的语法，如下所示。
