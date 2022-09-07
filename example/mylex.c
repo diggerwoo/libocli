@@ -25,17 +25,17 @@
 static int eth_ifnum = 0;
 
 /*
- * ifindex is a natural number without '0' prefix except it equals "0"
+ * The ifindex is a natural number without precedent '0' except it equals 0
  */
 int
 is_ifindex(char *str)
 {
 	return (str && str[0] &&
-		pcre_match(str, LEX_IFINDEX, "^(0|[1-9][0-9]*)$") == 1);
+		pcre_match(str, LEX_IFINDEX, "^(0|([1-9][0-9]*))$") == 1);
 }
 
 /*
- * ethernet interface name of "eth<0-x>" format
+ * Linux ethernet interface name of "eth<0-x>" format
  */
 int
 is_eth_ifname(char *str)
@@ -50,16 +50,19 @@ is_eth_ifname(char *str)
 	return ((ifindex = atoi(ptr)) >= 0 && ifindex < eth_ifnum);
 }
 
+/*
+ * Get number of interface by prefix, e.g. "eth", "tun", "ppp"
+ */
 static int
-get_dev_ifnum(char *iftype)
+get_dev_ifnum(char *prefix)
 {
 	FILE	*fp;
 	char	line[256];
 	char	*tok;
 	int	len, n, ifidx = -1;
 
-	if (!iftype || !iftype[0]) return -1;
-	len = strlen(iftype);
+	if (!prefix || !prefix[0]) return -1;
+	len = strlen(prefix);
 
 	fp = fopen("/proc/net/dev", "r");
 	if (fp == NULL) {
@@ -70,17 +73,19 @@ get_dev_ifnum(char *iftype)
 	while (fgets(line, sizeof(line), fp)) {
 		tok = strtok(line, " \t:");
 		if (tok == NULL) continue;
-		if (strncmp(tok, iftype, len) != 0) continue;
+		if (strncmp(tok, prefix, len) != 0) continue;
 
 		n = atoi(tok+3);
-		if (n > ifidx)
-			ifidx = n;
+		if (n > ifidx) ifidx = n;
 	}
 	fclose(fp);
 
 	return ((ifidx < 0) ? 0 : (ifidx + 1));
 }
 
+/*
+ * Register customized lex types
+ */
 int
 mylex_init()
 {
@@ -91,7 +96,7 @@ mylex_init()
 	set_custom_lex_ent(LEX_IFINDEX, "IFINDEX", is_ifindex, "Interface index", NULL);
 
 	if (eth_ifnum > 0) {
-		snprintf(help, sizeof(help), "eth<0-%d>", eth_ifnum);
+		snprintf(help, sizeof(help), "eth<0-%d>", eth_ifnum - 1);
 		set_custom_lex_ent(LEX_ETH_IFNAME, "ETH_IFNAME", is_eth_ifname, help, "eth");
 	}
 	return 0;
