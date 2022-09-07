@@ -27,6 +27,9 @@ main(int argc, char **argv)
 	/* Always init ocli_rl_init first */
 	ocli_rl_init();
 
+	/* Create my customized lex types */
+	mylex_init();
+
 	/* Create libocli builtin command "man" and "no" */
 	cmd_manual_init();
 	cmd_undo_init();
@@ -39,6 +42,8 @@ main(int argc, char **argv)
 	cmd_route_init();
 	/* Create "show" commands */
 	cmd_show_init();
+	/* Create "interface" commands */
+	cmd_interface_init();
 
 	/* Auto exec "exit" for EOF when CTRL-D being pressed */
 	ocli_rl_set_eof_cmd("exit");
@@ -46,9 +51,8 @@ main(int argc, char **argv)
 	/* For the sake of security, exit if terminal idled for 5 minutes */
 	ocli_rl_set_timeout(300);
 
-	/* Start from BASIC_VIEW */
-	ocli_rl_set_view(BASIC_VIEW);
-	set_democli_prompt(BASIC_VIEW);
+	/* Start from BASIC_VIEW, and set democli specic view-based prompt */
+	democli_set_view(BASIC_VIEW);
 
 	/* Loop to parsing and exec commands */
 	ocli_rl_loop();
