@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <ocli/ocli.h>
+#include "democli.h"
 
 static symbol_t syms_route[] = {
 	DEF_KEY         ("route",	"Route utility"),
@@ -73,7 +74,7 @@ cmd_route(cmd_arg_t *cmd_arg, int do_flag)
 			(do_flag == UNDO_FLAG) ? "del":"add",
 			net, mask, gw);
 		printf("This is demo for route command which supports \"no\" syntax.\n");
-		printf("You are about to exec \"%s\".\n", cmd_str);
+		printf("You are about to exec:\n  \"%s\"\n", cmd_str);
 	}
 
 	return 0;
