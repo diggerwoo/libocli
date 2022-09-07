@@ -37,7 +37,7 @@ Libocli 在 [lex.h](../src/lex.h) 中定义了网络管理领域常用的词法�
 
 ## 3.2 自定义词法接口
 
-Libocli 支持自定义词法，自定义词法类型 ID 值从（LEX_CUSTOM_BASE_TYPE + 0) 开始，到（LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1） 结束。MAX_CUSTOM_LEX_NUM 定义了最大自定义词法数为 128。
+Libocli 支持自定义词法，最多可以扩展 128 个自定义词法。宏 LEX_CUSTOM_TYPE(x) 可用于创建自定义词法类型 ID，其中参数 x 的范围为 0 ~ 127。相关的宏定义请参考 [lex.h](../src/lex.h)。
 
 自定义词法时需要调用词法注册函数 set_custom_lex_ent() ，函数接口具体定义如下：
 ```c
@@ -54,15 +54,15 @@ int set_custom_lex_ent(int type,       /* 词法类型 ID */
 
 ## 3.3 自定义词法举例
 
-假设开发者需要增加两个词法，LEX_FOO_0 和 LEX_FOO_1，建议的步骤如下：
+假设你需要增加两个词法，LEX_FOO_0 和 LEX_FOO_1，建议的步骤如下：
 
 1. 在自己的头文件，比如 mylex.h 中定义新增的词法和解析函数：
     ```c
     #include <ocli/lex.h>
 
-    /* 定义两个词法类型 */
-    #define LEX_FOO_0 LEX_CUSTOM_BASE_TYPE
-    #define LEX_FOO_1 (LEX_CUSTOM_BASE_TYPE + 1)
+    /* 增加两个自定义词法类型 */
+    #define LEX_FOO_0 LEX_CUSTOM_TYPE(0)
+    #define LEX_FOO_1 LEX_CUSTOM_TYPE(1)
 
     /* 词法分析函数 */
     extern int is_foo_0(char *str);
