@@ -108,11 +108,35 @@ int add_cmd_syntax(struct cmd_tree *cmd_tree,
 
 ## 4.3 自定义视图
 
-Libocli 预定义了 BASIC_VIEW / ENABLE_VIEW / CONFIG_VIEW 这几个易于理解的几个视图，democli 的初始状态是 BASIC_VIEW，执行 "enable" 输入使能密码后，进入到 ENABLE_VIEW，再输入 "configure terminal"，进入到 CONFIG_VIEW，这个时候才可以做系统配置更改。每次视图改变后，提示符也跟着变了，有助于用户感知自己的权限状态。democli 的视图 / 提示符的变更参见 [sys.c](../example/sys.c) 中的 democli_set_view() 函数。
+Libocli 预定义了 BASIC_VIEW，ENABLE_VIEW 和 CONFIG_VIEW 这三个视图。democli 的初始视图是 BASIC_VIEW，用户执行 "enable" 输入使能密码后，进入到 ENABLE_VIEW，用户再输入 "configure terminal"，进入到 CONFIG_VIEW，这个时候才可以做系统配置更改。每次视图改变后，提示符也跟着变化，用户看到提示符就知晓自己的权限状态。democli 的视图 / 提示符的变更参见 [sys.c](../example/sys.c) 中的 democli_set_view() 函数。
 
-你也可以自定义视图，甚至可以完全使用自定义视图而不理会 Libocli 预定义的三个视图。democli 给出了一个自定义视图的例子，在 [democli.h](../example/democli.h) 里定义了 INTERFACE_VIEW，用户在 CONFIG_VIEW 中输入 "interface" 命令后，比如 "interface eth0"，那么就进入到 INTERFACE_VIEW，可以使用 "ip address" 命令行设置 eth0 的接口 IP 地址。具体可以参考 [interface.c](../example/interface.c) 。
+你也可以自定义视图，甚至可以完全使用自定义视图而不理会 Libocli 预定义视图。
 
-## 4.4 特殊语法字符的使用以及限制
+democli 给出了一个自定义视图的例子，在 [democli.h](../example/democli.h) 里定义了 INTERFACE_VIEW，用于演示如何实现 Cisco 风格的 "interface" 命令：
+```c
+#define INTERFACE_VIEW	0x08
+```
+
+之后在 [interface.c](../example/interface.c) 里，创建 "interface" 和 "ip" 命令。"interface IFNAME" 语法只能在 CONFIG_VIEW 中访问，"ip address" 语法只能在 INTERFACE_VIEW 中访问：
+```c
+int
+cmd_interface_init()
+{
+	struct cmd_tree *cmd_tree;
+
+	cmd_tree = create_cmd_tree("interface", SYM_TABLE(syms_interface), cmd_interface);
+	add_cmd_easily(cmd_tree, "interface IFNAME", CONFIG_VIEW, DO_FLAG);
+
+	cmd_tree = create_cmd_tree("ip", SYM_TABLE(syms_ip), cmd_ip);
+	add_cmd_easily(cmd_tree, "ip address IP_ADDR NET_MASK", INTERFACE_VIEW, DO_FLAG);
+
+	return 0;
+}
+```
+
+其效果是，用户在 CONFIG_VIEW 中输入 "interface" 命令后比如 "interface eth0"，那么就进入到 INTERFACE_VIEW，此时才可以使用 "ip address" 命令设置 eth0 的接口 IP 地址。
+
+## 4.4 特殊语法字符的使用及限制
 
 Libocli 注册语法时可使用 **[ ] { | }** 表达选项语法：
 - **多选一** 语法段 **{ | }**  ，每个符号单词之间必须使用 **|** 分隔，比如 " { block | pass } "，" { tcp | udp | icmp } "
