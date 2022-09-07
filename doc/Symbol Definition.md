@@ -43,7 +43,7 @@ Key points and  examples:
   DEF_VAR_RANGE	("COUNT", "<1-100> count of requests", LEX_INT, ARG(REQ_COUNT), 1, 100)
   ```
 
-## 2.2 Passing callback Arguments
+## 2.2 Passing callback arguments
 
 When a command line is parsed successfully, an pointer to array of cmd_arg_t will be passed to the callback function. The cmd_arg_t is actually a name value pair as defined below.
 ```c
