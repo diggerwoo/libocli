@@ -25,7 +25,7 @@
 static int eth_ifnum = 0;
 
 /*
- * ifindex is a natrual number without '0' prefix except it equals "0"
+ * ifindex is a natural number without '0' prefix except it equals "0"
  */
 int
 is_ifindex(char *str)
@@ -87,7 +87,6 @@ mylex_init()
 	char	help[80];
 
 	eth_ifnum = get_dev_ifnum("eth");
-	printf("get eth_ifnum %d\n", eth_ifnum);
 
 	set_custom_lex_ent(LEX_IFINDEX, "IFINDEX", is_ifindex, "Interface index", NULL);
 
