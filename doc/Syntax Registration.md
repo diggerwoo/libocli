@@ -105,7 +105,35 @@ We give several typical sytax registration examples as below.
     add_cmd_easily(cmd_tree, "route DST_NET DST_MASK GW_ADDR", CONFIG_VIEW, DO_FLAG);
     add_cmd_easily(cmd_tree, "route DST_NET DST_MASK", CONFIG_VIEW, UNDO_FLAG);
     ```
-## 4.3 Usage and limitation of reserved syntax chars [ ] { | }
+## 4.3 Customized view
+
+Libocli predefines three views: BASIC_VIEW, ENABLE_VIEW and CONFIG_VIEW. The initial view of the democli is BASIC_VIEW. User inputs "enable" and enter  password to access ENABLE_VIEW, and then inputs "configure terminal" to access CONFIG_VIEW. Only then can user update system configuration. Each time the view is changed, the prompt also changes. The prompt lets user easily know current privilege status. For how democli change the view/prompt, refer to  democli_set_view() function in [sys.c](../example/sys.c).
+
+You can also add customized view, or even use the customized view completely and ignore the Libocli predefined views.
+
+We give a use case of customized view. A customized INTERFACE_VIEW is defined in [democli.h](../example/democli.h). This is used to demonstrate how to implement Cisco style "interface" commands.
+```c
+#define INTERFACE_VIEW	0x08
+```
+Then we create "interface" and "ip" commands in cmd_interface() of [interface.c](../example/interface.c). The "interface IFNAME" syntax is only accessible in CONFIG_VIEW, and the "ip address" syntax is only accessible in INTERFACE_VIEW:
+```c
+int
+cmd_interface_init()
+{
+	struct cmd_tree *cmd_tree;
+
+	cmd_tree = create_cmd_tree("interface", SYM_TABLE(syms_interface), cmd_interface);
+	add_cmd_easily(cmd_tree, "interface IFNAME", CONFIG_VIEW, DO_FLAG);
+
+	cmd_tree = create_cmd_tree("ip", SYM_TABLE(syms_ip), cmd_ip);
+	add_cmd_easily(cmd_tree, "ip address IP_ADDR NET_MASK", INTERFACE_VIEW, DO_FLAG);
+
+	return 0;
+}
+```
+The effect is that after user enters the "interface" command in CONFIG_VIEW, such as "interface eth0", user can access INTERFACE_VIEW in which the "ip address" command can be accessible to configure the eth0's IP address.
+
+## 4.4 Usage and limitation of reserved syntax chars
 
 Libocli allows to use **[ ] { | }** for optional / alternative segments when registering syntax:
 - **Alternative** segment **{ | }**  , allows two of more tokens separated by '**|**' . E.g. " { block | pass } "，" { tcp | udp | icmp } "
@@ -117,7 +145,7 @@ Limitaions:
 - **{ }** can be nested inside **[ ]**. E.g.  " [ from { IP_ADDR | IFNAME } ] "
 
 
-## 4.4 Add customized manual
+## 4.5 Add customized manual
 
 If you do not want to use the manual generated automatically by add_cmd_easily(), but need to create a customized one, you can call the add_cmd_manual(), then call add_cmd_syntax(). The function add_cmd_manual() is defined as below.
 
