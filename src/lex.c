@@ -46,7 +46,7 @@ static struct lex_ent lex_ent[MAX_LEX_TYPE];
 /*
  * pcre match function
  */
-static int
+int
 pcre_match(char *str, int idx, char *pattern)
 {
 	static pcre *pcre = NULL;
