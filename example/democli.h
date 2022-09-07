@@ -20,13 +20,26 @@
 #ifndef _DEMOCLI_H
 #define _DEMOCLI_H
 
+#include <ocli/ocli.h>
+
+#define INTERFACE_VIEW	0x08
+
+/* customized lex type */
+#define	LEX_IFINDEX	LEX_CUSTOM_TYPE(0)	
+#define	LEX_ETH_IFNAME	LEX_CUSTOM_TYPE(1)	
+
+extern int mylex_init();
+
 /* interface of sys.c module */
-extern void set_democli_prompt(int view);
+extern void democli_set_view(int view);
 extern int cmd_sys_init();
 
 /* interface of other modules */
 extern int cmd_net_utils_init();
 extern int cmd_route_init();
 extern int cmd_show_init();
+
+extern char *get_current_ifname();
+extern int cmd_interface_init();
 
 #endif	/* _DEMOCLI_H */
