@@ -56,7 +56,7 @@ int set_custom_lex_ent(int type,       /* 词法类型 ID */
 
 假设开发者需要增加两个词法，LEX_FOO_0 和 LEX_FOO_1，建议的步骤如下：
 
-1. 在自己的头文件 mylex.h 中定义新增的词法和解析函数：
+1. 在自己的头文件，比如 mylex.h 中定义新增的词法和解析函数：
     ```c
     #include <ocli/lex.h>
 
@@ -72,7 +72,7 @@ int set_custom_lex_ent(int type,       /* 词法类型 ID */
     int mylex_init();
     ```
 
-2. 在自定义词法分析模块中实现上述函数：
+2. 在自定义词法分析模块，比如 mylex.c 中实现上述函数：
     ```c
     #include "mylex.h"
 
@@ -95,6 +95,6 @@ int set_custom_lex_ent(int type,       /* 词法类型 ID */
     }
     ```
 
-3. 主程序初始化 libocli_rl_init() 后，调用 mylex_init()，注册自定义词法
+3. 主程序初始化 libocli_rl_init() 后，调用 mylex_init()，注册上述自定义词法
 4. 之后各个模块都可以使用 LEX_FOO_0 和 LEX_FOO_1 来定义自己的符号词法类型了，注意不要忘记 #include "mylex.h"
 
