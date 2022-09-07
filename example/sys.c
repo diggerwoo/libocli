@@ -88,8 +88,7 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 		printf("For demo purpose, please input \"ocli\" (without quotes) as the enable password.\n");
 		passwd = read_password("Password: ");
 		if (strcmp(passwd, "ocli") == 0) {
-			ocli_rl_set_view(ENABLE_VIEW);
-			set_democli_prompt(ENABLE_VIEW);
+			democli_set_view(ENABLE_VIEW);
 		} else {
 			printf("Incorrect password.\n");
 		}
@@ -105,10 +104,10 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 }
 
 /*
- * A demo func to set application specific view-based prompt
+ * A demo func to set application specific view and prompt
  */
 void
-set_democli_prompt(int view)
+democli_set_view(int view)
 {
 	char	host[32];
 	char	prompt[64];
@@ -116,12 +115,17 @@ set_democli_prompt(int view)
 	bzero(host, sizeof(host));
 	gethostname(host, sizeof(host)-1);
 
-	if (view == CONFIG_VIEW)
+	if (view == ENABLE_VIEW)
+		snprintf(prompt, sizeof(prompt), "%s# ", host);
+	else if (view == CONFIG_VIEW)
 		snprintf(prompt, sizeof(prompt), "%s-cfg# ", host);
+	else if (view == INTERFACE_VIEW)
+		snprintf(prompt, sizeof(prompt), "%s-cfg-%s# ",
+			 host, get_current_ifname());
 	else
-		snprintf(prompt, sizeof(prompt),
-			"%s%s ", host, (view == BASIC_VIEW) ? ">":"#");
+		snprintf(prompt, sizeof(prompt), "%s> ", host);
 
+	ocli_rl_set_view(view);
 	ocli_rl_set_prompt(prompt);
 }
 
@@ -134,8 +138,7 @@ cmd_config(cmd_arg_t *cmd_arg, int do_flag)
 	int	view = ocli_rl_get_view();
 
 	if (view == ENABLE_VIEW) {
-		ocli_rl_set_view(CONFIG_VIEW);
-		set_democli_prompt(CONFIG_VIEW);
+		democli_set_view(CONFIG_VIEW);
 	}
 
 	return 0;
@@ -154,12 +157,13 @@ cmd_exit(cmd_arg_t *cmd_arg, int do_flag)
 		ocli_rl_finished = 1;
 		break;
 	case ENABLE_VIEW:
-		ocli_rl_set_view(BASIC_VIEW);
-		set_democli_prompt(BASIC_VIEW);
+		democli_set_view(BASIC_VIEW);
 		break;
 	case CONFIG_VIEW:
-		ocli_rl_set_view(ENABLE_VIEW);
-		set_democli_prompt(ENABLE_VIEW);
+		democli_set_view(ENABLE_VIEW);
+		break;
+	case INTERFACE_VIEW:
+		democli_set_view(CONFIG_VIEW);
 		break;
 	default:
 		break;
