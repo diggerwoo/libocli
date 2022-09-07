@@ -37,7 +37,8 @@ Libocli defines lexical types which are commonly used for network adminitration 
 
 ## 3.2 Customized lexical type
 
-Libocli supports customized lexical type. The customized lexical type IDs range from (LEX_CUSTOM_BASE_TYPE + 0) to (LEX_CUSTOM_BASE_TYPE + MAX_CUSTOM_LEX_NUM - 1). The MAX_CUSTOM_LEX_NUM defines the number of maximal cutomized types which is 128.
+Libocli supports up to 128 customized lexical types. The macro LEX_CUSTOM_TYPE(x) is used to define a customized lexical type ID, where the x ranges from 0 to 127. For related macro definitions, please refer to [lex.h](../src/lex.h).
+
 
 The function set_custom_lex_ent() is used to register a customized lexical type, which is defined as blow:
 ```c
@@ -60,9 +61,9 @@ For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_
     ```c
     #include <ocli/lex.h>
 
-    /* Define two customized types */
-    #define LEX_FOO_0 LEX_CUSTOM_BASE_TYPE
-    #define LEX_FOO_1 (LEX_CUSTOM_BASE_TYPE + 1)
+    /* Add two customized lexical types */
+    #define LEX_FOO_0 LEX_CUSTOM_TYPE(0)
+    #define LEX_FOO_1 LEX_CUSTOM_TYPE(1)
 
     /* Parsing functions */
     extern int is_foo_0(char *str);
