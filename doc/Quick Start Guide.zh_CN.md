@@ -125,6 +125,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 ```c
 /* libocli 头文件 */
 #include <ocli/ocli.h>
+#include "democli.h"
 
 int main()
 {
@@ -151,8 +152,7 @@ int main()
 	ocli_rl_set_timeout(300);
     
 	/* 设置初始权限视图为 BASIC_VIEW  */
-	ocli_rl_set_view(BASIC_VIEW);
-	set_democli_prompt(BASIC_VIEW);
+	democli_set_view(BASIC_VIEW);
 
 	/* 开始 libocli 命令行读取主循环 */
 	ocli_rl_loop();

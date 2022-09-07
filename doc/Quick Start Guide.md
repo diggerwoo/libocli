@@ -111,19 +111,20 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 }
 ```
 
-## 1.2 Integrate with Main program
+## 1.2 Integrate with main module
 
 Normally we should implement our commands in different modules classified by specific purpose. E.g. in the democli we designate netutils.c to implement useful network utilities like "ping" and "traceroute", we might add other tools like "nslook", "ssh", etc. Then we write a cmd_net_utils_init() function to do all the commands creation and syntaxes registration. Finally we integrate this cmd_net_utils_init() into main(), and rebuild the program.
 
 Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
 - Call ocli_rl_init() to initialize libocli runtime environment.
-- Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions, including cmd_net_utils_init() we just created the "ping".
-- Cutomize libocli settings, including terminal timeout, initial VIEW and prompts.
+- Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions that declared in [democli.h](../example/democli.h), including the cmd_net_utils_init() we just created the "ping".
+- Cutomize libocli settings, including terminal timeout, initial VIEW.
 - Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
 ```c
 /* libocli header */
 #include <ocli/ocli.h>
+#include "democli.h"
 
 int main()
 {
@@ -150,8 +151,7 @@ int main()
 	ocli_rl_set_timeout(300);
 
 	/* Start from BASIC_VIEW */
-	ocli_rl_set_view(BASIC_VIEW);
-	set_democli_prompt(BASIC_VIEW);
+	democli_set_view(BASIC_VIEW);
 
 	/* Loop to parsing and exec commands */
 	ocli_rl_loop();
