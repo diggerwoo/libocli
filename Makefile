@@ -30,7 +30,8 @@ lexdebug: $(SRC)/lex.c $(SRC)/lex.h
 DEMODIR = ./example
 DEMOHDR = $(DEMODIR)/democli.h
 DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/sys.c $(DEMODIR)/netutils.c \
-	  $(DEMODIR)/show.c $(DEMODIR)/route.c
+	  $(DEMODIR)/show.c $(DEMODIR)/route.c $(DEMODIR)/interface.c \
+	  $(DEMODIR)/mylex.c
 
 demo: $(DEMOSRC) $(DEMOHDR) libocli.so
 	$(CC) $(CFLAGS) -o democli $(DEMOSRC) -locli -lpcre -lreadline
