@@ -28,10 +28,11 @@ lexdebug: $(SRC)/lex.c $(SRC)/lex.h
 	$(CC) $(CFLAGS) -DDEBUG_LEX_MAIN -o lexdebug $(SRC)/lex.c -lpcre
 	
 DEMODIR = ./example
-DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/netutils.c $(DEMODIR)/show.c	\
-	  $(DEMODIR)/route.c
+DEMOHDR = $(DEMODIR)/democli.h
+DEMOSRC = $(DEMODIR)/democli.c $(DEMODIR)/sys.c $(DEMODIR)/netutils.c \
+	  $(DEMODIR)/show.c $(DEMODIR)/route.c
 
-demo: $(DEMOSRC) libocli.so
+demo: $(DEMOSRC) $(DEMOHDR) libocli.so
 	$(CC) $(CFLAGS) -o democli $(DEMOSRC) -locli -lpcre -lreadline
 
 libocli.so: $(OBJS) $(HDRS)
