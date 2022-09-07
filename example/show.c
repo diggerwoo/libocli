@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <ocli/ocli.h>
+#include "democli.h"
 
 static symbol_t syms_show[] = {
 	DEF_KEY         ("show",	"Show utility"),
@@ -72,9 +73,9 @@ cmd_show(cmd_arg_t *cmd_arg, int do_flag)
 	}
 
 	if (opt_run_cfg)
-		printf("!\nThis is a demo for showing running-config\n");
+		printf("!\n! This is a demo for showing running-config\n!\n");
 	else if (opt_start_cfg)
-		printf("!\nThis is a demo for showing startup-config\n");
+		printf("!\n! This is a demo for showing startup-config\n!\n");
 
 	return 0;
 }
