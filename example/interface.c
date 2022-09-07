@@ -29,7 +29,17 @@ static symbol_t syms_interface[] = {
 			 LEX_ETH_IFNAME, ARG(IFNAME))
 };
 
+static symbol_t syms_ip[] = {
+	DEF_KEY         ("ip",		"IP configuration"),
+	DEF_KEY         ("address",	"Set IP address"),
+	DEF_VAR		("IP_ADDR",	"IP address",
+			 LEX_IP_ADDR,	ARG(IP_ADDR)),
+	DEF_VAR		("NET_MASK",	"Network mask",
+			 LEX_IP_MASK,	ARG(NET_MASK))
+};
+
 static int cmd_interface(cmd_arg_t *cmd_arg, int do_flag);
+static int cmd_ip(cmd_arg_t *cmd_arg, int do_flag);
 
 int
 cmd_interface_init()
@@ -37,8 +47,10 @@ cmd_interface_init()
 	struct cmd_tree *cmd_tree;
 
 	cmd_tree = create_cmd_tree("interface", SYM_TABLE(syms_interface), cmd_interface);
-
 	add_cmd_easily(cmd_tree, "interface IFNAME", CONFIG_VIEW, DO_FLAG);
+
+	cmd_tree = create_cmd_tree("ip", SYM_TABLE(syms_ip), cmd_ip);
+	add_cmd_easily(cmd_tree, "ip address IP_ADDR NET_MASK", INTERFACE_VIEW, DO_FLAG);
 
 	return 0;
 }
@@ -67,5 +79,29 @@ cmd_interface(cmd_arg_t *cmd_arg, int do_flag)
 		democli_set_view(INTERFACE_VIEW);
 	}
 
+	return 0;
+}
+
+static int
+cmd_ip(cmd_arg_t *cmd_arg, int do_flag)
+{
+	int	i;
+	char	*name, *value;
+	char	*addr = NULL, *mask = NULL;
+	char	cmd_str[128];
+
+	for_each_cmd_arg(cmd_arg, i, name, value) {
+		if (IS_ARG(name, IP_ADDR))
+			addr = value;
+		else if (IS_ARG(name, NET_MASK))
+			mask = value;
+	}
+
+	if (cur_ifname[0] && addr && mask) {
+		snprintf(cmd_str, sizeof(cmd_str),
+			"ifconfig %s %s netmask %s", cur_ifname, addr, mask);
+		printf("This is demo for IP address configuration.\n");
+		printf("You are about to exec:\n  \"%s\"\n", cmd_str);
+	}
 	return 0;
 }
