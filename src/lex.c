@@ -306,36 +306,6 @@ is_domain_name(char *str)
 }
 
 /*
- * is str an domain wild-card ?
- */
-int
-is_domain_wildcard(char *str)
-{
-	int	res;
-
-	if (!str || !str[0] || is_ip_addr(str)) return 0;
-
-	/*
-	 * domain name begin with '*.'
-	 * XXX the top layer domain must be all alphabets
-	 */
-	res = pcre_match(str, LEX_DOMAIN_WILDCARD,
-			 "^(\\*\\.)(\\w[\\w\\-]*\\.)+"
-			 "([A-Za-z0-9]+)$");
-
-	return (res == 1);
-}
-
-/*
- * is str a domain name or domain wildcard ?
- */
-int
-is_domain_ext(char *str)
-{
-	return (is_domain_name(str) || is_domain_wildcard(str));
-}
-
-/*
  * is str an email address ?
  */
 int
@@ -1125,8 +1095,6 @@ lex_init(void)
 	set_lex_ent(LEX_HOST, "HOST", is_host, "Host|a.b.c.d", NULL);
 	set_lex_ent(LEX_HOST6, "HOST6", is_host6, "Host|IP4|IP6", NULL);
 	set_lex_ent(LEX_DOMAIN_NAME, "DOMAIN_NAME", is_domain_name, "Domain", NULL);
-	set_lex_ent(LEX_DOMAIN_WILDCARD, "DOMAIN_WILDCARD", is_domain_wildcard, "*.domain", NULL);
-	set_lex_ent(LEX_DOMAIN_EXT, "DOMAIN_EXT", is_domain_ext, "[*.]domain", NULL);
 	set_lex_ent(LEX_EMAIL_ADDR, "EMAIL_ADDR", is_email_addr, "user@domain.name", NULL);
 	set_lex_ent(LEX_HTTP_URL, "HTTP_URL", is_http_url, "http://host/path", "http://");
 	set_lex_ent(LEX_HTTPS_URL, "HTTPS_URL", is_https_url, "https://host/path", "https://");
