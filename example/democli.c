@@ -92,7 +92,7 @@ main(int argc, char **argv)
  */
 static symbol_t syms_enable[] = {
 	DEF_KEY         ("enable",	"Enabled view access"),
-	DEF_KEY_ARG     ("password",	"Change password of enabled view",
+	DEF_KEY_ARG     ("password",	"Change password of enable view",
                          ARG(SET_PASSWD))
 };
 
@@ -145,18 +145,20 @@ cmd_enable(cmd_arg_t *cmd_arg, int do_flag)
 	}
 
 	if (view == BASIC_VIEW) {
+		printf("For demo purpose, please input \"ocli\" (without quotes) as the enable password.\n");
 		passwd = read_password("Password: ");
 		if (strcmp(passwd, "ocli") == 0) {
 			ocli_rl_set_view(ENABLE_VIEW);
 			set_democli_prompt(ENABLE_VIEW);
 		} else {
-			printf("For demo purpose, please input \"ocli\" as the enabled password.\n");
+			printf("Incorrect password.\n");
 		}
 	} else if (view == ENABLE_VIEW && set_passwd) {
-		printf("This is only a demo to modify enabled password.\n");
+		printf("This is only a demo, no password will be validated or modified.\n");
 		read_password("Input old password: ");
 		read_password("Input new password: ");
 		read_password("Confirm new password: ");
+		read_bare_line("Are you sure to modify the enable password? (Yes/No): ");
 	}
 
 	return 0;
