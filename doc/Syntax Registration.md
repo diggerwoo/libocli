@@ -111,7 +111,7 @@ Libocli predefines three views: BASIC_VIEW, ENABLE_VIEW and CONFIG_VIEW. The ini
 
 You can also add customized view, or even use the customized view completely and ignore the Libocli predefined views.
 
-We give a use case of customized view. A customized INTERFACE_VIEW is defined in [democli.h](../example/democli.h). This is used to demonstrate how to implement Cisco style "interface" commands.
+We give a use case of customized view. A customized INTERFACE_VIEW is defined in [democli.h](../example/democli.h) to demonstrate how to implement Cisco style "interface" commands.
 ```c
 #define INTERFACE_VIEW	0x08
 ```
