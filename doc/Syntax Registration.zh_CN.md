@@ -119,8 +119,7 @@ democli 给出了一个自定义视图的例子，在 [democli.h](../example/dem
 
 之后在 [interface.c](../example/interface.c) 里，创建 "interface" 和 "ip" 命令。"interface IFNAME" 语法只能在 CONFIG_VIEW 中访问，"ip address" 语法只能在 INTERFACE_VIEW 中访问：
 ```c
-int
-cmd_interface_init()
+int cmd_interface_init()
 {
 	struct cmd_tree *cmd_tree;
 
@@ -158,6 +157,39 @@ int add_cmd_manual(struct cmd_tree *cmd_tree,	/* 语法树指针 */
 		   int view_mask		/* 本手册的视图掩码 */*
 		   );
 ```
+在 [show.c](../example/show.c) 中我们给出一个使用 add_cmd_manual() 的例子：
+```c
+int cmd_show_init()
+{
+	/* ... */
+	/* Example of add_cmd_manual() and add_cmd_syntax() */
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show arp", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show route", ENABLE_VIEW|CONFIG_VIEW);
 
-当使用 man 查看一条命令的手册时，Libocli 会按手册文本添加的顺序，逐行显示手册内容。
- 
+	add_cmd_syntax(cmd_tree, "show { arp | route }", ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show running-config", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show startup-config", ENABLE_VIEW|CONFIG_VIEW);
+
+	add_cmd_syntax(cmd_tree, "show { running-config | startup-config }",
+		       ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+	/* ... */
+}
+```
+
+当使用 man 查看一条命令的手册时，Libocli 会按手册文本添加的顺序，逐行显示手册内容。上面个性化手册的效果如下：
+```
+centos71# man show
+NAME
+        show - Show utility
+SYNOPSIS
+        show version
+        -------------------
+        show arp
+        show route
+        -------------------
+        show running-config
+        show startup-config
+```
