@@ -199,6 +199,13 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, NULL,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
+		/* XXX like above, but at the line end after SPACE */
+		if (cmd_stat.err_code == MATCH_INCOMPLETE && tok_num == 1) {
+			snprintf(mate, sizeof(mate), "%s?", pending_toks[0]);
+			dprintf(DBG_RL, "potential match next '%s', add '%s'\n",
+				pending_toks[0], mate);
+			pending_toks[tok_num++] = strdup(mate);
+		}
 	} else {
 		dprintf(DBG_RL, "NULL, res %d last[%d] argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
