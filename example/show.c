@@ -45,9 +45,18 @@ cmd_show_init()
 	cmd_tree = create_cmd_tree("show", SYM_TABLE(syms_show), cmd_show);
 	add_cmd_easily(cmd_tree, "show version", ALL_VIEW_MASK, DO_FLAG);
 
-	/* show syntaxes which can be only accessed above ENABLE_VIEW */
-	add_cmd_easily(cmd_tree, "show { arp | route }", ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
-	add_cmd_easily(cmd_tree, "show { running-config | startup-config }",
+	/* Example of add_cmd_manual() and add_cmd_syntax() */
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show arp", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show route", ENABLE_VIEW|CONFIG_VIEW);
+
+	add_cmd_syntax(cmd_tree, "show { arp | route }", ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show running-config", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show startup-config", ENABLE_VIEW|CONFIG_VIEW);
+
+	add_cmd_syntax(cmd_tree, "show { running-config | startup-config }",
 		       ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
 	return 0;
 }
