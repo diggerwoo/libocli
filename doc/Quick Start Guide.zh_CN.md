@@ -118,7 +118,7 @@ static int cmd_ping(cmd_arg_t *cmd_arg, int do_flag)
 
 以下主程序片段摘自 [example/democli.c](../example/democli.c)。使用 Libocli 后，主程序的写法就很简单了：
 - ocli_rl_init() 初始化
-- 注册所有的命令和语法，在 democli 这个例子里，命令注册流程都实现在各个模块的 cmd_xxx_init() 函数里，包括了注册 ping 命令语法的 cmd_net_utils_init()
+- 注册所有的命令和语法，在 democli 这个例子里，命令注册流程都实现在各个模块的 cmd_xxx_init() 函数里，且这些函数都已在主程序头文件 [democli.h](../example/democli.h) 中声明，包括了注册 ping 命令语法的 cmd_net_utils_init()
 - 设置必要的命令行控制选项，包括命令行超时时间、初始权限视图、提示符，等等
 - 调用 ocli_rl_loop() 启动命令行读取循环、执行所有的命令解析和回调，直至程序退出
 
