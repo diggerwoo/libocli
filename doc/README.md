@@ -27,6 +27,3 @@ Author: Digger Wu (digger.wu@linkbroad.com)
    - [4.4 Usage and limitation of reserved syntax chars](Syntax%20Registration.md#44-Usage-and-limitation-of-reserved-syntax-chars)
    - [4.5 Customized manual](Syntax%20Registration.md#45-Customized-manual)
 - [5. Readline Control Interface](Wrapped%20Readline.md)
-
-
-Note: The update progress of the English version might lag behind the Chinese one.
