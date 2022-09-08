@@ -145,7 +145,7 @@ Limitaions:
 - **{ }** can be nested inside **[ ]**. E.g.  " [ from { IP_ADDR | IFNAME } ] "
 
 
-## 4.5 Add customized manual
+## 4.5 Customized manual
 
 If you do not want to use the manual generated automatically by add_cmd_easily(), but need to create a customized one, you can call the add_cmd_manual(), then call add_cmd_syntax(). The function add_cmd_manual() is defined as below.
 
@@ -155,6 +155,38 @@ int add_cmd_manual(struct cmd_tree *cmd_tree,	/* Pointer to command tree */
 		   int view_mask		/* VIEW mask */*
 		   );
 ```
+In [show.c](../example/show.c) we give an example of add_cmd_manual():
+```c
+int cmd_show_init()
+{
+	/* ... */
+	/* Example of add_cmd_manual() and add_cmd_syntax() */
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show arp", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show route", ENABLE_VIEW|CONFIG_VIEW);
 
-When using "man" to read the manual, Libocli displays the manual text line by line, in the order in which the manual text was added.
- 
+	add_cmd_syntax(cmd_tree, "show { arp | route }", ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+
+	add_cmd_manual(cmd_tree, "-------------------", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show running-config", ENABLE_VIEW|CONFIG_VIEW);
+	add_cmd_manual(cmd_tree, "show startup-config", ENABLE_VIEW|CONFIG_VIEW);
+
+	add_cmd_syntax(cmd_tree, "show { running-config | startup-config }",
+		       ENABLE_VIEW|CONFIG_VIEW, DO_FLAG);
+	/* ... */
+}
+```
+When using "man" to read the manual, Libocli displays the manual text line by line, in the order in which the manual text was added. After using the above code to create customized manual, the output of "man show" will be like:
+```
+centos71# man show
+NAME
+        show - Show utility
+SYNOPSIS
+        show version
+        -------------------
+        show arp
+        show route
+        -------------------
+        show running-config
+        show startup-config
+```
