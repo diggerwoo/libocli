@@ -103,8 +103,7 @@ extern void lex_exit(void);
 extern struct lex_ent *get_lex_ent(int type);
 extern struct lex_ent *get_lex_ent_by_name(char *name);
 
-extern int pcre_match(char *str, int idx, char *pattern);
-
+extern int pcre_custom_match(char *str, int idx, char *pattern);
 extern int set_custom_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix);
 
 /*

@@ -46,7 +46,7 @@ static struct lex_ent lex_ent[MAX_LEX_TYPE];
 /*
  * pcre match function
  */
-int
+static int
 pcre_match(char *str, int idx, char *pattern)
 {
 	static pcre *pcre = NULL;
@@ -82,6 +82,19 @@ pcre_match(char *str, int idx, char *pattern)
 	}
 
 	return (res >= 0);
+}
+
+/*
+ * wrapped pcre_match only for customized lex types
+ */
+int
+pcre_custom_match(char *str, int idx, char *pattern)
+{
+	if (!IS_CUSTOM_LEX_TYPE(idx)) {
+		fprintf(stderr, "invalid customized lex index %d\n", idx);
+		return 0;
+	}
+	return pcre_match(str, idx, pattern);
 }
 
 /*
