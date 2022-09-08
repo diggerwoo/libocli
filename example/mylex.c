@@ -31,7 +31,7 @@ int
 is_ifindex(char *str)
 {
 	return (str && str[0] &&
-		pcre_match(str, LEX_IFINDEX, "^(0|([1-9][0-9]*))$") == 1);
+		pcre_custom_match(str, LEX_IFINDEX, "^(0|([1-9][0-9]*))$") == 1);
 }
 
 /*
@@ -43,10 +43,11 @@ is_eth_ifname(char *str)
 	char	*ptr;
 	int	ifindex;
 
-	if (!str || !str[0] || eth_ifnum <= 0) return 0;
-	if (strncmp(str, "eth", 3) != 0) return 0;
-	if (!(*(ptr = (str + 3)))) return 0;
-	if (!is_ifindex(ptr)) return 0;
+	if (!str || !str[0] || eth_ifnum <= 0 ||
+	    strncmp(str, "eth", 3) != 0 ||
+	    !(*(ptr = (str + 3))) || !is_ifindex(ptr)) {
+		return 0;
+	}
 	return ((ifindex = atoi(ptr)) >= 0 && ifindex < eth_ifnum);
 }
 
@@ -74,9 +75,8 @@ get_dev_ifnum(char *prefix)
 		tok = strtok(line, " \t:");
 		if (tok == NULL) continue;
 		if (strncmp(tok, prefix, len) != 0) continue;
-
-		n = atoi(tok+3);
-		if (n > ifidx) ifidx = n;
+		if (*(tok + len) && (n = atoi(tok + len)) > ifidx)
+			ifidx = n;
 	}
 	fclose(fp);
 
