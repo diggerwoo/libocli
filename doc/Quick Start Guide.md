@@ -118,7 +118,7 @@ Normally we should implement our commands in different modules classified by spe
 Below code segment is taken from [example/democli.c](../example/democli.c). The main() function is quite straitforward by utlizing the libocli APIs: 
 - Call ocli_rl_init() to initialize libocli runtime environment.
 - Create all commands and syntaxes by calling bunch of cmd_xxx_init() functions that declared in [democli.h](../example/democli.h), including the cmd_net_utils_init() we just created the "ping".
-- Cutomize libocli settings, including terminal timeout, initial VIEW.
+- Cutomize libocli settings, including terminal timeout, initial VIEW and prompt.
 - Call ocli_rl_loop() to parse commands and execute callbacks until exit.
 
 ```c
