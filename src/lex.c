@@ -711,11 +711,31 @@ is_empty_line(char *str)
 }
 
 /*
+ * get lex type by name
+ */
+int
+get_lex_type(char *name)
+{
+	int	i;
+
+	if (!name || !name[0]) return -1;
+
+	for (i = 0; i < MAX_LEX_TYPE; i++) {
+		if (lex_ent[i].name[0] && strcasecmp(name, lex_ent[i].name) == 0)
+			return i;
+	}
+	return -1;
+}
+
+/*
  * register a lex parsing entry
  */
 static int
 set_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix)
 {
+	int	idx;
+	char	*ch;
+
 	if (type < 0 || type >= MAX_LEX_TYPE) {
 		fprintf(stderr, "set_lex_ent: invalid index %d\n", type);
 		return -1;
@@ -727,13 +747,23 @@ set_lex_ent(int type, char *name, lex_fun_t fun, char *help, char *prefix)
 	}
 
 	if (lex_ent[type].name[0]) {
-		fprintf(stderr, "set_lex_ent: '%s' rejected, lex_ent[%d] occupied by \"%s\"\n",
-			name, type, lex_ent[type].name);
+		fprintf(stderr, "set_lex_ent: type %d has been registered by \"%s\"\n",
+			type, lex_ent[type].name);
+		return -1;
+	}
+
+	if ((idx = get_lex_type(name)) >= 0) {
+		fprintf(stderr, "set_lex_ent: name \"%s\" has been used by type %d\n",
+			name, idx);
 		return -1;
 	}
 
 	bzero(&lex_ent[type], sizeof(struct lex_ent));
+
 	strncpy(lex_ent[type].name, name, LEX_NAME_LEN-1);
+	ch = lex_ent[type].name;
+	while (ch && *ch) {*ch = toupper(*ch); ch++;}
+
 	lex_ent[type].fun = fun;
 	strncpy(lex_ent[type].help, help, LEX_TEXT_LEN-1);
 
@@ -1055,23 +1085,6 @@ get_uri_elements(char *str, char **pproto, char **phost,
 		*pfile = *ppath;
 
 	return 1;
-}
-
-/*
- * get lex_ent by name
- */
-struct lex_ent *
-get_lex_ent_by_name(char *name)
-{
-	int	type;
-
-	for (type = 0; type <= MAX_LEX_TYPE; type++) {
-		if (lex_ent[type].name[0] &&
-		    strcmp(lex_ent[type].name, name) == 0) {
-			return (&lex_ent[type]);
-		}
-	}
-	return NULL;
 }
 
 /*
