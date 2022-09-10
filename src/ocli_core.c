@@ -265,6 +265,16 @@ cleanup_manuals(struct list_head *man_list)
 }
 
 /*
+ * add single symbol
+ */
+int
+add_cmd_symbol(struct cmd_tree *cmd_tree, symbol_t *sym)
+{
+	if (!cmd_tree || !sym) return -1;
+	return prepare_symbols(&cmd_tree->symbol_list, sym, 1);
+}
+
+/*
  * track special syntax chars and set back is_spec flag.
  * set is_spec TRUE only if arg in "{}[*]", or is '|' inside "{...}".
  */
@@ -604,6 +614,13 @@ check_cmd_syntax(char *cmd, int view, cmd_stat_t *cmd_stat)
 	cleanup_opt_mark(cmd_tree->tree);
 
 	node = cmd_tree->tree;
+
+	/* The first command keyword can also have its cmd_arg */
+	if (node->arg_name[0] && cmd_argi < MAX_ARG_NUM) {
+		if (set_cmd_arg(node, args[i], &cmd_arg[cmd_argi]))
+			cmd_argi++;
+	}
+
 	last_node = node;
 	last_argi = i++;
 
