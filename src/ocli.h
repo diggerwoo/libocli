@@ -266,6 +266,7 @@ extern int display_file_more(char *path);
  */
 #define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
 #define SYM_TABLE(syms) &syms[0], SYM_NUM(syms)
+#define SYM_ROW(sym) &sym, 1
 
 extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num,
 					cmd_fun_t fun);
@@ -274,6 +275,7 @@ extern int get_cmd_tree(char *cmd, int view, int do_flag,
 extern int add_cmd_manual(struct cmd_tree *cmd_tree, char *text, int view_mask);
 extern int get_cmd_manual(struct cmd_tree *cmd_tree, int view,
 			  char *buf, int limit);
+extern int add_cmd_symbol(struct cmd_tree *cmd_tree, symbol_t *sym);
 extern int add_cmd_syntax(struct cmd_tree *cmd_tree, char *syntax,
 			  int view_mask, int do_flag);
 extern int add_cmd_easily(struct cmd_tree *cmd_tree, char *syntax,
