@@ -49,23 +49,22 @@ int set_custom_lex_ent(int type,       /* 词法类型 ID */
                        char *prefix    /* 词法的固定前缀串，供命令行 TAB 键自动补齐 */
                        );
 ```
+除非一个词法确实有固定的前缀串可供 TAB 补齐，否则调用时应将 prefix 设为 NULL。某些 URL 类词法需要 prefix，比如 Libocli 自带的词法 LEX_HTTP_URL 前缀是 "http://" ，LEX_HTTPS_URL 前缀是 "https://" 。其它可能的使用场景是网络接口名字，比如自定义一个 Linux 风格的以太网接口词法，其命名规则为 "eth<0-9>"，那么可以指定 prefix 参数为 "eth"。
 
-Libocli 还提供了一个封装的正则匹配函数 pcre_custom_match()，提供正则匹配功能，并对降低 pcre_compile() 的调用频次做了优化。
+Libocli 另提供了一个正则匹配函数 pcre_custom_match() 函数，此函数封装了 pcre 库函数，并做了 Cache 优化以降低 pcre_compile() 的调用频次。
 ```c
 /* 
- * 匹配成功返回 1，无匹配返回 0，出错返回 -1 。
+ * 若 str 与正则表达式匹配，则返回 1，不匹配返回 0，出错返回 -1 。
  *
  * idx 为自定义词法的 ID，同时也是 Libocli 的正则 cache 表的索引 ID 。
- * 当正则表达式被调用一次后，就在 idx 索引位置创建正则 Cache 保存 pcre_compile() 返回，供下次 pcre_exec() 直接使用，
- * 而不是每次 pcre_exec() 之前都重复 pcre_compile() 。
+ * 当正则表达式被调用一次后，就在 idx 索引位置创建 Cache 保存 pcre_compile() 的返回结果，供下次 pcre_exec() 调用直接使用，
+ * 而不是每次 pcre_exec() 之前都重复调用 pcre_compile() 。
  */
 int pcre_custom_match (char *str,       /* 字符串 */
                        int idx,         /* 自定义词法类型 ID */
                        char *pattern    /* 正则表达式 */
                        );
 ```
-
-除非一个词法确实有固定的前缀串可供 TAB 补齐，否则调用时应将 prefix 设为 NULL。某些 URL 类词法需要 prefix，比如 Libocli 自带的词法 LEX_HTTP_URL 前缀是 "http://" ，LEX_HTTPS_URL 前缀是 "https://" 。其它可能的使用场景是网络接口名字，比如自定义一个 Linux 风格的以太网接口词法，其命名规则为 "eth<0-9>"，那么可以指定 prefix 参数为 "eth"。democli 的 [mylex.c](../example/mylex.c) 中提供了一个范例，使用了上述接口函数创建了自定义 ETH_IFNAME 词法，其中网口索引的最大值是读取 Linux /proc 自动生成的。有兴趣可在阅读完 3.3 章节后参考。
 
 ## 3.3 自定义词法举例
 
@@ -112,4 +111,6 @@ int pcre_custom_match (char *str,       /* 字符串 */
 
 3. 主程序初始化 libocli_rl_init() 后，调用 mylex_init()，注册上述自定义词法
 4. 之后各个模块都可以使用 LEX_FOO_0 和 LEX_FOO_1 来定义自己的符号词法类型了，注意不要忘记 #include "mylex.h"
+
+democli 的 [mylex.c](../example/mylex.c) 提供了一个更复杂的用例，自定义了 ETH_IFNAME 词法，用于实现类似 Cisco 风格的命令 "interface eth<0-x>" ，输入后可进入到接口配置视图，其中网口索引的最大值是读取 Linux /proc 文件自动生成的。有兴趣可自行参考。
 
