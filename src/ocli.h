@@ -140,7 +140,15 @@ typedef struct symbol {
 	struct list_head list;	/* link to symbol table */
 } symbol_t;
 
-/* Macros to simply symbol element initialization */
+/* Macros DEF_XXX to simply symbol element initialization
+ *	n	- name string of symbol
+ *	h	- help string of symbol
+ *	t	- lexical type ID, e.g. LEX_INT
+ *	c	- if range check enabled, 1 or 0
+ *	x	- min vallue of range
+ *	y	- max vallue of range
+ *	a	- callback arg name, usually by ARG() macro
+ */
 
 #define DEF_SYM(n, h, t, c, x, y, a) {	\
 	.name		= n,		\
@@ -261,13 +269,91 @@ extern void free_argv(char **argv);
 extern int display_buf_more(char *buf, int total);
 extern int display_file_more(char *path);
 
-/*
- * core functions
- */
+/* Macros to simplify create_cmd_tree() calls:
+ *
+ *  - if syms is declared as an array of symbol_t:
+ *    {
+ *      symbol_t syms[] = { ... } ;
+ *      create_cmd_tree(cmd, SYM_TABLE(syms), fun);
+ *    }
+ *
+ *  - if sym is declared as a single symbol_t:
+ *    {
+ *      symbol_t syms;
+ *      create_cmd_tree(cmd, SYM_ROW(sym), fun);
+ *    }
+ *
+ */ 
 #define SYM_NUM(syms) (sizeof(syms)/sizeof(symbol_t))
 #define SYM_TABLE(syms) &syms[0], SYM_NUM(syms)
 #define SYM_ROW(sym) &sym, 1
 
+/* Macros to simplify dynamic command creation and symbol registration
+ * without a predefined symbol table.
+ *
+ * parameters:
+ *	pct	- result pointer to (struct cmd_tree *)
+ *	n	- name string of symbol
+ *	h	- help string of symbol
+ *	t	- lexical type ID, e.g. LEX_INT
+ *	c	- if range check enabled, 1 or 0
+ *	x	- min vallue of range
+ *	y	- max vallue of range
+ *	a	- callback arg name, usually by ARG() macro
+ *	f	- callback function
+ */
+
+/* create a command */
+#define create_cmd(pct, n, h, f)		\
+{						\
+	symbol_t s;				\
+	s = (symbol_t) DEF_KEY(n, h);		\
+	*pct = create_cmd_tree(n, SYM_ROW(s), f); \
+}
+
+/* create a command, with the first key has an callback argument */
+#define create_cmd_arg(pct, n, h, a, f)		\
+{						\
+	symbol_t s;				\
+	s = (symbol_t) DEF_KEY_ARG(n, h, a);	\
+	*pct = create_cmd_tree(n, SYM_ROW(s), f); \
+}
+
+/* add a command keyword */
+#define add_cmd_key(ct, n, h) 			\
+{						\
+	symbol_t s;				\
+	s = (symbol_t) DEF_KEY_ARG(n, h);	\
+	add_cmd_symbol(ct, &s);			\
+}
+
+/* add a command keyword with callback argument */
+#define add_cmd_key_arg(ct, n, h, a) 		\
+{						\
+	symbol_t s;				\
+	s = (symbol_t) DEF_KEY_ARG(n, h, a);	\
+	add_cmd_symbol(ct, &s);			\
+}
+
+/* add a command var */
+#define add_cmd_var(ct, n, h, t, a) 		\
+{						\
+	symbol_t s;				\
+	s = (symbol_t) DEF_VAR(n, h, t, a);	\
+	add_cmd_symbol(ct, &s);			\
+}
+
+/* add a command var with ranged check */
+#define add_cmd_var_range(ct, n, h, t, a, x, y)		\
+{							\
+	symbol_t s;					\
+	s = (symbol_t) DEF_VAR_RANGE(n, h, t, a, x, y);	\
+	add_cmd_symbol(ct, &s);				\
+}
+
+/*
+ * core functions
+ */
 extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num,
 					cmd_fun_t fun);
 extern int get_cmd_tree(char *cmd, int view, int do_flag,
