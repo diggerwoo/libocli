@@ -112,5 +112,5 @@ int pcre_custom_match (char *str,       /* 字符串 */
 3. 主程序初始化 libocli_rl_init() 后，调用 mylex_init()，注册上述自定义词法
 4. 之后各个模块都可以使用 LEX_FOO_0 和 LEX_FOO_1 来定义自己的符号词法类型了，注意不要忘记 #include "mylex.h"
 
-democli 的 [mylex.c](../example/mylex.c) 提供了一个更复杂的用例，自定义了 ETH_IFNAME 词法，用于实现类似 Cisco 风格的命令 "interface eth<0-x>" ，输入后可进入到接口配置视图，其中网口索引的最大值是读取 Linux /proc 文件自动生成的。有兴趣可自行参考。
+democli 的 [mylex.c](../example/mylex.c) 提供了一个更复杂的用例，自定义了 ETH_IFNAME 词法，之后 [interface.c](../example/interface.c) 基于此自定义词法实现了类似 Cisco 风格的命令 "interface ETH_IFNAME"。例如，输入 "interface eth0" 后进入到 eth0 的接口配置视图，之后可使用命令 ip address 来配置 eth0 的接口 IP 地址。
 
