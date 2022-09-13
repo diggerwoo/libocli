@@ -1099,6 +1099,7 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 		 int view, int do_flag)
 {
 	int	n_match = 0;
+	char	pfx[MAX_WORD_LEN];
 	struct cmd_tree *ent = NULL;
 	struct lex_ent *lex = NULL;
 
@@ -1148,7 +1149,9 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 		} else if (lex->prefix &&
 		           (!cmd || !cmd[0] ||
 		           strncmp(lex->prefix, cmd, strlen(cmd)) == 0)) {
-			matches[n_match++] = strdup(lex->prefix);
+			/* precedent ^ to mark prefix match */
+			snprintf(pfx, sizeof(pfx), "^%s", lex->prefix);
+			matches[n_match++] = strdup(pfx);
 			return n_match;
 		}
 	}
