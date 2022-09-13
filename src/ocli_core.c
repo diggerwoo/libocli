@@ -1146,7 +1146,7 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 			return 1;
 		} else if (node->arg_helper && limit >= 1) {
 			return node->arg_helper(cmd, matches, limit);
-		} else if (lex->prefix &&
+		} else if (lex->prefix[0] &&
 		           (!cmd || !cmd[0] ||
 		           strncmp(lex->prefix, cmd, strlen(cmd)) == 0)) {
 			/* precedent ^ to mark prefix match */
