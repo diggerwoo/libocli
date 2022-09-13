@@ -51,7 +51,23 @@ int set_custom_lex_ent(int type,       /* Lexical type ID */
                        );
 ```
 
-Unless a lexical type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "Ethernet<0-99>", then the prefix should be specified as "Ethernet".
+Unless a lexical type does have a fixed prefix string for the TAB auto completion, should the prefix parameter be set to NULL. Some Libocli builtin URLs do have prefixes. For example, the LEX_HTTP_URL has prefix "http://" , and the LEX_HTTPS_URL has prefix "https://" . Other possible use cases are network interface names. E.g. the naming scheme of a Ethernet interface is "eth<0-9>", then the prefix should be specified as "eth".
+
+Libocli also provides a PCRE matching function pcre_custom_match(), which encapsulates the libpcre functions with Cache optimization to reduce the calling frequency of pcre_compile().
+```c
+/* 
+ * Return value: 1 if str matches pattern, 0 if unmatched, -1 error ocurrs.
+ *
+ * The index is the lexical type ID，it is also the row ID of the PCRE cache table.
+ * Once the function is called, a cache is created at the index position to save the 
+ * result of pcre_compile() for direct use by the next pcre_exec() call, instead of
+ * calling pcre_compile() repeatedly before each pcre_exec().
+ */
+int pcre_custom_match (char *str,       /* String to match */
+                       int index,       /* Customized lexical type ID */
+                       char *pattern    /* Regular expression */
+                       );
+```
 
 ## 3.3 How to customize
 
@@ -99,3 +115,4 @@ For example you need to add two customized lexical types, LEX_FOO_0 和 LEX_FOO_
 3. Integrate with main(): Call mylex_init() after libocli_rl_init().
 4. Now your can define variable symbols with newly customized types LEX_FOO_0 and LEX_FOO_1 in other modules. Don't forget to #include "mylex.h".
 
+There is a more complex use case in the democli's [mylex.c](../example/mylex.c) which implements a customized lexical type ETH_IFNAME. Then in [interface.c](../example/interface.c) a Cisco-like command "interface ETH_IFNAME" is created based on this cutomized lexical type. E.g.  user inputs "interface eth0" to enter the interface configuration view, in which IP address of eth0 can be configured by the "ip address" command.
