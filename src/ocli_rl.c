@@ -61,6 +61,7 @@ static struct termios init_termios;
 static int term_timo = TERM_TIMO_SEC;
 
 static void free_pending_toks(void);
+static void fix_pending_prefix_toks(void);
 
 /* local callback functions for readline completion */
 static char *ocli_rl_generator(const char *text, int state);
@@ -110,9 +111,9 @@ ocli_rl_prepare(char *text, int start, int end)
 	int	argi = -1;
 	int	ignore = 0;
 	int	tok_num = 0;
-	int	res;
+	int	len, res;
 	char	*cmd = NULL;
-	char	mate[MAX_WORD_LEN];
+	char	*match_prefix = NULL;
 	struct cmd_stat cmd_stat;
 
 	/* free used pending_toks for each preparation */
@@ -182,15 +183,12 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, text,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
-		/*
-		 * MATCH_ERROR but get one token, it is a VAR prefix.
-		 * XXX cheat readline to complete the prefix without trailing SPACE.
-		 */
-		if (cmd_stat.err_code == MATCH_ERROR && tok_num == 1) {
-			snprintf(mate, sizeof(mate), "%s?", pending_toks[0]);
-			dprintf(DBG_RL, "partially match '%s', add '%s'\n",
-				pending_toks[0], mate);
-			pending_toks[tok_num++] = strdup(mate);
+		/* get only one partially matched prefix */
+		if (tok_num == 1 && pending_toks[0][0] == '^') {
+			len = strlen(text);
+			if (strncmp(text, pending_toks[0] + 1, len) == 0) {
+				match_prefix = pending_toks[0] + 1 + len;
+			}
 		}
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (arg_num - 1) && argi == -1) {
@@ -199,12 +197,9 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, NULL,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
-		/* XXX like above, but at the line end after SPACE */
-		if (cmd_stat.err_code == MATCH_INCOMPLETE && tok_num == 1) {
-			snprintf(mate, sizeof(mate), "%s?", pending_toks[0]);
-			dprintf(DBG_RL, "potential match next '%s', add '%s'\n",
-				pending_toks[0], mate);
-			pending_toks[tok_num++] = strdup(mate);
+		/* same as the above, but for the whole */
+		if (tok_num == 1 && pending_toks[0][0] == '^') {
+			match_prefix = pending_toks[0] + 1;
 		}
 	} else {
 		dprintf(DBG_RL, "NULL, res %d last[%d] argi[%d]\n",
@@ -214,6 +209,19 @@ ocli_rl_prepare(char *text, int start, int end)
 out:
 	if (cmd != NULL) free(cmd);
 	if (args != NULL) free_argv(args);
+
+	/* if match_prefix is present, do early completion by rl_insert_text()
+	 * to avoid rl_complete() adding trailing SPACE.
+	 */
+	if (match_prefix && match_prefix[0]) {
+		rl_insert_text(match_prefix);
+		rl_redisplay();
+		free_pending_toks();
+		cleanup_cmd_stat(&cmd_stat);
+		return NULL;
+	}
+
+	fix_pending_prefix_toks();
 
 	if (!ignore && tok_num > 0) {
 		cleanup_cmd_stat(&cmd_stat);
@@ -498,11 +506,30 @@ free_pending_toks()
 	int	i;
 
 	if (pending_toks[0]) {
-		for (i = 0; i < (MAX_TOK_NUM+1) && pending_toks[0]; i++)
+		for (i = 0; i < MAX_TOK_NUM && pending_toks[i]; i++)
 			free(pending_toks[i]);
 		bzero(&pending_toks[0], sizeof(pending_toks));
 	}
 	toks_index = 0;
+}
+
+/*
+ * remove all precedent '^' for matching prefix tokens
+ */
+static void
+fix_pending_prefix_toks()
+{
+	int	i, len;
+
+	for (i = 0; i < MAX_TOK_NUM && pending_toks[i]; i++) {
+		if (pending_toks[i][0] == '^') {
+			len = strlen(pending_toks[i]) - 1;
+			if (len > 0) {
+				memmove(pending_toks[i], pending_toks[i] + 1, len);
+				pending_toks[i][len] = '\0';
+			}
+		}
+	}
 }
 
 /*
