@@ -183,13 +183,6 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, text,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
-		/* get only one partially matched prefix */
-		if (tok_num == 1 && pending_toks[0][0] == '^') {
-			len = strlen(text);
-			if (strncmp(text, pending_toks[0] + 1, len) == 0) {
-				match_prefix = pending_toks[0] + 1 + len;
-			}
-		}
 	} else if (cmd_stat.last_node != NULL &&
 		   cmd_stat.last_argi == (arg_num - 1) && argi == -1) {
 		dprintf(DBG_RL, "res %d, after last[%d]\n",
@@ -197,10 +190,6 @@ ocli_rl_prepare(char *text, int start, int end)
 		tok_num = get_node_next_matches(cmd_stat.last_node, NULL,
 						&pending_toks[0], MAX_TOK_NUM,
 						cur_view, cmd_stat.do_flag);
-		/* same as the above, but for the whole */
-		if (tok_num == 1 && pending_toks[0][0] == '^') {
-			match_prefix = pending_toks[0] + 1;
-		}
 	} else {
 		dprintf(DBG_RL, "NULL, res %d last[%d] argi[%d]\n",
 			res, cmd_stat.last_argi, argi);
@@ -210,15 +199,26 @@ out:
 	if (cmd != NULL) free(cmd);
 	if (args != NULL) free_argv(args);
 
-	/* if match_prefix is present, do early completion by rl_insert_text()
-	 * to avoid rl_complete() adding trailing SPACE.
+	/* if only one partially matched prefix is present, do early completion
+	 * by rl_insert_text() then return directly to avoid rl_complete() adding
+	 * trailing SPACE.
 	 */
-	if (match_prefix && match_prefix[0]) {
-		rl_insert_text(match_prefix);
-		rl_redisplay();
-		free_pending_toks();
-		cleanup_cmd_stat(&cmd_stat);
-		return NULL;
+	if (!ignore && tok_num == 1 && pending_toks[0][0] == '^') {
+		if (text && text[0]) {
+			len = strlen(text);
+			if (strncmp(text, pending_toks[0] + 1, len) == 0) {
+				match_prefix = pending_toks[0] + 1 + len;
+			}
+		} else {
+			match_prefix = pending_toks[0] + 1;
+		}
+		if (match_prefix && match_prefix[0]) {
+			rl_insert_text(match_prefix);
+			rl_redisplay();
+			free_pending_toks();
+			cleanup_cmd_stat(&cmd_stat);
+			return NULL;
+		}
 	}
 
 	fix_pending_prefix_toks();
