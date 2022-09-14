@@ -271,6 +271,11 @@ int
 add_cmd_symbol(struct cmd_tree *cmd_tree, symbol_t *sym)
 {
 	if (!cmd_tree || !sym) return -1;
+
+	if (get_node_by_name(NULL, sym->name) ||
+	    get_node_by_name(&cmd_tree->symbol_list, sym->name))
+		return -1;
+
 	return prepare_symbols(&cmd_tree->symbol_list, sym, 1);
 }
 
