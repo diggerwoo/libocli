@@ -586,7 +586,7 @@ is_tftp_url(char *str)
 }
 
 /*
- * is str a file name ?
+ * is str a file name (no space supported) ?
  */
 int
 is_file_name(char *str)
@@ -602,7 +602,7 @@ is_file_name(char *str)
 }
 
 /*
- * is str a file path ?
+ * is str a file path (no space ./ ../ supported) ?
  */
 int
 is_file_path(char *str)
@@ -1127,8 +1127,8 @@ lex_init(void)
 	set_lex_ent(LEX_FTP_URL, "FTP_URL", is_ftp_url, "ftp://[user:password@]host/path", "ftp://");
 	set_lex_ent(LEX_SCP_URL, "SCP_URL", is_scp_url, "scp://user@host/path", "scp://");
 	set_lex_ent(LEX_TFTP_URL, "TFTP_URL", is_tftp_url, "tftp://host/path", "tftp://");
-	set_lex_ent(LEX_FILE_NAME, "FILE", is_file_name, "File", NULL);
-	set_lex_ent(LEX_FILE_PATH, "PATH", is_file_path, "Path", NULL);
+	set_lex_ent(LEX_FILE_NAME, "FILE_NAME", is_file_name, "File name", NULL);
+	set_lex_ent(LEX_FILE_PATH, "FILE_PATH", is_file_path, "File path", NULL);
 	set_lex_ent(LEX_UID, "UID", is_uid, "UserID", NULL);
 	set_lex_ent(LEX_NET_UID, "NET_UID", is_net_uid, "user@host", NULL);
 	set_lex_ent(LEX_NET6_UID, "NET6_UID", is_net6_uid, "user@IP6Addr", NULL);
