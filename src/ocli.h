@@ -305,51 +305,51 @@ extern int display_file_more(char *path);
 
 /* create a command */
 #define create_cmd(pct, n, h, f)		\
-{						\
+do {						\
 	symbol_t s;				\
 	s = (symbol_t) DEF_KEY(n, h);		\
 	*pct = create_cmd_tree(n, SYM_ROW(s), f); \
-}
+} while(0)
 
 /* create a command, with the first key has an callback argument */
 #define create_cmd_arg(pct, n, h, a, f)		\
-{						\
+do {						\
 	symbol_t s;				\
 	s = (symbol_t) DEF_KEY_ARG(n, h, a);	\
 	*pct = create_cmd_tree(n, SYM_ROW(s), f); \
-}
+} while(0)
 
 /* add a command keyword */
 #define add_cmd_key(ct, n, h) 			\
-{						\
+do {						\
 	symbol_t s;				\
 	s = (symbol_t) DEF_KEY_ARG(n, h);	\
 	add_cmd_symbol(ct, &s);			\
-}
+} while(0)
 
 /* add a command keyword with callback argument */
 #define add_cmd_key_arg(ct, n, h, a) 		\
-{						\
+do {						\
 	symbol_t s;				\
 	s = (symbol_t) DEF_KEY_ARG(n, h, a);	\
 	add_cmd_symbol(ct, &s);			\
-}
+} while(0)
 
 /* add a command var */
 #define add_cmd_var(ct, n, h, t, a) 		\
-{						\
+do {						\
 	symbol_t s;				\
 	s = (symbol_t) DEF_VAR(n, h, t, a);	\
 	add_cmd_symbol(ct, &s);			\
-}
+} while(0)
 
 /* add a command var with ranged check */
 #define add_cmd_var_range(ct, n, h, t, a, x, y)		\
-{							\
+do {							\
 	symbol_t s;					\
 	s = (symbol_t) DEF_VAR_RANGE(n, h, t, a, x, y);	\
 	add_cmd_symbol(ct, &s);				\
-}
+} while(0)
 
 /*
  * core functions
