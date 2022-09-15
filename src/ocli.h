@@ -383,7 +383,8 @@ extern int compare_node(node_t *node1, node_t *node2);
 extern void debug_cmd_tree(char *cmd);
 extern void debug_node(char *info, node_t *node, int less);
 
-extern void set_cmd_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper);
+extern void set_cmd_arg_helper(struct cmd_tree *cmd_tree,
+			       char *arg_name, arg_helper_t helper);
 extern void debug_cmd_arg(cmd_arg_t *cmd_arg);
 extern void free_cmd_arg(cmd_arg_t *cmd_arg);
 
