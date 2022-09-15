@@ -1780,8 +1780,8 @@ set_cmd_arg(node_t *node, char *str, cmd_arg_t *cmd_arg)
 /*
  * set auto completion helper for specific argument recursively
  */
-void
-set_cmd_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper)
+static void
+set_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper)
 {
 	int	i;
 
@@ -1794,8 +1794,18 @@ set_cmd_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper)
 	}
 
 	for (i = 0; i < tree->branch_num; i++) {
-		set_cmd_arg_helper(tree->next[i], arg_name, helper);
+		set_arg_helper(tree->next[i], arg_name, helper);
 	}
+}
+
+/*
+ * set auto completion helper for specific argumen
+ */
+void
+set_cmd_arg_helper(struct cmd_tree *cmd_tree, char *arg_name, arg_helper_t helper)
+{
+	if (cmd_tree && cmd_tree->tree)
+		set_arg_helper(cmd_tree->tree, arg_name, helper);
 }
 
 /*
