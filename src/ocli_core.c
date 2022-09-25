@@ -162,11 +162,11 @@ create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num, cmd_fun_t fun)
 }
 
 /*
- * get matching command tree.
+ * get matching command trees.
  * return number of match entries, and set the first match_tree.
  */
 int
-get_cmd_tree(char *cmd, int view, int do_flag, struct cmd_tree **cmd_tree)
+get_cmd_trees(char *cmd, int view, int do_flag, struct cmd_tree **cmd_tree)
 {
 	struct cmd_tree *ent, *first = NULL;
 	int	n_match = 0;
@@ -193,6 +193,24 @@ get_cmd_tree(char *cmd, int view, int do_flag, struct cmd_tree **cmd_tree)
 	}
 	if (first != NULL) *cmd_tree = first;
 	return n_match;
+}
+
+/*
+ * get command tree by exactly matched name.
+ */
+struct cmd_tree *
+get_cmd_tree(char *cmd)
+{
+	struct cmd_tree *ent;
+
+	if (!cmd || !cmd[0]) return NULL;
+
+	list_for_each_entry(ent, &cmd_tree_list, cmd_tree_list) {
+		if (strcmp(cmd, ent->cmd) == 0) {
+			return ent;
+		}
+	}
+	return NULL;
 }
 
 /*
@@ -272,7 +290,7 @@ add_cmd_symbol(struct cmd_tree *cmd_tree, symbol_t *sym)
 {
 	if (!cmd_tree || !sym) return -1;
 
-	if (get_node_by_name(NULL, sym->name) ||
+	if ((strlen(sym->name) == 1 && strchr("[]{}", sym->name[0])) ||
 	    get_node_by_name(&cmd_tree->symbol_list, sym->name))
 		return -1;
 
@@ -363,6 +381,7 @@ add_cmd_easily(struct cmd_tree *cmd_tree, char *syntax,
 	char	manual[MAX_MANUAL_LEN];
 	char	*ptr;
 	int	len = 0;
+	int	in_alt = 0;	/* inside { } */
 	int	zip = 0;	/* zip multi spaces as one */
 	int	filter = 0;	/* filter following spaces */
 
@@ -378,10 +397,12 @@ add_cmd_easily(struct cmd_tree *cmd_tree, char *syntax,
 			if (*ptr == '{' || *ptr == '[') {
 				if (zip && !filter) text[len++] = ' ';
 				filter = 1;
-			} else if (*ptr == '|') {
+				if (*ptr == '{') in_alt = 1;
+			} else if (*ptr == '|' && in_alt) {
 				filter = 1;
 			} else if (*ptr == '}' || *ptr == ']') {
 				filter = 0;
+				if (*ptr == '}') in_alt = 0;
 			} else {
 				if (zip && !filter) text[len++] = ' ';
 				filter = 0;
@@ -571,7 +592,7 @@ check_cmd_syntax(char *cmd, int view, cmd_stat_t *cmd_stat)
 	i = 0;
 	len = strlen(args[0]);
 
-	n_match = get_cmd_tree(args[i], view, do_flag, &cmd_tree);
+	n_match = get_cmd_trees(args[i], view, do_flag, &cmd_tree);
 	if (n_match == 1 && strcmp(cmd_tree->cmd, UNDO_CMD) == 0) {
 		dprintf(DBG_SYN, "check undo_cmd=\'%s\'\n", cmd);
 		do_flag = UNDO_FLAG; 
@@ -586,7 +607,7 @@ check_cmd_syntax(char *cmd, int view, cmd_stat_t *cmd_stat)
 		}
 		i++;
 		arg_num--;
-		n_match = get_cmd_tree(args[i], view, do_flag, &cmd_tree);
+		n_match = get_cmd_trees(args[i], view, do_flag, &cmd_tree);
 	}
 
 	dprintf(DBG_SYN, "check cmd=\'%s\'\n", cmd);
