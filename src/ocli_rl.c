@@ -644,6 +644,20 @@ ocli_rl_exit()
 	free_pending_toks();
 	tcsetattr(0, TCSADRAIN, &init_termios);
 
+	/* restore default signal handlers */
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	signal(SIGALRM, SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
+	signal(SIGTTIN, SIG_DFL);
+	signal(SIGTTOU, SIG_DFL);
+
+	signal(SIGPIPE, SIG_DFL);
+	signal(SIGHUP, SIG_DFL);
+	signal(SIGUSR1, SIG_DFL);
+	signal(SIGUSR2, SIG_DFL);
+
 	ocli_core_exit();
 	ocli_rl_init_ok = 0;
 }
