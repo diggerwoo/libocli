@@ -89,7 +89,7 @@ cmd_manual(cmd_arg_t *cmd_arg, int do_flag)
 			cmd = value;
 	}
 
-	res = get_cmd_tree(cmd, view, (DO_FLAG|UNDO_FLAG), &cmd_tree);
+	res = get_cmd_trees(cmd, view, (DO_FLAG|UNDO_FLAG), &cmd_tree);
 	if (res <= 0) {
 		fprintf(stdout, "Parsing command keyword error: %s\n",
 			ocli_strerror(MATCH_ERROR));
