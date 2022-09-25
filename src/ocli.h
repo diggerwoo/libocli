@@ -30,6 +30,11 @@
 #include "ocli_defs.h"
 #include "lex.h"
 
+#define OCLI_MAJOR	0
+#define OCLI_MINOR	91
+#define OCLI_VERSION(a,b)	(((a) << 8) + (b))
+#define OCLI_VERSION_CODE	OCLI_VERSION(OCLI_MAJOR, OCLI_MINOR)
+
 /* parsing error code definitions */
 enum error_code {
 	MATCH_OK,
@@ -356,8 +361,9 @@ do {							\
  */
 extern struct cmd_tree *create_cmd_tree(char *cmd, symbol_t *sym_table, int sym_num,
 					cmd_fun_t fun);
-extern int get_cmd_tree(char *cmd, int view, int do_flag,
-			struct cmd_tree **cmd_tree);
+extern struct cmd_tree *get_cmd_tree(char *cmd);
+extern int get_cmd_trees(char *cmd, int view, int do_flag,
+			 struct cmd_tree **cmd_tree);
 extern int add_cmd_manual(struct cmd_tree *cmd_tree, char *text, int view_mask);
 extern int get_cmd_manual(struct cmd_tree *cmd_tree, int view,
 			  char *buf, int limit);
