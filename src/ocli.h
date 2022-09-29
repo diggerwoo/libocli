@@ -31,7 +31,7 @@
 #include "lex.h"
 
 #define OCLI_MAJOR	0
-#define OCLI_MINOR	91
+#define OCLI_MINOR	92
 #define OCLI_VERSION(a,b)	(((a) << 8) + (b))
 #define OCLI_VERSION_CODE	OCLI_VERSION(OCLI_MAJOR, OCLI_MINOR)
 
