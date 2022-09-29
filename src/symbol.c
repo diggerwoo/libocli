@@ -201,6 +201,9 @@ prepare_symbols(struct list_head *sym_list, symbol_t *sym_table, int limit)
 			return -1;
 		}
 		memcpy(ent, ptr, sizeof(symbol_t));
+		ent->name = strdup(ptr->name);
+		if (ptr->help) ent->help = strdup(ptr->help);
+		if (ptr->arg_name) ent->arg_name = strdup(ptr->arg_name);
 
 		if (set_symbol_node(ent) < 0)
 			return -1;
@@ -226,6 +229,9 @@ cleanup_symbols(struct list_head *sym_list)
 			free(sym->node);
 			sym->node = NULL;
 		}
+		if (sym->name) free(sym->name);
+		if (sym->help) free(sym->help);
+		if (sym->arg_name) free(sym->arg_name);
 		free(sym);
 	}
 }
