@@ -647,6 +647,7 @@ ocli_rl_exit()
 	/* restore default signal handlers */
 	signal(SIGINT, SIG_DFL);
 	signal(SIGTERM, SIG_DFL);
+	signal(SIGHUP, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	signal(SIGALRM, SIG_DFL);
 	signal(SIGTSTP, SIG_DFL);
@@ -654,7 +655,6 @@ ocli_rl_exit()
 	signal(SIGTTOU, SIG_DFL);
 
 	signal(SIGPIPE, SIG_DFL);
-	signal(SIGHUP, SIG_DFL);
 	signal(SIGUSR1, SIG_DFL);
 	signal(SIGUSR2, SIG_DFL);
 
@@ -689,6 +689,7 @@ ocli_rl_init()
 	 */
 	if (!debug_flag) signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, ocli_sig_term);
+	signal(SIGHUP, ocli_sig_term);
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGALRM, SIG_IGN);
 	signal(SIGTSTP, SIG_IGN);
@@ -696,7 +697,6 @@ ocli_rl_init()
 	signal(SIGTTOU, SIG_IGN);
 
 	signal(SIGPIPE, SIG_IGN);
-	signal(SIGHUP, SIG_IGN);
 	signal(SIGUSR1, SIG_IGN);
 	signal(SIGUSR2, SIG_IGN);
 
