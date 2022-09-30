@@ -1200,7 +1200,7 @@ get_node_next_matches(node_t *node, char *cmd, char **matches, int limit,
 
 	/* if node is UNDO node, list matching commands support undo */
 	if (node->match_type == MATCH_KEYWORD &&
-	    NODE_IS_ALLOWED(node, view, do_flag) &&
+	    NODE_IS_ALLOWED(node, view, do_flag) && IS_ROOT(node) &&
 	    strcmp(node->match_ent.keyword, UNDO_CMD) == 0 &&
 	    (!cmd || !cmd[0])) {
 		list_for_each_entry(ent, &cmd_tree_list, cmd_tree_list) {
@@ -1349,7 +1349,7 @@ get_node_next_help(node_t *node, char *cmd, char *buf, int limit,
 
 	/* if node is UNDO node, list matching commands support undo */
 	if (node->match_type == MATCH_KEYWORD &&
-	    NODE_IS_ALLOWED(node, view, do_flag) &&
+	    NODE_IS_ALLOWED(node, view, do_flag) && IS_ROOT(node) &&
 	    strcmp(node->match_ent.keyword, UNDO_CMD) == 0) {
 		list_for_each_entry(ent, &cmd_tree_list, cmd_tree_list) {
 			if (ent->tree != NULL &&
