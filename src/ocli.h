@@ -31,7 +31,7 @@
 #include "lex.h"
 
 #define OCLI_MAJOR	0
-#define OCLI_MINOR	92
+#define OCLI_MINOR	95
 #define OCLI_VERSION(a,b)	(((a) << 8) + (b))
 #define OCLI_VERSION_CODE	OCLI_VERSION(OCLI_MAJOR, OCLI_MINOR)
 
@@ -51,7 +51,7 @@ enum error_code {
 
 /* node types */
 #define	IS_ROOT(n)	(n->depth == 0)
-#define	IS_LEAF(n)	(n->match_type == MATCH_LEAF && n->branch_num == 0)
+#define	IS_LEAF(n)	(n->match_type == MATCH_LEAF && n->child_num == 0)
 
 /* do flag bits */
 #define	DO_FLAG		0x01
@@ -73,13 +73,12 @@ enum error_code {
 #define MATCH_EXACTLY	100	/* keyword matched exactly */
 
 /* related limits of OCLI strings */
-#define	MAX_BRANCH_NUM	80	/* max branch per node */
+#define	MAX_CHILD_NUM	128	/* max child per node */
 #define	MAX_WORD_LEN	32	/* max key word length */
 #define	MAX_TEXT_LEN	128	/* max text length */
 #define	MAX_MANUAL_LEN	256	/* max manual text length */
 #define	MAX_LINE_LEN	512	/* max command line length */
-#define	MAX_ARG_NUM	50	/* max arg num per command */
-#define	MAX_CMD_NUM	100	/* max commands */
+#define	MAX_ARG_NUM	64	/* max arg num per command */
 
 #define MAX_CHOICES	16	/* limit of choices for [] {} */
 
@@ -113,14 +112,17 @@ struct node {
 	arg_helper_t arg_helper;	/* helper func for auto completion */
 
 	int	depth;			/* tree node depth, 0 is root */
-	int	branch_num;		/* number of branches */
-	node_t	*next[MAX_BRANCH_NUM];	/* array of branch pointers */
+	node_t	*parent;		/* parent node */
 
-	u_char	opt_mark[MAX_BRANCH_NUM];	/* opt head: branch used mark */
-	node_t	*opt_head;			/* opt end: backtrack to opt head */
+	int	child_num;		/* number of child nodes */
+	struct list_head child_list;	/* list of child nodes */
+	struct list_head sibling_list;	/* link to sibling list */
+
+	int	opt_mark;		/* opt used mark */
+	node_t	*opt_head;		/* opt end node, backtrack to opt group head */
 
 	int	alt_order;		/* alt silbing order: eldest = 1 */
-	node_t	*alt_head;		/* alt younger siblings, backtrack to eldest */
+	node_t	*alt_head;		/* alt youngest sibling, backtrack to eldest */
 };
 
 #define	MANUAL_ARG	"_CMD_"	/* tricky for manual node->arg_name */
