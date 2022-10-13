@@ -52,7 +52,7 @@ static char word_break_chars[] = " \t\r\n";
 static char eof_cmd[MAX_WORD_LEN] = "";
 
 /* limit max helping tokens displayed */
-#define MAX_TOK_NUM	80
+#define MAX_TOK_NUM	128
 static char *pending_toks[MAX_TOK_NUM+1];
 static int toks_index = 0;
 
