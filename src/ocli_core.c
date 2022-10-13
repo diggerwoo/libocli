@@ -518,28 +518,28 @@ match_node(node_t *node, char *arg, int view, int do_flag)
 static void
 cleanup_opt_mark(node_t *tree)
 {
-	int	i;
+	node_t	*np;
 
 	if (!tree) return;
-	if (tree->match_type == MATCH_OPT_HEAD)
-		bzero(tree->opt_mark, sizeof(tree->opt_mark));
+	if (tree->parent && tree->parent->match_type == MATCH_OPT_HEAD)
+		tree->opt_mark = 0;
 
-	for (i = 0; i < tree->branch_num; i++) {
-		cleanup_opt_mark(tree->next[i]);
+	list_for_each_entry(np, &tree->child_list, sibling_list) {
+		cleanup_opt_mark(np);
 	}
 }
 
 /*
- * align opt mark if opt->next[k] is an ALT member
+ * align opt_mark if node is an ALT member
  */
 static void
-align_opt_mark(node_t *opt, int k)
+align_opt_mark(node_t *node)
 {
-	int	i;
-	node_t	*node = NULL, *alt_head = NULL;
+	node_t	*alt_head = NULL;
+	node_t	*np;
 
-	if (!opt || opt->match_type != MATCH_OPT_HEAD ||
-	    k >= opt->branch_num || !(node = opt->next[k]))
+	if (!node || !node->parent ||
+	    node->parent->match_type != MATCH_OPT_HEAD)
 		return;
 
 	if (node->alt_head)
@@ -549,10 +549,10 @@ align_opt_mark(node_t *opt, int k)
 	else
 		return;
 
-	for (i = 0; i < opt->branch_num; i++) {
-		if (opt->next[i] == alt_head ||
-		    opt->next[i]->alt_head == alt_head) {
-			opt->opt_mark[i] = 1;
+	list_for_each_entry(np, &node->parent->child_list, sibling_list) {
+		if (np == alt_head ||
+		    np->alt_head == alt_head) {
+			np->opt_mark = 1;
 		}
 	}
 }
@@ -733,7 +733,7 @@ check_out:
 static int
 get_opt_end(node_t *base, node_t **node_list, int *limit, int *index)
 {
-	int	i;
+	node_t	*np;
 
 	if (!base || *limit <= 0 || *index >= *limit) {
 		fprintf(stderr, "get_opt_end: bad parm\n");
@@ -747,8 +747,8 @@ get_opt_end(node_t *base, node_t **node_list, int *limit, int *index)
 		return 1;
 	}
 		
-	for (i = 0; i < base->branch_num; i++) {
-		if (get_opt_end(base->next[i], node_list, limit, index) < 0)
+	list_for_each_entry(np, &base->child_list, sibling_list) {
+		if (get_opt_end(np, node_list, limit, index) < 0)
 			return -1;
 	}
 	
@@ -1004,6 +1004,12 @@ plant_root(node_t **root, node_t *node)
 	newp->do_view_mask = 0;
 	newp->undo_view_mask = 0;
 	newp->depth = 0;
+
+	newp->parent = NULL;
+	newp->child_num = 0;
+	INIT_LIST_HEAD(&newp->child_list);
+	INIT_LIST_HEAD(&newp->sibling_list);
+
 	if ((debug_flag & DBG_TREE))
 		debug_node("root +", newp, 1);
 
@@ -1017,8 +1023,8 @@ plant_root(node_t **root, node_t *node)
 static int
 grow_leaf(node_t *base, int view_mask, int do_flag)
 {
-	int	i;
-	node_t	*newp;
+	node_t	*newp, *np;
+	int	i = 0;
 
 	if (!base) {
 		fprintf(stderr, "grow_leaf: empty base or node\n");
@@ -1026,21 +1032,22 @@ grow_leaf(node_t *base, int view_mask, int do_flag)
 	}
 
 	/* search if given node already had a leaf */
-	for (i = 0; i < base->branch_num; i++) {
-		if (IS_LEAF(base->next[i])) {
+	list_for_each_entry(np, &base->child_list, sibling_list) {
+		if (IS_LEAF(np)) {
 			/* XXX OR the node view & do bits */
 			if ((do_flag & DO_FLAG))
-				base->next[i]->do_view_mask |= view_mask;
+				np->do_view_mask |= view_mask;
 			if ((do_flag & UNDO_FLAG))
-				base->next[i]->undo_view_mask |= view_mask;
+				np->undo_view_mask |= view_mask;
 			dprintf(DBG_TREE, "leaf[%d] ", i);
 			if ((debug_flag & DBG_TREE))
-				debug_node(".", base->next[i], 1);
+				debug_node(".", np, 1);
 			return 0;
 		}
+		i++;
 	}
 
-	if (base->branch_num == MAX_BRANCH_NUM) {
+	if (base->child_num == MAX_CHILD_NUM) {
 		fprintf(stderr, "grow_leaf: no free leaf slot\n");
 		return -1;
 	}
@@ -1055,12 +1062,17 @@ grow_leaf(node_t *base, int view_mask, int do_flag)
 	if ((do_flag & DO_FLAG)) newp->do_view_mask = view_mask;
 	if ((do_flag & UNDO_FLAG)) newp->undo_view_mask = view_mask;
 	newp->depth = base->depth + 1;
+	newp->parent = base;
+	INIT_LIST_HEAD(&newp->child_list);
 
-	dprintf(DBG_TREE, "leaf[%d] ", base->branch_num);
+	dprintf(DBG_TREE, "leaf[%d] ", base->child_num);
 	if ((debug_flag & DBG_TREE))
 		debug_node("+", newp, 1);
 
-	base->next[base->branch_num++] = newp;
+	INIT_LIST_HEAD(&newp->sibling_list);
+	list_add_tail(&newp->sibling_list, &base->child_list);
+	base->child_num++;
+
 	return 0;
 }
 
@@ -1070,36 +1082,37 @@ grow_leaf(node_t *base, int view_mask, int do_flag)
 static node_t *
 grow_node(node_t *base, node_t *node, int view_mask, int do_flag)
 {
-	node_t	*newp;
-	int	i;
+	node_t	*newp, *np;
+	int	i = 0;
 
 	if (!base || !node) {
 		fprintf(stderr, "grow_node: empty base or node\n");
 		return NULL;
 	}
 
-	/* search if given node match with a branch */
-	for (i = 0; i < base->branch_num; i++) {
-		if (compare_node(node, base->next[i]) == 0) {
+	/* search if given node match with a child */
+	list_for_each_entry(np, &base->child_list, sibling_list) {
+		if (compare_node(node, np) == 0) {
 			/* XXX OR the node view & do bits */
 			if ((do_flag & DO_FLAG))
-				base->next[i]->do_view_mask |= view_mask;
+				np->do_view_mask |= view_mask;
 			if ((do_flag & UNDO_FLAG))
-				base->next[i]->undo_view_mask |= view_mask;
-			dprintf(DBG_TREE, "next[%d] ", i);
+				np->undo_view_mask |= view_mask;
+			dprintf(DBG_TREE, "child[%d] ", i);
 			if ((debug_flag & DBG_TREE))
-				debug_node(".", base->next[i], 1);
+				debug_node(".", np, 1);
 
-			return (base->next[i]);
+			return (np);
 		}
+		i++;
 	}
 
-	if (base->branch_num == MAX_BRANCH_NUM) {
-		fprintf(stderr, "grow_node: no free branch slot\n");
+	if (base->child_num == MAX_CHILD_NUM) {
+		fprintf(stderr, "grow_node: no free child slot\n");
 		return NULL;
 	}
 
-	/* create a branch node */
+	/* create a child node */
 	if ((newp = malloc(sizeof(node_t))) == NULL) {
 		fprintf(stderr, "grow_node: malloc new node error\n");
 		return NULL;
@@ -1108,12 +1121,17 @@ grow_node(node_t *base, node_t *node, int view_mask, int do_flag)
 	if ((do_flag & DO_FLAG)) newp->do_view_mask = view_mask;
 	if ((do_flag & UNDO_FLAG)) newp->undo_view_mask = view_mask;
 	newp->depth = base->depth + 1;
+	newp->parent = base;
+	INIT_LIST_HEAD(&newp->child_list);
 
-	dprintf(DBG_TREE, "next[%d] ", base->branch_num);
+	dprintf(DBG_TREE, "child[%d] ", base->child_num);
 	if ((debug_flag & DBG_TREE))
 		debug_node("+", newp, 1);
 
-	base->next[base->branch_num++] = newp;
+	INIT_LIST_HEAD(&newp->sibling_list);
+	list_add_tail(&newp->sibling_list, &base->child_list);
+	base->child_num++;
+
 	return newp;
 }
 
@@ -1186,15 +1204,16 @@ get_node_matches(node_t *node, char *cmd, char **matches, int limit,
 }
 
 /*
- * get partially matched strings from all branches of node
+ * get partially matched strings from all child nodes
  */
 int
 get_node_next_matches(node_t *node, char *cmd, char **matches, int limit,
 		      int view, int do_flag)
 {
-	int	i, j, n_match = 0;
+	int	n_match = 0;
 	node_t	*opt = NULL;
 	struct cmd_tree *ent = NULL;
+	node_t	*np, *opt_np;
 
 	if (!node) return 0;
 
@@ -1236,26 +1255,28 @@ get_node_next_matches(node_t *node, char *cmd, char **matches, int limit,
 	if (node->alt_head)
 		node = node->alt_head;
 
-	for (i = 0; i < node->branch_num && n_match < limit; i++) {
-		if (node->next[i]->match_type == MATCH_OPT_HEAD)
-			opt = node->next[i];
+	list_for_each_entry(np, &node->child_list, sibling_list) {
+		if (n_match == limit) break;
+
+		if (np->match_type == MATCH_OPT_HEAD)
+			opt = np;
 		else if (node->opt_head)
 			opt = node->opt_head;
 		else
 			opt = NULL;
 
 		if (opt) {
-			for (j = 0; j < opt->branch_num; j++) {
-				if (opt->opt_mark[j])
+			list_for_each_entry(opt_np, &opt->child_list, sibling_list) {
+				if (opt_np->opt_mark)
 					continue;
 
-				n_match += get_node_matches(opt->next[j], cmd,
+				n_match += get_node_matches(opt_np, cmd,
 							    &matches[n_match], limit - n_match,
 							    view, do_flag);
 			}
 		}
 
-		n_match += get_node_matches(node->next[i], cmd,
+		n_match += get_node_matches(np, cmd,
 					    &matches[n_match], limit - n_match,
 					    view, do_flag);
 	}
@@ -1285,7 +1306,7 @@ get_node_help(node_t *node, char *cmd, char *buf, int limit,
 					       ent->cmd, ent->tree->help);
 				ptr += len;
 				limit -= len;
-				if (limit < 50) break;
+				if (limit < 32) break;
 			}
 		}
 		return (ptr - buf);
@@ -1333,17 +1354,17 @@ get_node_help(node_t *node, char *cmd, char *buf, int limit,
 }
 
 /*
- * get help strings from all branches of node
+ * get help strings from all child nodes
  */
 int
 get_node_next_help(node_t *node, char *cmd, char *buf, int limit,
 		   int view, int do_flag)
 {
-	int	i, j;
 	char	*ptr = buf;
 	int	len = 0;
 	node_t	*opt = NULL;
 	struct cmd_tree *ent = NULL;
+	node_t	*np, *opt_np;
 
 	if (!node) return 0;
 
@@ -1361,7 +1382,7 @@ get_node_next_help(node_t *node, char *cmd, char *buf, int limit,
 					       ent->cmd, ent->tree->help);
 				ptr += len;
 				limit -= len;
-				if (limit < 50) break;
+				if (limit < 32) break;
 			}
 		}
 		return (ptr - buf);
@@ -1370,35 +1391,35 @@ get_node_next_help(node_t *node, char *cmd, char *buf, int limit,
 	if (node->alt_head)
 		node = node->alt_head;
 
-	for (i = 0; i < node->branch_num; i++) {
-		if (node->next[i]->match_type == MATCH_OPT_HEAD)
-			opt = node->next[i];
+	list_for_each_entry(np, &node->child_list, sibling_list) {
+		if (np->match_type == MATCH_OPT_HEAD)
+			opt = np;
 		else if (node->opt_head)
 			opt = node->opt_head;
 		else
 			opt = NULL;
 
 		if (opt) {
-			for (j = 0; j < opt->branch_num; j++) {
-				if (opt->opt_mark[j])
+			list_for_each_entry(opt_np, &opt->child_list, sibling_list) {
+				if (opt_np->opt_mark)
 					continue;
 
-				len = get_node_help(opt->next[j], cmd,
+				len = get_node_help(opt_np, cmd,
 						    ptr, limit,
 						    view, do_flag);
-				opt->opt_mark[j] = 1;
+				opt_np->opt_mark = 1;
 				ptr += len;
 				limit -= len;
-				if (limit < 50) goto out;
+				if (limit < 32) goto out;
 			}
 		}
 
-		len = get_node_help(node->next[i], cmd,
+		len = get_node_help(np, cmd,
 				    ptr, limit,
 				    view, do_flag);
 		ptr += len;
 		limit -= len;
-		if (limit < 50) break;
+		if (limit < 32) break;
 	}
 out:
 	return (ptr - buf);
@@ -1430,7 +1451,7 @@ int compare_node(node_t *node1, node_t *node2)
 static int
 node_has_leaf(node_t *node, int view, int do_flag)
 {
-	int	i;
+	node_t	*np;
 	int	max_tries = 2;
 
 	if (!node) {
@@ -1440,9 +1461,9 @@ node_has_leaf(node_t *node, int view, int do_flag)
 
 	/* search if given node has a matching leaf */
 	do {
-		for (i = 0; i < node->branch_num; i++) {
-			if (IS_LEAF(node->next[i]) &&
-			    NODE_IS_ALLOWED(node->next[i], view, do_flag)) {
+		list_for_each_entry(np, &node->child_list, sibling_list) {
+			if (IS_LEAF(np) &&
+			    NODE_IS_ALLOWED(np, view, do_flag)) {
 				return 1;
 			}
 		}
@@ -1457,7 +1478,8 @@ node_has_leaf(node_t *node, int view, int do_flag)
 static int
 node_has_only_leaf(node_t *node, int view, int do_flag)
 {
-	int	i, branch_cnt = 0, leaf_cnt = 0;
+	node_t	*np;
+	int	child_cnt = 0, leaf_cnt = 0;
 
 	if (!node) {
 		fprintf(stderr, "node_has_only_leaf: empty node\n");
@@ -1467,14 +1489,15 @@ node_has_only_leaf(node_t *node, int view, int do_flag)
 	if (!NODE_IS_ALLOWED(node, view, do_flag))
 		return 0;
 
-	for (i = 0; i < node->branch_num; i++) {
-		if (NODE_IS_ALLOWED(node->next[i], view, do_flag)) {
-			branch_cnt++;
-			if (IS_LEAF(node->next[i]))
+	list_for_each_entry(np, &node->child_list, sibling_list) {
+		if (NODE_IS_ALLOWED(np, view, do_flag)) {
+			child_cnt++;
+			if (IS_LEAF(np))
 				leaf_cnt++;
 		}
 	}
-	if (branch_cnt == 1 && leaf_cnt == 1)
+
+	if (child_cnt == 1 && leaf_cnt == 1)
 		return 1;
 	else
 		return 0;
@@ -1486,11 +1509,12 @@ node_has_only_leaf(node_t *node, int view, int do_flag)
 static int
 get_next_node(node_t *node, node_t **next, char *arg, int view, int do_flag)
 {
-	int	i, j, res;
+	int	res;
 	node_t	*first = NULL, *opt = NULL;
-	u_char	*mark_candidate = NULL;
+	int	*mark_candidate = NULL;
 	int	max_tries = 2;
 	int	n_match = 0;
+	node_t	*np, *opt_np;
 
 	if (!node || !arg || !arg[0]) {
 		fprintf(stderr, "match_next_node: empty node\n");
@@ -1507,24 +1531,24 @@ get_next_node(node_t *node, node_t **next, char *arg, int view, int do_flag)
 	 */
 	while (node && max_tries > 0) {
 
-		for (i = 0; i < node->branch_num; i++) {
+		list_for_each_entry(np, &node->child_list, sibling_list) {
 			/*
 			 * opt head matched, dive down to try first layer of option match
 			 */
-			if (node->next[i]->match_type == MATCH_OPT_HEAD) {
-				opt = node->next[i];
-				for (j = 0; j < opt->branch_num; j++) {
-					if ((res = match_node(opt->next[j], arg, view, do_flag))) {
+			if (np->match_type == MATCH_OPT_HEAD) {
+				opt = np;
+				list_for_each_entry(opt_np, &opt->child_list, sibling_list) {
+					if ((res = match_node(opt_np, arg, view, do_flag))) {
 						if (res == MATCH_EXACTLY) {
-							first = opt->next[j];
+							first = opt_np;
 							n_match = 1;
-							opt->opt_mark[j] = 1;
-							align_opt_mark(opt, j);
+							opt_np->opt_mark = 1;
+							align_opt_mark(opt_np);
 							goto out;
 						} else {
 							if (first == NULL) {
-								first = opt->next[j];
-								mark_candidate = &opt->opt_mark[j];
+								first = opt_np;
+								mark_candidate = &opt_np->opt_mark;
 							}
 							n_match++;
 						}
@@ -1533,26 +1557,26 @@ get_next_node(node_t *node, node_t **next, char *arg, int view, int do_flag)
 				continue;
 			}
 
-			/* skip parsed branches in opt head node */
+			/* skip parsed child in opt head node */
 			if (node->match_type == MATCH_OPT_HEAD) {
-				if (node->opt_mark[i])
+				if (np->opt_mark)
 					continue;
 			}
 
-			if ((res = match_node(node->next[i], arg, view, do_flag))) {
+			if ((res = match_node(np, arg, view, do_flag))) {
 				if (res == MATCH_EXACTLY) {
-					first = node->next[i];
+					first = np;
 					n_match = 1;
 					if (node->match_type == MATCH_OPT_HEAD) {
-						node->opt_mark[i] = 1;
-						align_opt_mark(node, i);
+						np->opt_mark = 1;
+						align_opt_mark(np);
 					}
 					goto out;
 				} else {
 					if (first == NULL) {
-						first = node->next[i];
+						first = np;
 						if (node->match_type == MATCH_OPT_HEAD) {
-							mark_candidate = &node->opt_mark[i];
+							mark_candidate = &np->opt_mark;
 						}
 					}
 					n_match++;
@@ -1654,7 +1678,7 @@ debug_node(char *info, node_t *node, int less)
 
 	fprintf(stderr, "do_view=0x%x,undo_view=0x%x,depth=%d,bnum=%d}\n",
 		node->do_view_mask, node->undo_view_mask,
-		node->depth, node->branch_num);
+		node->depth, node->child_num);
 }
 
 /*
@@ -1663,18 +1687,18 @@ debug_node(char *info, node_t *node, int less)
 static void
 sprout_tree(node_t *tree, node_t **nodes, int num, int view_mask, int do_flag)
 {
-	int	i;
 	node_t	*base = NULL;
+	node_t	*np;
 
 	if (!tree) return;
 
 	/* search if given node has a leaf */
-	for (i = 0; i < tree->branch_num; i++) {
-		if (IS_LEAF(tree->next[i])) {
+	list_for_each_entry(np, &tree->child_list, sibling_list) {
+		if (IS_LEAF(np)) {
 			if (base == NULL)
 				base = tree;
 		} else {
-			sprout_tree(tree->next[i], nodes, num,
+			sprout_tree(np, nodes, num,
 				    view_mask, do_flag);
 		}
 	}
@@ -1696,7 +1720,7 @@ static void
 debug_tree(node_t *tree, node_t **path, int len)
 {
 	int	i;
-	node_t	*node;
+	node_t	*node, *np;
 	struct lex_ent *lex;
 
 	if (!tree) return;
@@ -1706,10 +1730,10 @@ debug_tree(node_t *tree, node_t **path, int len)
 	}
 
 	if (tree->alt_head) {
-		for (i = 0; i < tree->alt_head->branch_num; i++)
-			debug_tree(tree->alt_head->next[i], path, len);
-
-	} else if (tree->branch_num == 0) {
+		list_for_each_entry(np, &tree->alt_head->child_list, sibling_list) {
+			debug_tree(np, path, len);
+		}
+	} else if (tree->child_num == 0) {
 		fprintf(stderr, "    ");
 		for (i = 0; i < len; i++) {
 			if ((node = path[i]) == NULL)
@@ -1733,8 +1757,9 @@ debug_tree(node_t *tree, node_t **path, int len)
 		}
 		fprintf(stderr, "    \n");
 	} else {
-		for (i = 0; i < tree->branch_num; i++)
-			debug_tree(tree->next[i], path, len);
+		list_for_each_entry(np, &tree->child_list, sibling_list) {
+			debug_tree(np, path, len);
+		}
 	}
 }
 
@@ -1744,11 +1769,12 @@ debug_tree(node_t *tree, node_t **path, int len)
 static void
 free_tree(node_t *tree)
 {
-	int	i;
+	node_t	*np;
 
 	if (!tree) return;
-	for (i = 0; i < tree->branch_num; i++)
-		free_tree(tree->next[i]);
+	list_for_each_entry(np, &tree->child_list, sibling_list) {
+		free_tree(np);
+	}
 
 	if ((debug_flag & DBG_TREE))
 		debug_node("free", tree, 1);
@@ -1804,7 +1830,7 @@ set_cmd_arg(node_t *node, char *str, cmd_arg_t *cmd_arg)
 static void
 set_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper)
 {
-	int	i;
+	node_t	*np;
 
 	if (!tree || !arg_name || !arg_name[0] || !helper) return;
 
@@ -1814,8 +1840,8 @@ set_arg_helper(node_t *tree, char *arg_name, arg_helper_t helper)
 		tree->arg_helper = helper;
 	}
 
-	for (i = 0; i < tree->branch_num; i++) {
-		set_arg_helper(tree->next[i], arg_name, helper);
+	list_for_each_entry(np, &tree->child_list, sibling_list) {
+		set_arg_helper(np, arg_name, helper);
 	}
 }
 
